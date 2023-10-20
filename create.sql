@@ -1,115 +1,115 @@
--- Создание перечисления "СТАТУС ВОДИТЕЛЯ"
-CREATE TYPE СТАТУС_ВОДИТЕЛЯ AS ENUM (
-  'ВЫХОДНОЙ',
-  'В_ПУТИ',
-  'РАЗГРУЖАЕТ',
-  'ЗАГРУЖАЕТ',
-  'ОЖИДАЕТ_ПОЛУЧЕНИЯ_ЗАКАЗА',
-  'ОЖИДАЕТ_ПОГРУЗКИ',
-  'ОЖИДАЕТ_РАЗГРУЗКИ',
-  'ПРИБЫЛ_НА_МЕСТО_ЗАГРУЗКИ'
+-- Creating the "DRIVER STATUS" enumeration
+CREATE TYPE DRIVER_STATUS AS ENUM (
+  'OFF',
+  'EN_ROUTE',
+  'UNLOADING',
+  'LOADING',
+  'WAITING_FOR_ORDER',
+  'WAITING_FOR_LOADING',
+  'WAITING_FOR_UNLOADING',
+  'ARRIVED_AT_LOADING_LOCATION'
 );
 
--- Создание таблицы "ИСТОРИЯ_СТАТУСОВ_ВОДИТЕЛЕЙ"
-CREATE TABLE ИСТОРИЯ_СТАТУСОВ_ВОДИТЕЛЕЙ (
-  ИД_ВОДИТЕЛЯ int REFERENCES ВОДИТЕЛЬ (ИД_ВОДИТЕЛЯ),
-  ДАТА date,
-  СТАТУС СТАТУС_ВОДИТЕЛЯ,
-  -- ИД_ВОДИТЕЛЯ и ДАТА - PK
-  PRIMARY KEY (ИД_ВОДИТЕЛЯ, ДАТА)
+-- Creating the "DRIVER_STATUS_HISTORY" table
+CREATE TABLE DRIVER_STATUS_HISTORY (
+  DRIVER_ID int REFERENCES DRIVER (DRIVER_ID),
+  DATE date,
+  STATUS DRIVER_STATUS,
+  -- DRIVER_ID and DATE - PK
+  PRIMARY KEY (DRIVER_ID, DATE)
 );
 
--- Создание таблицы "РАЗГРУЗОЧНО_ПОГРУЗОЧНОЕ_СОГЛАШЕНИЕ"
-CREATE TABLE РАЗГРУЗОЧНО_ПОГРУЗОЧНОЕ_СОГЛАШЕНИЕ (
-  ИД_ЗАКАЗА int REFERENCES ЗАКАЗ (ИД_ЗАКАЗА),
-  ИД_ВОДИТЕЛЯ int NOT NULL,
-  ПУНКТ_ОТПРАВЛЕНИЯ int NOT NULL,
-  ПУНКТ_ПОЛУЧЕНИЯ int NOT NULL,
-  ИД_ОТПРАВИТЕЛЯ int NOT NULL,
-  ИД_ПОЛУЧАТЕЛЯ int NOT NULL,
-  ВРЕМЯ_НА_РАЗГРУЗКУ time NOT NULL,
-  ВРЕМЯ_НА_ПОГРУЗКУ time NOT NULL
+-- Creating the "LOADING_UNLOADING_AGREEMENT" table
+CREATE TABLE LOADING_UNLOADING_AGREEMENT (
+  ORDER_ID int REFERENCES ORDER (ORDER_ID),
+  DRIVER_ID int NOT NULL,
+  DEPARTURE_POINT int NOT NULL,
+  DESTINATION_POINT int NOT NULL,
+  SENDER_ID int NOT NULL,
+  RECEIVER_ID int NOT NULL,
+  UNLOADING_TIME time NOT NULL,
+  LOADING_TIME time NOT NULL
 );
 
--- Создание таблицы "ГРУЗ"
-CREATE TABLE ГРУЗ (
-  ИД_ГРУЗА serial PRIMARY KEY,
-  ВЕС float NOT NULL,
-  ШИРИНА float NOT NULL,
-  ВЫСОТА float NOT NULL,
-  ДЛИНА float NOT NULL,
-  ИД_ЗАКАЗА int NOT NULL REFERENCES ЗАКАЗ (ИД_ЗАКАЗА),
-  ТИП_ГРУЗА ТИП_ГРУЗА
+-- Creating the "CARGO" table
+CREATE TABLE CARGO (
+  CARGO_ID serial PRIMARY KEY,
+  WEIGHT float NOT NULL,
+  WIDTH float NOT NULL,
+  HEIGHT float NOT NULL,
+  LENGTH float NOT NULL,
+  ORDER_ID int NOT NULL REFERENCES ORDER (ORDER_ID),
+  CARGO_TYPE CARGO_TYPE
 );
 
--- Создание таблицы "ВОДИТЕЛЬ"
-CREATE TABLE ВОДИТЕЛЬ (
-  ИД_ВОДИТЕЛЯ serial PRIMARY KEY,
-  КОНТАКТНЫЕ_ДАННЫЕ VARCHAR(11) NOT NULL,
-  ПАСПОРТ VARCHAR(10) NOT NULL,
-  НОМЕР_БАНКОВСКОЙ_КАРТЫ text NOT NULL
+-- Creating the "DRIVER" table
+CREATE TABLE DRIVER (
+  DRIVER_ID serial PRIMARY KEY,
+  CONTACT_DETAILS VARCHAR(11) NOT NULL,
+  PASSPORT VARCHAR(10) NOT NULL,
+  BANK_CARD_NUMBER text NOT NULL
 );
 
--- Создание таблицы "ТАРИФНАЯ СТАВКА"
-CREATE TABLE ТАРИФНАЯ_СТАВКА (
-  ИД_ВОДИТЕЛЯ int REFERENCES ВОДИТЕЛЬ (ИД_ВОДИТЕЛЯ),
-  СУТОЧНАЯ_СТАВКА int NOT NULL,
-  СТАВКА_ЗА_КМ int NOT NULL
+-- Creating the "TARIFF RATE" table
+CREATE TABLE TARIFF_RATE (
+  DRIVER_ID int REFERENCES DRIVER (DRIVER_ID),
+  DAILY_RATE int NOT NULL,
+  RATE_PER_KM int NOT NULL
 );
 
--- Создание перечисления "СТАТУС ЗАКАЗА"
-CREATE TYPE СТАТУС_ЗАКАЗА AS ENUM (
-  'ПРИНЯТ',
-  'В РАБОТЕ',
-  'ПРИБЫЛ НА МЕСТО ЗАГРУЗКИ',
-  'В ЗАГРУЗКЕ',
-  'ПРИБЫЛ НА МЕСТО РАЗГРУЗКИ',
-  'В ДОРОГЕ',
-  'ДОСТВЛЕН',
-  'ВЫПОЛНЕН'
+-- Creating the "ORDER STATUS" enumeration
+CREATE TYPE ORDER_STATUS AS ENUM (
+  'ACCEPTED',
+  'IN_PROGRESS',
+  'ARRIVED_AT_LOADING_LOCATION',
+  'LOADING',
+  'ARRIVED_AT_UNLOADING_LOCATION',
+  'ON_THE_WAY',
+  'DELIVERED',
+  'COMPLETED'
 );
 
--- Создание таблицы "ЗАКАЗ"
-CREATE TABLE ЗАКАЗ (
-  ИД_ЗАКАЗА serial PRIMARY KEY,
-  ИД_ЗАКАЗЧИКА int NOT NULL REFERENCES ЗАКАЗЧИК (ИД_ЗАКАЗЧИКА),
-  РАССТОЯНИЕ float NOT NULL,
-  ЦЕНА float NOT NULL,
-  ДАТА_ОФОРМЛЕНИЯ date NOT NULL,
-  ИД_АВТОМОБИЛЯ int REFERENCES АВТОМОБИЛЬ (ИД_АВТОМОБИЛЯ)
+-- Creating the "ORDER" table
+CREATE TABLE ORDER (
+  ORDER_ID serial PRIMARY KEY,
+  CUSTOMER_ID int NOT NULL REFERENCES CUSTOMER (CUSTOMER_ID),
+  DISTANCE float NOT NULL,
+  PRICE float NOT NULL,
+  ORDER_DATE date NOT NULL,
+  VEHICLE_ID int REFERENCES VEHICLE (VEHICLE_ID)
 );
 
--- Создание таблицы "СТАТУСЫ_ЗАКАЗОВ"
-CREATE TABLE СТАТУСЫ_ЗАКАЗОВ (
-  ИД_ЗАКАЗА int REFERENCES ЗАКАЗ (ИД_ЗАКАЗА),
-  ВРЕМЯ timestamp,
-  СТАТУС СТАТУС_ЗАКАЗА,
-  PRIMARY KEY (ИД_ЗАКАЗА, ВРЕМЯ)
+-- Creating the "ORDER_STATUSES" table
+CREATE TABLE ORDER_STATUSES (
+  ORDER_ID int REFERENCES ORDER (ORDER_ID),
+  TIME timestamp,
+  STATUS ORDER_STATUS,
+  PRIMARY KEY (ORDER_ID, TIME)
 );
 
--- Создание таблицы "ЗАКАЗЧИК"
-CREATE TABLE ЗАКАЗЧИК (
-  ИД_ЗАКАЗЧИКА serial PRIMARY KEY,
-  ИД_ЧЕЛОВЕКА int REFERENCES ЧЕЛОВЕК (ИД_ЧЕЛОВЕКА),
-  ОРГАНИЗАЦИЯ VARCHAR(50)
+-- Creating the "CUSTOMER" table
+CREATE TABLE CUSTOMER (
+  CUSTOMER_ID serial PRIMARY KEY,
+  PERSON_ID int REFERENCES PERSON (PERSON_ID),
+  ORGANIZATION VARCHAR(50)
 );
 
--- Создание таблицы "АВТОМОБИЛЬ"
-CREATE TABLE АВТОМОБИЛЬ (
-  ИД_АВТОМОБИЛЯ serial PRIMARY KEY,
-  НОМЕР varchar(9) NOT NULL,
-  МОДЕЛЬ varchar(50) NOT NULL,
-  ГОД_ВЫПУСКА date NOT NULL,
-  ДЛИНА float NOT NULL,
-  ШИРИНА float NOT NULL,
-  ВЫСОТА float NOT NULL,
-  ГРУЗОПОДЪЕМНОСТЬ float NOT NULL,
-  ТИП_КОРПУСА ТИП_КОРПУСА
+-- Creating the "VEHICLE" table
+CREATE TABLE VEHICLE (
+  VEHICLE_ID serial PRIMARY KEY,
+  NUMBER varchar(9) NOT NULL,
+  MODEL varchar(50) NOT NULL,
+  MANUFACTURE_DATE date NOT NULL,
+  LENGTH float NOT NULL,
+  WIDTH float NOT NULL,
+  HEIGHT float NOT NULL,
+  LOADING_CAPACITY float NOT NULL,
+  BODY_TYPE BODY_TYPE
 );
 
--- Создание перечисления "ТИП КОРПУСА"
-CREATE TYPE ТИП_КОРПУСА AS ENUM (
-  'ОТКРЫТЫЙ',
-  'ЗАКРЫТЫЙ'
+-- Creating the "BODY TYPE" enumeration
+CREATE TYPE BODY_TYPE AS ENUM (
+  'OPEN',
+  'CLOSED'
 );
 
