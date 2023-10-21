@@ -101,7 +101,10 @@ CREATE TABLE IF NOT EXISTS DRIVER_LICENSE (
 -- Creating the "VEHICLE" table
 CREATE TABLE IF NOT EXISTS VEHICLE (
   VEHICLE_ID serial PRIMARY KEY,
-  PLATE_NUMBER varchar(9) NOT NULL,
+  PLATE_NUMBER varchar(9) NOT NULL CHECK (
+    PLATE_NUMBER ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
+    PLATE_NUMBER ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
+  ),
   MODEL varchar(50) NOT NULL,
   MANUFACTURE_YEAR date NOT NULL,
   LENGTH float NOT NULL,
