@@ -1,209 +1,205 @@
--- Создание перечисления "СТАТУС ВОДИТЕЛЯ"
-CREATE TYPE СТАТУС_ВОДИТЕЛЯ AS ENUM (
-  'ВЫХОДНОЙ',
-  'В_ПУТИ',
-  'РАЗГРУЖАЕТ',
-  'ЗАГРУЖАЕТ',
-  'ОЖИДАЕТ_ПОЛУЧЕНИЯ_ЗАКАЗА',
-  'ОЖИДАЕТ_ПОГРУЗКИ',
-  'ОЖИДАЕТ_РАЗГРУЗКИ',
-  'ПРИБЫЛ_НА_МЕСТО_ЗАГРУЗКИ'
+-- Creating the "DRIVER STATUS" enumeration
+CREATE TYPE DRIVER_STATUS AS ENUM (
+  'OFF DUTY',
+  'EN ROUTE',
+  'UNLOADING',
+  'LOADING',
+  'WAITING FOR ORDER',
+  'WAITING FOR LOADING',
+  'WAITING FOR UNLOADING',
+  'ARRIVED AT LOADING LOCATION'
 );
 
--- Создание перечисления "ТИП КОРПУСА"
-CREATE TYPE ТИП_КОРПУСА AS ENUM (
-  'ОТКРЫТЫЙ',
-  'ЗАКРЫТЫЙ'
+-- Creating the "BODY TYPE" enumeration
+CREATE TYPE BODY_TYPE AS ENUM (
+  'OPEN',
+  'CLOSED'
 );
 
-CREATE TYPE ТИП_ГРУЗА AS ENUM (
-  'НАСЫПНОЙ',
-  'НАВАЛОЧНЫЙ',
-  'ТАРНЫЙ'
+CREATE TYPE CARGO_TYPE AS ENUM (
+  'BULK',
+  'TIPPER',
+  'PALLETIZED'
 );
 
--- Создание перечисления "СТАТУС ЗАКАЗА"
-CREATE TYPE СТАТУС_ЗАКАЗА AS ENUM (
-  'ПРИНЯТ',
-  'В РАБОТЕ',
-  'ПРИБЫЛ НА МЕСТО ЗАГРУЗКИ',
-  'В ЗАГРУЗКЕ',
-  'ПРИБЫЛ НА МЕСТО РАЗГРУЗКИ',
-  'В ДОРОГЕ',
-  'ДОСТВЛЕН',
-  'ВЫПОЛНЕН'
+-- Creating the "ORDER STATUS" enumeration
+CREATE TYPE ORDER_STATUS AS ENUM (
+  'ACCEPTED',
+  'IN PROGRESS',
+  'ARRIVED AT LOADING LOCATION',
+  'LOADING',
+  'ARRIVED AT UNLOADING LOCATION',
+  'ON THE WAY',
+  'DELIVERED',
+  'COMPLETED'
 );
 
-
--- Создание перечисления "ТИП_КОНТАКТНЫХ_ДАННЫХ"
-CREATE TYPE ТИП_КОНТАКТНЫХ_ДАННЫХ AS ENUM (
-  'НОМЕР_ТЕЛЕФОНА',
+-- Creating the "CONTACT INFORMATION TYPE" enumeration
+CREATE TYPE CONTACT_INFO_TYPE AS ENUM (
+  'PHONE NUMBER',
   'TELEGRAM',
-  'ПОЧТА'
+  'EMAIL'
 );
 
--- Создание таблицы "ЧЕЛОВЕК"
-CREATE TABLE IF NOT EXISTS ЧЕЛОВЕК (
-  ИД_ЧЕЛОВЕКА serial PRIMARY KEY,
-  ИМЯ VARCHAR(20) NOT NULL,
-  ФАМИЛИЯ VARCHAR(20) NOT NULL,
-  ОТЧЕСТВО VARCHAR(20),
-  ПОЛ CHAR(1) NOT NULL,
-  ПАСПОРТ VARCHAR(10)
+-- Creating the "PERSON" table
+CREATE TABLE IF NOT EXISTS PERSON (
+  PERSON_ID serial PRIMARY KEY,
+  FIRST_NAME VARCHAR(20) NOT NULL,
+  LAST_NAME VARCHAR(20) NOT NULL,
+  MIDDLE_NAME VARCHAR(20),
+  GENDER CHAR(1) NOT NULL,
+  PASSPORT VARCHAR(10)
 );
 
--- Создание табицы "КОНТАКТНЫЕ_ДАННЫЕ"
-CREATE TABLE IF NOT EXISTS КОНТАКТНЫЕ_ДАННЫЕ (
-  ИД_ЧЕЛОВЕКА int REFERENCES ЧЕЛОВЕК (ИД_ЧЕЛОВЕКА),
-  ТИП_КОНТАКТНЫХ_ДАННЫХ ТИП_КОНТАКТНЫХ_ДАННЫХ,
-  ЗНАЧЕНИЕ text,
-  PRIMARY KEY (ИД_ЧЕЛОВЕКА, ТИП_КОНТАКТНЫХ_ДАННЫХ)
+-- Creating the "CONTACT INFO" table
+CREATE TABLE IF NOT EXISTS CONTACT_INFO (
+  PERSON_ID int REFERENCES PERSON (PERSON_ID),
+  CONTACT_TYPE CONTACT_INFO_TYPE,
+  VALUE text,
+  PRIMARY KEY (PERSON_ID, CONTACT_TYPE)
 );
 
--- Создание таблицы "ВОДИТЕЛЬ"
-CREATE TABLE IF NOT EXISTS ВОДИТЕЛЬ (
-  ИД_ВОДИТЕЛЯ serial PRIMARY KEY,
-  КОНТАКТНЫЕ_ДАННЫЕ VARCHAR(11) NOT NULL,
-  ПАСПОРТ VARCHAR(10) NOT NULL,
-  НОМЕР_БАНКОВСКОЙ_КАРТЫ text NOT NULL
+-- Creating the "DRIVER" table
+CREATE TABLE IF NOT EXISTS DRIVER (
+  DRIVER_ID serial PRIMARY KEY,
+  CONTACT_INFO VARCHAR(11) NOT NULL,
+  PASSPORT VARCHAR(10) NOT NULL,
+  BANK_CARD_NUMBER text NOT NULL
 );
 
--- Создание таблицы "ЗАКАЗЧИК"
-CREATE TABLE IF NOT EXISTS ЗАКАЗЧИК (
-  ИД_ЗАКАЗЧИКА serial PRIMARY KEY,
-  ИД_ЧЕЛОВЕКА int REFERENCES ЧЕЛОВЕК (ИД_ЧЕЛОВЕКА),
-  ОРГАНИЗАЦИЯ VARCHAR(50)
+-- Creating the "CUSTOMER" table
+CREATE TABLE IF NOT EXISTS CUSTOMER (
+  CUSTOMER_ID serial PRIMARY KEY,
+  PERSON_ID int REFERENCES PERSON (PERSON_ID),
+  ORGANIZATION VARCHAR(50)
 );
 
--- Создание таблицы "ИСТОРИЯ_СТАТУСОВ_ВОДИТЕЛЕЙ"
-CREATE TABLE IF NOT EXISTS ИСТОРИЯ_СТАТУСОВ_ВОДИТЕЛЕЙ (
-  ИД_ВОДИТЕЛЯ int REFERENCES ВОДИТЕЛЬ (ИД_ВОДИТЕЛЯ),
-  ДАТА date,
-  СТАТУС СТАТУС_ВОДИТЕЛЯ,
-  -- ИД_ВОДИТЕЛЯ и ДАТА - PK
-  PRIMARY KEY (ИД_ВОДИТЕЛЯ, ДАТА)
+-- Creating the "DRIVER STATUS HISTORY" table
+CREATE TABLE IF NOT EXISTS DRIVER_STATUS_HISTORY (
+  DRIVER_ID int REFERENCES DRIVER (DRIVER_ID),
+  DATE date,
+  STATUS DRIVER_STATUS,
+  PRIMARY KEY (DRIVER_ID, DATE)
 );
 
--- Создание таблицы "ТАРИФНАЯ СТАВКА"
-CREATE TABLE IF NOT EXISTS ТАРИФНАЯ_СТАВКА (
-  ИД_ВОДИТЕЛЯ int REFERENCES ВОДИТЕЛЬ (ИД_ВОДИТЕЛЯ) PRIMARY KEY,
-  СУТОЧНАЯ_СТАВКА int NOT NULL,
-  СТАВКА_ЗА_КМ int NOT NULL
+-- Creating the "TARIFF RATE" table
+CREATE TABLE IF NOT EXISTS TARIFF_RATE (
+  DRIVER_ID int REFERENCES DRIVER (DRIVER_ID) PRIMARY KEY,
+  DAILY_RATE int NOT NULL,
+  RATE_PER_KM int NOT NULL
 );
 
--- Создание таблицы "ВОДИТЕЛЬСКОЕ_УДОСТОВЕРЕНИЕ"
-CREATE TABLE IF NOT EXISTS ВОДИТЕЛЬСКОЕ_УДОСТОВЕРЕНИЕ (
-  ИД_ВОДИТЕЛЯ int REFERENCES ВОДИТЕЛЬ(ИД_ВОДИТЕЛЯ) PRIMARY KEY,
-  ДАТА_ПОЛУЧЕНИЯ date NOT NULL,
-  ДАТА_ОКОНЧАНИЯ date NOT NULL,
-  НОМЕР_ВУ int
+-- Creating the "DRIVER LICENSE" table
+CREATE TABLE IF NOT EXISTS DRIVER_LICENSE (
+  DRIVER_ID int REFERENCES DRIVER(DRIVER_ID) PRIMARY KEY,
+  ISSUE_DATE date NOT NULL,
+  EXPIRATION_DATE date NOT NULL,
+  LICENSE_NUMBER int
 );
 
--- Создание таблицы "АВТОМОБИЛЬ"
-CREATE TABLE IF NOT EXISTS АВТОМОБИЛЬ (
-  ИД_АВТОМОБИЛЯ serial PRIMARY KEY,
-  НОМЕР varchar(9) NOT NULL,
-  МОДЕЛЬ varchar(50) NOT NULL,
-  ГОД_ВЫПУСКА date NOT NULL,
-  ДЛИНА float NOT NULL,
-  ШИРИНА float NOT NULL,
-  ВЫСОТА float NOT NULL,
-  ГРУЗОПОДЪЕМНОСТЬ float NOT NULL,
-  ТИП_КОРПУСА ТИП_КОРПУСА
+-- Creating the "VEHICLE" table
+CREATE TABLE IF NOT EXISTS VEHICLE (
+  VEHICLE_ID serial PRIMARY KEY,
+  PLATE_NUMBER varchar(9) NOT NULL,
+  MODEL varchar(50) NOT NULL,
+  MANUFACTURE_YEAR date NOT NULL,
+  LENGTH float NOT NULL,
+  WIDTH float NOT NULL,
+  HEIGHT float NOT NULL,
+  LOAD_CAPACITY float NOT NULL,
+  BODY_TYPE BODY_TYPE
 );
 
--- Создание таблицы "ВЛАДЕНИЕ_АВТО"
-CREATE TABLE IF NOT EXISTS ВЛАДЕНИЕ_АВТО (
-  ИД_АВТОМОБИЛЯ int REFERENCES АВТОМОБИЛЬ (ИД_АВТОМОБИЛЯ),
-  ИД_ВОДИТЕЛЯ int REFERENCES ВОДИТЕЛЬ (ИД_ВОДИТЕЛЯ),
-  ДАТА_НАЧАЛА_ВЛАДЕНИЯ date,
-  ДАТА_ОКОНЧАНИЯ_ВЛАДЕНИЯ date,
-  PRIMARY KEY (ИД_АВТОМОБИЛЯ, ИД_ВОДИТЕЛЯ)
+-- Creating the "VEHICLE OWNERSHIP" table
+CREATE TABLE IF NOT EXISTS VEHICLE_OWNERSHIP (
+  VEHICLE_ID int REFERENCES VEHICLE (VEHICLE_ID),
+  DRIVER_ID int REFERENCES DRIVER (DRIVER_ID),
+  OWNERSHIP_START_DATE date,
+  OWNERSHIP_END_DATE date,
+  PRIMARY KEY (VEHICLE_ID, DRIVER_ID)
 );
 
--- Создание таблицы "ИСТОРИЯ_ПЕРЕМЕЩЕНИЯ_АВТО"
-CREATE TABLE IF NOT EXISTS ИСТОРИЯ_ПЕРЕМЕЩЕНИЯ_АВТО (
-  ИД_АВТОМОБИЛЯ int REFERENCES АВТОМОБИЛЬ (ИД_АВТОМОБИЛЯ),
-  ДАТА timestamp,
-  ШИРОТА float NOT NULL,
-  ДОЛГОТА float NOT NULL,
-  ПРОБЕГ float NOT NULL,
-  PRIMARY KEY (ИД_АВТОМОБИЛЯ, ДАТА)
+-- Creating the "VEHICLE MOVEMENT HISTORY" table
+CREATE TABLE IF NOT EXISTS VEHICLE_MOVEMENT_HISTORY (
+  VEHICLE_ID int REFERENCES VEHICLE (VEHICLE_ID),
+  DATE timestamp,
+  LATITUDE float NOT NULL,
+  LONGITUDE float NOT NULL,
+  MILEAGE float NOT NULL,
+  PRIMARY KEY (VEHICLE_ID, DATE)
 );
 
-
--- Создание таблицы "ЗАКАЗ"
-CREATE TABLE IF NOT EXISTS ЗАКАЗ (
-  ИД_ЗАКАЗА serial PRIMARY KEY,
-  ИД_ЗАКАЗЧИКА int NOT NULL REFERENCES ЗАКАЗЧИК (ИД_ЗАКАЗЧИКА),
-  РАССТОЯНИЕ float NOT NULL,
-  ЦЕНА float NOT NULL,
-  ДАТА_ОФОРМЛЕНИЯ date NOT NULL,
-  ИД_АВТОМОБИЛЯ int REFERENCES АВТОМОБИЛЬ (ИД_АВТОМОБИЛЯ)
+-- Creating the "ORDER" table
+CREATE TABLE IF NOT EXISTS ORDERS (
+  ORDER_ID serial PRIMARY KEY,
+  CUSTOMER_ID int NOT NULL REFERENCES CUSTOMER (CUSTOMER_ID),
+  DISTANCE float NOT NULL,
+  PRICE float NOT NULL,
+  ORDER_DATE date NOT NULL,
+  VEHICLE_ID int REFERENCES VEHICLE (VEHICLE_ID)
 );
 
--- Создание таблицы "СТАТУСЫ_ЗАКАЗОВ"
-CREATE TABLE IF NOT EXISTS СТАТУСЫ_ЗАКАЗОВ (
-  ИД_ЗАКАЗА int REFERENCES ЗАКАЗ (ИД_ЗАКАЗА),
-  ВРЕМЯ timestamp,
-  СТАТУС СТАТУС_ЗАКАЗА,
-  PRIMARY KEY (ИД_ЗАКАЗА, ВРЕМЯ)
+-- Creating the "ORDER STATUSES" table
+CREATE TABLE IF NOT EXISTS ORDER_STATUSES (
+  ORDER_ID int REFERENCES ORDERS (ORDER_ID),
+  TIME timestamp,
+  STATUS ORDER_STATUS,
+  PRIMARY KEY (ORDER_ID, TIME)
 );
 
--- Создание таблицы "ГРУЗ"
-CREATE TABLE IF NOT EXISTS ГРУЗ (
-  ИД_ГРУЗА serial PRIMARY KEY,
-  ВЕС float NOT NULL,
-  ШИРИНА float NOT NULL,
-  ВЫСОТА float NOT NULL,
-  ДЛИНА float NOT NULL,
-  ИД_ЗАКАЗА int NOT NULL REFERENCES ЗАКАЗ (ИД_ЗАКАЗА),
-  ТИП_ГРУЗА ТИП_ГРУЗА
+-- Creating the "CARGO" table
+CREATE TABLE IF NOT EXISTS CARGO (
+  CARGO_ID serial PRIMARY KEY,
+  WEIGHT float NOT NULL,
+  WIDTH float NOT NULL,
+  HEIGHT float NOT NULL,
+  LENGTH float NOT NULL,
+  ORDER_ID int NOT NULL REFERENCES ORDERS (ORDER_ID),
+  CARGO_TYPE CARGO_TYPE
 );
 
-
-
--- Создание таблицы "АДРЕС"
-CREATE TABLE IF NOT EXISTS АДРЕС (
-  ИД_АДРЕСА serial PRIMARY KEY,
-  СТРАНА text NOT NULL,
-  ГОРОД text NOT NULL,
-  УЛИЦА text NOT NULL,
-  ЗДАНИЕ int NOT NULL,
-  КОРПУС int
+-- Creating the "ADDRESS" table
+CREATE TABLE IF NOT EXISTS ADDRESS (
+  ADDRESS_ID serial PRIMARY KEY,
+  COUNTRY text NOT NULL,
+  CITY text NOT NULL,
+  STREET text NOT NULL,
+  BUILDING int NOT NULL,
+  CORPUS int
 );
 
--- Создание таблицы "ПУНКТ_ХРАНЕНИЯ"
-CREATE TABLE IF NOT EXISTS ПУНКТ_ХРАНЕНИЯ (
-  ИД_АДРЕСА int REFERENCES АДРЕС(ИД_АДРЕСА) PRIMARY KEY,
-  ДОЛГОТА float NOT NULL,
-  ШИРОТА float NOT NULL
+-- Creating the "STORAGE POINT" table
+CREATE TABLE IF NOT EXISTS STORAGE_POINT (
+  ADDRESS_ID int REFERENCES ADDRESS(ADDRESS_ID) PRIMARY KEY,
+  LONGITUDE float NOT NULL,
+  LATITUDE float NOT NULL
 );
 
--- Создание таблицы "РАЗГРУЗ_ПОГРУЗ_СОГЛАШЕНИЕ"
-CREATE TABLE IF NOT EXISTS РАЗГРУЗ_ПОГРУЗ_СОГЛАШЕНИЕ (
-  ИД_ЗАКАЗА int REFERENCES ЗАКАЗ (ИД_ЗАКАЗА) PRIMARY KEY,
-  ИД_ВОДИТЕЛЯ int NOT NULL REFERENCES ВОДИТЕЛЬ (ИД_ВОДИТЕЛЯ),
-  ПУНКТ_ОТПРАВЛЕНИЯ int NOT NULL REFERENCES ПУНКТ_ХРАНЕНИЯ (ИД_АДРЕСА),
-  ПУНКТ_ПОЛУЧЕНИЯ int NOT NULL REFERENCES ПУНКТ_ХРАНЕНИЯ (ИД_АДРЕСА),
-  ИД_ОТПРАВИТЕЛЯ int NOT NULL REFERENCES ЧЕЛОВЕК (ИД_ЧЕЛОВЕКА),
-  ИД_ПОЛУЧАТЕЛЯ int NOT NULL REFERENCES ЧЕЛОВЕК (ИД_ЧЕЛОВЕКА),
-  ВРЕМЯ_НА_РАЗГРУЗКУ time NOT NULL,
-  ВРЕМЯ_НА_ПОГРУЗКУ time NOT NULL
+-- Creating the "LOADING_UNLOADING AGREEMENT" table
+CREATE TABLE IF NOT EXISTS LOADING_UNLOADING_AGREEMENT (
+  ORDER_ID int REFERENCES ORDERS (ORDER_ID) PRIMARY KEY,
+  DRIVER_ID int NOT NULL REFERENCES DRIVER (DRIVER_ID),
+  DEPARTURE_POINT int NOT NULL REFERENCES STORAGE_POINT (ADDRESS_ID),
+  DELIVERY_POINT int NOT NULL REFERENCES STORAGE_POINT (ADDRESS_ID),
+  SENDER_ID int NOT NULL REFERENCES PERSON (PERSON_ID),
+  RECEIVER_ID int NOT NULL REFERENCES PERSON (PERSON_ID),
+  UNLOADING_TIME time NOT NULL,
+  LOADING_TIME time NOT NULL
 );
 
--- Создание таблицы "ТОПЛИВНЫЕ_КАРТЫ_ВОДИТЕЛЕЙ"
-CREATE TABLE IF NOT EXISTS ТОПЛИВНЫЕ_КАРТЫ_ВОДИТЕЛЕЙ (
-  ИД_ВОДИТЕЛЯ int REFERENCES ВОДИТЕЛЬ(ИД_ВОДИТЕЛЯ),
-  НОМЕР_ТОПЛИВНОЙ_КАРТЫ VARCHAR(40) NOT NULL,
-  НАЗВАНИЕ_ЗАПРАВОЧНОЙ_СТАРНЦИИ VARCHAR(50),
-  PRIMARY KEY (ИД_ВОДИТЕЛЯ, НОМЕР_ТОПЛИВНОЙ_КАРТЫ),
-  UNIQUE (НОМЕР_ТОПЛИВНОЙ_КАРТЫ)
+-- Creating the "FUEL CARDS FOR DRIVERS" table
+CREATE TABLE IF NOT EXISTS FUEL_CARDS_FOR_DRIVERS (
+  DRIVER_ID int REFERENCES DRIVER(DRIVER_ID),
+  FUEL_CARD_NUMBER VARCHAR(40) NOT NULL,
+  FUEL_STATION_NAME VARCHAR(50),
+  PRIMARY KEY (DRIVER_ID, FUEL_CARD_NUMBER),
+  UNIQUE (FUEL_CARD_NUMBER)
 );
--- Создание таблицы "РАСХОДЫ_ТП"
-CREATE TABLE IF NOT EXISTS РАСХОДЫ_ТП (
-  НОМЕР_ТОПЛИВНОЙ_КАРТЫ VARCHAR(40) REFERENCES ТОПЛИВНЫЕ_КАРТЫ_ВОДИТЕЛЕЙ(НОМЕР_ТОПЛИВНОЙ_КАРТЫ) PRIMARY KEY,
-  ДАТА date,
-  СУММА double precision NOT NULL
+
+-- Creating the "FUEL EXPENSES" table
+CREATE TABLE IF NOT EXISTS FUEL_EXPENSES (
+  FUEL_CARD_NUMBER VARCHAR(40) REFERENCES FUEL_CARDS_FOR_DRIVERS(FUEL_CARD_NUMBER) PRIMARY KEY,
+  DATE date,
+  AMOUNT double precision NOT NULL
 );
 

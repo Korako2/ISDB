@@ -1,26 +1,29 @@
+-- Drop the tables
 DROP TABLE IF EXISTS
-  ВЛАДЕНИЕ_АВТО,
-  РАЗГРУЗ_ПОГРУЗ_СОГЛАШЕНИЕ,
-  ПУНКТ_ХРАНЕНИЯ,
-  АДРЕС,
-  ГРУЗ,
-  СТАТУСЫ_ЗАКАЗОВ,
-  ЗАКАЗ,
-  ИСТОРИЯ_ПЕРЕМЕЩЕНИЯ_АВТО,
-  АВТОМОБИЛЬ,
-  ВОДИТЕЛЬСКОЕ_УДОСТОВЕРЕНИЕ,
-  ИСТОРИЯ_СТАТУСОВ_ВОДИТЕЛЕЙ,
-  ТАРИФНАЯ_СТАВКА,
-  ТОПЛИВНЫЕ_КАРТЫ_ВОДИТЕЛЕЙ,
-  ВОДИТЕЛЬ,
-  ЗАКАЗЧИК,
-  КОНТАКТНЫЕ_ДАННЫЕ,
-  ЧЕЛОВЕК,
+  VEHICLE_OWNERSHIP,
+  LOADING_UNLOADING_AGREEMENT,
+  STORAGE_POINT,
+  ADDRESS,
+  CARGO,
+  ORDER_STATUSES,
+  ORDERS,
+  VEHICLE_MOVEMENT_HISTORY,
+  VEHICLE,
+  DRIVER_LICENSE,
+  DRIVER_STATUS_HISTORY,
+  TARIFF_RATE,
+  FUEL_CARDS_FOR_DRIVERS,
+  DRIVER,
+  CUSTOMER,
+  CONTACT_INFO,
+  PERSON
   CASCADE;
 
+-- Drop the types
 DROP TYPE IF EXISTS
-  СТАТУС_ВОДИТЕЛЯ,
-  ТИП_КОРПУСА,
-  СТАТУС_ЗАКАЗА,
-  ТИП_КОНТАКТНЫХ_ДАННЫХ,
-  ТИП_ГРУЗА;
+  DRIVER_STATUS,
+  BODY_TYPE,
+  CARGO_TYPE,
+  ORDER_STATUS,
+  CONTACT_INFO_TYPE;
+
