@@ -48,8 +48,16 @@ VALUES
   (4, NULL);
 
 TRUNCATE TABLE orders CASCADE;
-INSERT INTO orders (customer_id, distance, price, order_date, vehicle_id)
+ALTER SEQUENCE orders_order_id_seq RESTART WITH 1;
+INSERT INTO orders (order_id, customer_id, distance, price, order_date, vehicle_id)
 VALUES
-  (1, 800, 30000, '2023-10-25', 1),
-  (2, 700, 28000, '2023-10-26', 2),
+  (1, 1, 800, 30000, '2023-10-25', 1),
+  (2, 2, 700, 28000, '2023-10-26', 2),
+  (3, 3, 500, 20000, '2023-10-27', 3);
+
+INSERT INTO cargo (weight, width, height, length, order_id, cargo_type)
+VALUES
+  (1500.0, 2.0, 2.0, 10.0, 1, 'BULK'),
+  (1800.0, 2.1, 2.1, 10.5, 2, 'TIPPER'),
+  (1200.0, 1.8, 1.8, 9.5, 3, 'PALLETIZED');
 
