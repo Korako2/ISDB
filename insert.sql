@@ -37,7 +37,15 @@ VALUES
   (1, 'Иван', 'Иванов', 'Иванович', 'M', '1990-10-25'),
   (2, 'Мария', 'Петрова', 'Александровна', 'F', '1980-11-23'),
   (3, 'Алексей', 'Сидоров', NULL, 'M', '1985-01-01'),
-  (4, 'Екатерина', 'Смирнова', 'Андреевна', 'F', '2000-01-01');
+  (4, 'Екатерина', 'Смирнова', 'Андреевна', 'F', '2000-01-01'),
+  (5, 'Иван', 'Варюхин', 'Андреевич', 'M', '2000-01-12');
+
+TRUNCATE TABLE driver CASCADE;
+ALTER SEQUENCE driver_driver_id_seq RESTART WITH 1;
+INSERT INTO driver (driver_id, person_id, passport, bank_card_number)
+VALUES
+  (1, 4, '1234567890', '1234 5678 9012 3456'),
+  (2, 5, '0987654321', '9876 5432 1098 7654');
 
 TRUNCATE TABLE customer CASCADE;
 INSERT INTO customer (person_id, organization)
@@ -63,4 +71,5 @@ VALUES
   (1,900.0, 1.0, 1.9, 4.0, 1, 'BULK'),
   (2,800.0, 1.9, 1.7, 3.5, 2, 'TIPPER'),
   (3,700.0, 1.8, 1.8, 3.5, 3, 'PALLETIZED');
+
 
