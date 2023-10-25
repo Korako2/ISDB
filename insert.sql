@@ -72,4 +72,8 @@ VALUES
   (2,800.0, 1.9, 1.7, 3.5, 2, 'TIPPER'),
   (3,700.0, 1.8, 1.8, 3.5, 3, 'PALLETIZED');
 
-
+TRUNCATE TABLE loading_unloading_agreement CASCADE;
+INSERT INTO loading_unloading_agreement (order_id, driver_id, departure_point, delivery_point, sender_id, receiver_id, unloading_time, loading_time)
+VALUES
+  (1, 1, 1, 2, 1, 2, '08:00', '16:00'),
+  (2, 2, 2, 3, 3, 4, '10:00', '18:00');
