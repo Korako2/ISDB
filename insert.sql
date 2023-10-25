@@ -77,3 +77,12 @@ INSERT INTO loading_unloading_agreement (order_id, driver_id, departure_point, d
 VALUES
   (1, 1, 1, 2, 1, 2, '08:00', '16:00'),
   (2, 2, 2, 3, 3, 4, '10:00', '18:00');
+
+TRUNCATE TABLE order_statuses CASCADE;
+INSERT INTO order_statuses (order_id, time, status)
+VALUES
+  (1, '2023-01-01 00:00:01', 'ACCEPTED'),
+  (2, '2023-01-01 01:01:02', 'ACCEPTED'),
+  (1, '2023-01-01 00:00:02', 'IN PROGRESS'),
+  (1, '2023-01-01 01:01:01', 'ARRIVED AT LOADING LOCATION');
+
