@@ -119,3 +119,36 @@ BEFORE INSERT ON loading_unloading_agreement
 FOR EACH ROW
 EXECUTE FUNCTION check_country_match();
 
+
+
+CREATE OR REPLACE FUNCTION check_order_status_sequence()
+RETURNS TRIGGER AS $$
+DECLARE
+  prev_status order_status;
+BEGIN
+  SELECT
+    status
+  INTO
+    prev_status
+  FROM
+    order_statuses
+  WHERE
+    order_id = NEW.order_id
+  ORDER BY
+    time DESC
+  LIMIT 1;
+
+  IF prev_status IS NOT NULL AND
+     (prev_status, NEW.status) NOT IN (('ACCEPTED', 'IN PROGRESS'), ('IN PROGRESS', 'ARRIVED AT LOADING LOCATION'), ('ARRIVED AT LOADING LOCATION', 'LOADING'), ('LOADING', 'ARRIVED AT UNLOADING LOCATION'), ('ARRIVED AT UNLOADING LOCATION', 'ON THE WAY'), ('ON THE WAY', 'DELIVERED'), ('DELIVERED', 'COMPLETED')) THEN
+    RAISE EXCEPTION 'Неверная последовательность статусов заказа';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER order_status_sequence_check
+BEFORE INSERT ON order_statuses
+FOR EACH ROW
+EXECUTE FUNCTION check_order_status_sequence();
+
