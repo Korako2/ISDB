@@ -32,12 +32,12 @@ VALUES (1, 59.956363, 30.310029),
 
 TRUNCATE TABLE person CASCADE;
 ALTER SEQUENCE person_person_id_seq RESTART WITH 1;
-INSERT INTO person (person_id, first_name, last_name, middle_name, gender, passport)
+INSERT INTO person (person_id, first_name, last_name, middle_name, gender, date_of_birth)
 VALUES
-  (1, 'Иван', 'Иванов', 'Иванович', 'M', '1234567890'),
-  (2, 'Мария', 'Петрова', 'Александровна', 'F', '0987654321'),
-  (3, 'Алексей', 'Сидоров', NULL, 'M', '5432109876'),
-  (4, 'Екатерина', 'Смирнова', 'Андреевна', 'F', '1357924680');
+  (1, 'Иван', 'Иванов', 'Иванович', 'M', '1990-10-25'),
+  (2, 'Мария', 'Петрова', 'Александровна', 'F', '1980-11-23'),
+  (3, 'Алексей', 'Сидоров', NULL, 'M', '1985-01-01'),
+  (4, 'Екатерина', 'Смирнова', 'Андреевна', 'F', '2000-01-01');
 
 TRUNCATE TABLE customer CASCADE;
 INSERT INTO customer (person_id, organization)

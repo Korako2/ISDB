@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS person (
   last_name varchar(20) NOT NULL,
   middle_name varchar(20),
   gender char(1) CHECK (gender IN ('M', 'F')) NOT NULL,
-  passport varchar(10) CHECK (passport ~ '^[0-9]{10}$')
+  date_of_birth date NOT NULL CHECK (date_of_birth >= '1910-01-01')
 );
 
 -- Creating the "contact info" table
@@ -62,8 +62,8 @@ CREATE TABLE IF NOT EXISTS contact_info (
 -- Creating the "driver" table
 CREATE TABLE IF NOT EXISTS driver (
   driver_id serial PRIMARY KEY,
-  contact_info varchar(11) NOT NULL,
-  passport varchar(10) NOT NULL,
+  person_id int REFERENCES person(person_id) NOT NULL,
+  passport varchar(10) NOT NULL CHECK (passport ~ '^[0-9]{10}$'),
   bank_card_number text NOT NULL
 );
 
