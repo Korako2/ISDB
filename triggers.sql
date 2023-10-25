@@ -37,6 +37,11 @@ CREATE TRIGGER check_speed_trigger
   BEFORE INSERT OR UPDATE ON vehicle_movement_history
   FOR EACH ROW EXECUTE PROCEDURE check_speed();
 
+
+
+
+
+
 CREATE OR REPLACE FUNCTION check_cargo_size()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -56,7 +61,6 @@ BEGIN
   WHERE
     o.order_id = NEW.order_id;
 
-  -- Проверяем размеры груза
   IF NEW.length > var_length OR
      NEW.width > var_width OR
      NEW.height > var_height THEN
@@ -71,4 +75,47 @@ CREATE OR REPLACE TRIGGER cargo_check_size
 BEFORE INSERT ON cargo
 FOR EACH ROW
 EXECUTE FUNCTION check_cargo_size();
+
+
+
+
+
+CREATE OR REPLACE FUNCTION check_country_match()
+RETURNS TRIGGER AS $$
+DECLARE
+  departure_country text;
+  delivery_country text;
+BEGIN
+  -- Получаем страну отправления
+  SELECT
+    a.country
+  INTO
+    departure_country
+  FROM
+    address a
+  WHERE
+    a.address_id = NEW.departure_point;
+
+  -- Получаем страну получения
+  SELECT
+    a.country
+  INTO
+    delivery_country
+  FROM
+    address a
+  WHERE
+    a.address_id = NEW.delivery_point;
+
+  IF departure_country <> delivery_country THEN
+    RAISE EXCEPTION 'Страна отправления и страна получения не совпадают';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER country_match_check
+BEFORE INSERT ON loading_unloading_agreement
+FOR EACH ROW
+EXECUTE FUNCTION check_country_match();
 
