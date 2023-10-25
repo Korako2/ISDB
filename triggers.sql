@@ -37,3 +37,29 @@ CREATE TRIGGER check_speed_trigger
   BEFORE INSERT OR UPDATE ON vehicle_movement_history
   FOR EACH ROW EXECUTE PROCEDURE check_speed();
 
+CREATE OR REPLACE FUNCTION check_cargo_size()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    -- Получаем размеры автомобиля
+    SELECT length, width, height
+    INTO NEW.vehicle_length, NEW.vehicle_width, NEW.vehicle_height
+    FROM vehicle
+    WHERE vehicle_id = NEW.vehicle_id;
+
+    -- Проверяем размеры груза
+    IF NEW.length > NEW.vehicle_length OR
+       NEW.width > NEW.vehicle_width OR
+       NEW.height > NEW.vehicle_height THEN
+        RAISE EXCEPTION 'Размеры груза превышают размеры автомобиля';
+    END IF;
+
+    RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_cargo_size_trigger
+BEFORE INSERT ON cargo
+FOR EACH ROW
+EXECUTE FUNCTION check_cargo_size();
