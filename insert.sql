@@ -48,12 +48,12 @@ VALUES
   (2, 5, '0987654321', '9876 5432 1098 7654');
 
 TRUNCATE TABLE customer CASCADE;
-INSERT INTO customer (person_id, organization)
+ALTER SEQUENCE customer_customer_id_seq RESTART WITH 1;
+INSERT INTO customer (customer_id, person_id, organization)
 VALUES
-  (1, 'ООО Рога и Копыта'),
-  (2, 'ИП Иванов И.И.'),
-  (3, 'ЗАО Петров и Партнеры'),
-  (4, NULL);
+  (1, 1, 'ООО Рога и Копыта'),
+  (2, 2, 'ИП Иванов И.И.'),
+  (3, 3, 'ЗАО Петров и Партнеры');
 
 TRUNCATE TABLE orders CASCADE;
 ALTER SEQUENCE orders_order_id_seq RESTART WITH 1;
