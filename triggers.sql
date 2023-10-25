@@ -38,28 +38,37 @@ CREATE TRIGGER check_speed_trigger
   FOR EACH ROW EXECUTE PROCEDURE check_speed();
 
 CREATE OR REPLACE FUNCTION check_cargo_size()
-RETURNS TRIGGER AS
-$$
+RETURNS TRIGGER AS $$
+DECLARE
+  var_length float;
+  var_width float;
+  var_height float;
 BEGIN
-    -- Получаем размеры автомобиля
-    SELECT length, width, height
-    INTO NEW.vehicle_length, NEW.vehicle_width, NEW.vehicle_height
-    FROM vehicle
-    WHERE vehicle_id = NEW.vehicle_id;
+  -- Получаем размеры автомобиля из таблицы заказов
+  SELECT
+    v.length, v.width, v.height
+  INTO
+    var_length, var_width, var_height
+  FROM
+    orders o
+  JOIN
+    vehicle v ON o.vehicle_id = v.vehicle_id
+  WHERE
+    o.order_id = NEW.order_id;
 
-    -- Проверяем размеры груза
-    IF NEW.length > NEW.vehicle_length OR
-       NEW.width > NEW.vehicle_width OR
-       NEW.height > NEW.vehicle_height THEN
-        RAISE EXCEPTION 'Размеры груза превышают размеры автомобиля';
-    END IF;
+  -- Проверяем размеры груза
+  IF NEW.length > var_length OR
+     NEW.width > var_width OR
+     NEW.height > var_height THEN
+    RAISE EXCEPTION 'Размеры груза больше размеров автомобиля';
+  END IF;
 
-    RETURN NEW;
+  RETURN NEW;
 END;
-$$
-LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER check_cargo_size_trigger
+CREATE OR REPLACE TRIGGER cargo_check_size
 BEFORE INSERT ON cargo
 FOR EACH ROW
 EXECUTE FUNCTION check_cargo_size();
+
