@@ -152,3 +152,33 @@ BEFORE INSERT ON order_statuses
 FOR EACH ROW
 EXECUTE FUNCTION check_order_status_sequence();
 
+
+
+CREATE OR REPLACE FUNCTION check_order_status_time()
+RETURNS TRIGGER AS $$
+DECLARE
+  prev_time timestamp;
+BEGIN
+  -- Получаем время предыдущей записи для данного заказа
+  SELECT
+    MAX(time)
+  INTO
+    prev_time
+  FROM
+    order_statuses
+  WHERE
+    order_id = NEW.order_id;
+
+  -- Проверяем, что новое время больше предыдущего
+  IF prev_time IS NOT NULL AND NEW.time <= prev_time THEN
+    RAISE EXCEPTION 'Время статуса заказа должно быть больше времени предыдущей записи';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER order_status_time_check
+BEFORE INSERT ON order_statuses
+FOR EACH ROW
+EXECUTE FUNCTION check_order_status_time();
