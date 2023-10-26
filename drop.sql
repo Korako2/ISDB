@@ -1,30 +1,29 @@
 -- Drop the tables
 DROP TABLE IF EXISTS
-  VEHICLE_OWNERSHIP,
-  LOADING_UNLOADING_AGREEMENT,
-  STORAGE_POINT,
-  ADDRESS,
-  CARGO,
-  ORDER_STATUSES,
-  ORDERS,
-  VEHICLE_MOVEMENT_HISTORY,
-  VEHICLE,
-  DRIVER_LICENSE,
-  DRIVER_STATUS_HISTORY,
-  TARIFF_RATE,
-  FUEL_CARDS_FOR_DRIVERS,
-  FUEL_EXPENSES,
-  DRIVER,
-  CUSTOMER,
-  CONTACT_INFO,
-  PERSON
+  vehicle_ownership,
+  loading_unloading_agreement,
+  storage_point,
+  address,
+  cargo,
+  order_statuses,
+  orders,
+  vehicle_movement_history,
+  vehicle,
+  driver_license,
+  driver_status_history,
+  tariff_rate,
+  fuel_cards_for_drivers,
+  fuel_expenses,
+  driver,
+  customer,
+  contact_info,
+  person
   CASCADE;
 
 -- Drop the types
 DROP TYPE IF EXISTS
-  DRIVER_STATUS,
-  BODY_TYPE,
-  CARGO_TYPE,
-  ORDER_STATUS,
-  CONTACT_INFO_TYPE;
-
+  driver_status,
+  body_type,
+  cargo_type,
+  order_status,
+  contact_info_type;

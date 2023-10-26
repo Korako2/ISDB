@@ -1,5 +1,5 @@
--- Creating the "DRIVER STATUS" enumeration
-CREATE TYPE DRIVER_STATUS AS ENUM (
+-- Creating the "driver status" enumeration
+CREATE TYPE driver_status AS ENUM (
   'OFF DUTY',
   'EN ROUTE',
   'UNLOADING',
@@ -10,20 +10,20 @@ CREATE TYPE DRIVER_STATUS AS ENUM (
   'ARRIVED AT LOADING LOCATION'
 );
 
--- Creating the "BODY TYPE" enumeration
-CREATE TYPE BODY_TYPE AS ENUM (
+-- Creating the "body type" enumeration
+CREATE TYPE body_type AS ENUM (
   'OPEN',
   'CLOSED'
 );
 
-CREATE TYPE CARGO_TYPE AS ENUM (
+CREATE TYPE cargo_type AS ENUM (
   'BULK',
   'TIPPER',
   'PALLETIZED'
 );
 
--- Creating the "ORDER STATUS" enumeration
-CREATE TYPE ORDER_STATUS AS ENUM (
+-- Creating the "order status" enumeration
+CREATE TYPE order_status AS ENUM (
   'ACCEPTED',
   'IN PROGRESS',
   'ARRIVED AT LOADING LOCATION',
@@ -34,177 +34,183 @@ CREATE TYPE ORDER_STATUS AS ENUM (
   'COMPLETED'
 );
 
--- Creating the "CONTACT INFORMATION TYPE" enumeration
-CREATE TYPE CONTACT_INFO_TYPE AS ENUM (
+-- Creating the "contact information type" enumeration
+CREATE TYPE contact_info_type AS ENUM (
   'PHONE NUMBER',
   'TELEGRAM',
   'EMAIL'
 );
 
--- Creating the "PERSON" table
-CREATE TABLE IF NOT EXISTS PERSON (
-  PERSON_ID serial PRIMARY KEY,
-  FIRST_NAME VARCHAR(20) NOT NULL,
-  LAST_NAME VARCHAR(20) NOT NULL,
-  MIDDLE_NAME VARCHAR(20),
-  GENDER CHAR(1) CHECK (GENDER IN ('M', 'F')) NOT NULL,
-  PASSPORT VARCHAR(10) CHECK (PASSPORT ~ '^[0-9]{10}$')
+-- Creating the "person" table
+CREATE TABLE IF NOT EXISTS person (
+  person_id serial PRIMARY KEY,
+  first_name varchar(20) NOT NULL,
+  last_name varchar(20) NOT NULL,
+  middle_name varchar(20),
+  gender char(1) CHECK (gender IN ('M', 'F')) NOT NULL,
+  date_of_birth date NOT NULL CHECK (date_of_birth >= '1910-01-01')
 );
 
--- Creating the "CONTACT INFO" table
-CREATE TABLE IF NOT EXISTS CONTACT_INFO (
-  PERSON_ID int REFERENCES PERSON (PERSON_ID),
-  CONTACT_TYPE CONTACT_INFO_TYPE,
-  VALUE text,
-  PRIMARY KEY (PERSON_ID, CONTACT_TYPE)
+-- Creating the "contact info" table
+CREATE TABLE IF NOT EXISTS contact_info (
+  person_id int REFERENCES person (person_id),
+  contact_type contact_info_type,
+  value text,
+  PRIMARY KEY (person_id, contact_type)
 );
 
--- Creating the "DRIVER" table
-CREATE TABLE IF NOT EXISTS DRIVER (
-  DRIVER_ID serial PRIMARY KEY,
-  CONTACT_INFO VARCHAR(11) NOT NULL,
-  PASSPORT VARCHAR(10) NOT NULL,
-  BANK_CARD_NUMBER text NOT NULL
+-- Creating the "driver" table
+CREATE TABLE IF NOT EXISTS driver (
+  driver_id serial PRIMARY KEY,
+  person_id int REFERENCES person(person_id) NOT NULL,
+  passport varchar(10) NOT NULL CHECK (passport ~ '^[0-9]{10}$'),
+  bank_card_number text NOT NULL
 );
 
--- Creating the "CUSTOMER" table
-CREATE TABLE IF NOT EXISTS CUSTOMER (
-  CUSTOMER_ID serial PRIMARY KEY,
-  PERSON_ID int REFERENCES PERSON (PERSON_ID),
-  ORGANIZATION VARCHAR(50)
+-- Creating the "customer" table
+CREATE TABLE IF NOT EXISTS customer (
+  customer_id serial PRIMARY KEY,
+  person_id int REFERENCES person (person_id),
+  organization varchar(50)
 );
 
--- Creating the "DRIVER STATUS HISTORY" table
-CREATE TABLE IF NOT EXISTS DRIVER_STATUS_HISTORY (
-  DRIVER_ID int REFERENCES DRIVER (DRIVER_ID),
-  DATE date,
-  STATUS DRIVER_STATUS,
-  PRIMARY KEY (DRIVER_ID, DATE)
+-- Creating the "driver status history" table
+CREATE TABLE IF NOT EXISTS driver_status_history (
+  driver_id int REFERENCES driver (driver_id),
+  date date,
+  status driver_status,
+  PRIMARY KEY (driver_id, date)
 );
 
--- Creating the "TARIFF RATE" table
-CREATE TABLE IF NOT EXISTS TARIFF_RATE (
-  DRIVER_ID int REFERENCES DRIVER (DRIVER_ID) PRIMARY KEY,
-  DAILY_RATE int NOT NULL,
-  RATE_PER_KM int NOT NULL
+-- Creating the "tariff rate" table
+CREATE TABLE IF NOT EXISTS tariff_rate (
+  driver_id int REFERENCES driver (driver_id) PRIMARY KEY,
+  daily_rate int NOT NULL,
+  rate_per_km int NOT NULL
 );
 
--- Creating the "DRIVER LICENSE" table
-CREATE TABLE IF NOT EXISTS DRIVER_LICENSE (
-  DRIVER_ID int REFERENCES DRIVER(DRIVER_ID) PRIMARY KEY,
-  ISSUE_DATE date NOT NULL,
-  EXPIRATION_DATE date NOT NULL,
-  LICENSE_NUMBER int,
-  CONSTRAINT CHECK_ISSUE_EXPIRE_DATES CHECK (ISSUE_DATE < EXPIRATION_DATE)
+-- Creating the "driver license" table
+CREATE TABLE IF NOT EXISTS driver_license (
+  driver_id int REFERENCES driver(driver_id) PRIMARY KEY,
+  issue_date date NOT NULL,
+  expiration_date date NOT NULL,
+  license_number int,
+  CONSTRAINT check_issue_expire_dates CHECK (issue_date < expiration_date)
 );
 
--- Creating the "VEHICLE" table
-CREATE TABLE IF NOT EXISTS VEHICLE (
-  VEHICLE_ID serial PRIMARY KEY,
-  PLATE_NUMBER varchar(9) NOT NULL CHECK (
-    PLATE_NUMBER ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
-    PLATE_NUMBER ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
+-- Creating the "vehicle" table
+CREATE TABLE IF NOT EXISTS vehicle (
+  vehicle_id serial PRIMARY KEY,
+  plate_number varchar(9) NOT NULL CHECK (
+    plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
+    plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
   ),
-  MODEL varchar(50) NOT NULL,
-  MANUFACTURE_YEAR date NOT NULL,
-  LENGTH float NOT NULL,
-  WIDTH float NOT NULL,
-  HEIGHT float NOT NULL,
-  LOAD_CAPACITY float NOT NULL,
-  BODY_TYPE BODY_TYPE
+  model varchar(50) NOT NULL,
+  manufacture_year date NOT NULL,
+  length float NOT NULL,
+  width float NOT NULL,
+  height float NOT NULL,
+  load_capacity float NOT NULL,
+  body_type body_type
 );
 
--- Creating the "VEHICLE OWNERSHIP" table
-CREATE TABLE IF NOT EXISTS VEHICLE_OWNERSHIP (
-  VEHICLE_ID int REFERENCES VEHICLE (VEHICLE_ID),
-  DRIVER_ID int REFERENCES DRIVER (DRIVER_ID),
-  OWNERSHIP_START_DATE date,
-  OWNERSHIP_END_DATE date,
-  PRIMARY KEY (VEHICLE_ID, DRIVER_ID),
-  CONSTRAINT CHECK_OWNERSHIP_DATES CHECK (OWNERSHIP_START_DATE <= OWNERSHIP_END_DATE)
+-- Creating the "vehicle ownership" table
+CREATE TABLE IF NOT EXISTS vehicle_ownership (
+  vehicle_id int REFERENCES vehicle (vehicle_id),
+  driver_id int REFERENCES driver (driver_id),
+  ownership_start_date date,
+  ownership_end_date date,
+  PRIMARY KEY (vehicle_id, driver_id),
+  CONSTRAINT check_ownership_dates CHECK (ownership_start_date <= ownership_end_date)
 );
 
--- Creating the "VEHICLE MOVEMENT HISTORY" table
+-- Creating the "vehicle movement history" table
 CREATE TABLE IF NOT EXISTS vehicle_movement_history (
-  VEHICLE_ID int REFERENCES VEHICLE (VEHICLE_ID),
-  DATE timestamp,
-  LATITUDE float NOT NULL,
-  LONGITUDE float NOT NULL,
-  MILEAGE float NOT NULL,
-  PRIMARY KEY (VEHICLE_ID, DATE)
+  vehicle_id int REFERENCES vehicle (vehicle_id),
+  date timestamp,
+  latitude float NOT NULL,
+  longitude float NOT NULL,
+  mileage float NOT NULL,
+  PRIMARY KEY (vehicle_id, date)
 );
 
--- Creating the "ORDER" table
-CREATE TABLE IF NOT EXISTS ORDERS (
-  ORDER_ID serial PRIMARY KEY,
-  CUSTOMER_ID int NOT NULL REFERENCES CUSTOMER (CUSTOMER_ID),
-  DISTANCE float NOT NULL,
-  PRICE float NOT NULL,
-  ORDER_DATE date NOT NULL,
-  VEHICLE_ID int REFERENCES VEHICLE (VEHICLE_ID)
+-- Creating the "order" table
+CREATE TABLE IF NOT EXISTS orders (
+  order_id serial PRIMARY KEY,
+  customer_id int NOT NULL REFERENCES customer (customer_id),
+  distance float NOT NULL,
+  price float NOT NULL,
+  order_date date NOT NULL,
+  vehicle_id int REFERENCES vehicle (vehicle_id)
 );
 
--- Creating the "ORDER STATUSES" table
-CREATE TABLE IF NOT EXISTS ORDER_STATUSES (
-  ORDER_ID int REFERENCES ORDERS (ORDER_ID),
-  TIME timestamp,
-  STATUS ORDER_STATUS,
-  PRIMARY KEY (ORDER_ID, TIME)
+-- Creating the "order statuses" table
+CREATE TABLE IF NOT EXISTS order_statuses (
+  order_id int REFERENCES orders (order_id),
+  time timestamp,
+  status order_status,
+  PRIMARY KEY (order_id, time)
 );
 
--- Creating the "CARGO" table
-CREATE TABLE IF NOT EXISTS CARGO (
-  CARGO_ID serial PRIMARY KEY,
-  WEIGHT float NOT NULL,
-  WIDTH float NOT NULL,
-  HEIGHT float NOT NULL,
-  LENGTH float NOT NULL,
-  ORDER_ID int NOT NULL REFERENCES ORDERS (ORDER_ID),
-  CARGO_TYPE CARGO_TYPE
+-- Creating the "cargo" table
+CREATE TABLE IF NOT EXISTS cargo (
+  cargo_id serial PRIMARY KEY,
+  weight float NOT NULL CHECK (weight <= 25000),
+  width float NOT NULL CHECK (width <= 2.5),
+  height float NOT NULL CHECK (height <= 4),
+  length float NOT NULL CHECK (length <= 15),
+  order_id int NOT NULL REFERENCES orders (order_id),
+  cargo_type cargo_type
 );
 
--- Creating the "ADDRESS" table
-CREATE TABLE IF NOT EXISTS ADDRESS (
-  ADDRESS_ID serial PRIMARY KEY,
-  COUNTRY text NOT NULL,
-  CITY text NOT NULL,
-  STREET text NOT NULL,
-  BUILDING int NOT NULL,
-  CORPUS int
+-- Creating the "address" table
+CREATE TABLE IF NOT EXISTS address (
+  address_id serial PRIMARY KEY,
+  country text NOT NULL,
+  city text NOT NULL,
+  street text NOT NULL,
+  building int NOT NULL,
+  corpus int
 );
 
--- Creating the "STORAGE POINT" table
-CREATE TABLE IF NOT EXISTS STORAGE_POINT (
-  ADDRESS_ID int REFERENCES ADDRESS(ADDRESS_ID) PRIMARY KEY,
-  LONGITUDE float NOT NULL CHECK (LONGITUDE >= -180 AND LONGITUDE <= 180),
-  LATITUDE float NOT NULL CHECK (LATITUDE >= -90 AND LATITUDE <= 90)
+-- Creating the "storage point" table
+CREATE TABLE IF NOT EXISTS storage_point (
+  address_id int REFERENCES address(address_id) PRIMARY KEY,
+  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180),
+  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90)
 );
 
--- Creating the "LOADING_UNLOADING AGREEMENT" table
-CREATE TABLE IF NOT EXISTS LOADING_UNLOADING_AGREEMENT (
-  ORDER_ID int REFERENCES ORDERS (ORDER_ID) PRIMARY KEY,
-  DRIVER_ID int NOT NULL REFERENCES DRIVER (DRIVER_ID),
-  DEPARTURE_POINT int NOT NULL REFERENCES STORAGE_POINT (ADDRESS_ID),
-  DELIVERY_POINT int NOT NULL REFERENCES STORAGE_POINT (ADDRESS_ID),
-  SENDER_ID int NOT NULL REFERENCES PERSON (PERSON_ID),
-  RECEIVER_ID int NOT NULL REFERENCES PERSON (PERSON_ID),
-  UNLOADING_TIME time NOT NULL,
-  LOADING_TIME time NOT NULL
+-- Creating the "loading_unloading agreement" table
+CREATE TABLE IF NOT EXISTS loading_unloading_agreement (
+  order_id int REFERENCES orders (order_id) PRIMARY KEY,
+  driver_id int NOT NULL REFERENCES driver (driver_id),
+  departure_point int NOT NULL REFERENCES storage_point (address_id),
+  delivery_point int NOT NULL REFERENCES storage_point (address_id),
+  sender_id int NOT NULL REFERENCES person (person_id),
+  receiver_id int NOT NULL REFERENCES person (person_id),
+  unloading_time time NOT NULL,
+  loading_time time NOT NULL,
+  CHECK (departure_point <> delivery_point),
+  CHECK (
+    unloading_time >= '00:01'::time
+    AND unloading_time < '24:00'::time
+    AND loading_time >= '00:01'::time
+    AND loading_time < '24:00'::time
+  )
 );
 
--- Creating the "FUEL CARDS FOR DRIVERS" table
-CREATE TABLE IF NOT EXISTS FUEL_CARDS_FOR_DRIVERS (
-  DRIVER_ID int REFERENCES DRIVER(DRIVER_ID),
-  FUEL_CARD_NUMBER VARCHAR(40) NOT NULL,
-  FUEL_STATION_NAME VARCHAR(50),
-  PRIMARY KEY (DRIVER_ID, FUEL_CARD_NUMBER),
-  UNIQUE (FUEL_CARD_NUMBER)
+-- Creating the "fuel cards for drivers" table
+CREATE TABLE IF NOT EXISTS fuel_cards_for_drivers (
+  driver_id int REFERENCES driver(driver_id),
+  fuel_card_number varchar(40) NOT NULL,
+  fuel_station_name varchar(50),
+  PRIMARY KEY (driver_id, fuel_card_number),
+  UNIQUE (fuel_card_number)
 );
 
--- Creating the "FUEL EXPENSES" table
-CREATE TABLE IF NOT EXISTS FUEL_EXPENSES (
-  FUEL_CARD_NUMBER VARCHAR(40) REFERENCES FUEL_CARDS_FOR_DRIVERS(FUEL_CARD_NUMBER) PRIMARY KEY,
-  DATE date,
-  AMOUNT double precision NOT NULL
+-- Creating the "fuel expenses" table
+CREATE TABLE IF NOT EXISTS fuel_expenses (
+  fuel_card_number varchar(40) REFERENCES fuel_cards_for_drivers(fuel_card_number) PRIMARY KEY,
+  date date,
+  amount double precision NOT NULL
 );
-

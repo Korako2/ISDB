@@ -1,6 +1,6 @@
 -- triggers & functions
--- Ограничение по макс. изменению расстояния. Скорость авто не может быть больше 170км/ч
 
+-- calculate difference between new and last distance for current VEHICLE_ID and divide by date difference
 CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS $$
 DECLARE
   prev_record float;
@@ -27,7 +27,7 @@ CREATE TRIGGER check_speed_trigger
   FOR EACH ROW EXECUTE PROCEDURE check_speed();
 
 -- Подобранный автомобиль должен соответствовать типу груза. Насыпной, навалочный -- открытый. Тарный -- закрытый.
-CREATE OR REPLACE FUNCTION check_vehicle_type RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION check_vehicle_type() RETURNS TRIGGER AS $$
 BEGIN
   IF NEW.CARGO_TYPE = 'BULK' OR NEW.CARGO_TYPE = 'TIPPER' THEN
     IF NEW.BODY_TYPE != 'OPEN' THEN
@@ -40,7 +40,6 @@ BEGIN
     END IF;
   END IF;
   RETURN NEW;
-END;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -59,6 +58,143 @@ BEGIN
   IF (current_mileage - prev_mileage) * 6 < NEW.AMOUNT THEN
     RAISE EXCEPTION 'Fuel expenses are too high';
   END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION check_cargo_size()
+RETURNS TRIGGER AS $$
+DECLARE
+  var_length float;
+  var_width float;
+  var_height float;
+BEGIN
+  -- Получаем размеры автомобиля из таблицы заказов
+  SELECT
+    v.length, v.width, v.height
+  INTO
+    var_length, var_width, var_height
+  FROM
+    orders o
+  JOIN
+    vehicle v ON o.vehicle_id = v.vehicle_id
+  WHERE
+    o.order_id = NEW.order_id;
+
+  IF NEW.length > var_length OR
+     NEW.width > var_width OR
+     NEW.height > var_height THEN
+    RAISE EXCEPTION 'Размеры груза больше размеров автомобиля';
+  END IF;
 
   RETURN NEW;
 END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER cargo_check_size
+BEFORE INSERT ON cargo
+FOR EACH ROW
+EXECUTE PROCEDURE check_cargo_size();
+
+
+CREATE OR REPLACE FUNCTION check_country_match()
+RETURNS TRIGGER AS $$
+DECLARE
+  departure_country text;
+  delivery_country text;
+BEGIN
+  -- Получаем страну отправления
+  SELECT
+    a.country
+  INTO
+    departure_country
+  FROM
+    address a
+  WHERE
+    a.address_id = NEW.departure_point;
+
+  -- Получаем страну получения
+  SELECT
+    a.country
+  INTO
+    delivery_country
+  FROM
+    address a
+  WHERE
+    a.address_id = NEW.delivery_point;
+
+  IF departure_country <> delivery_country THEN
+    RAISE EXCEPTION 'Страна отправления и страна получения не совпадают';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER country_match_check
+BEFORE INSERT ON loading_unloading_agreement
+FOR EACH ROW
+EXECUTE FUNCTION check_country_match();
+
+
+CREATE OR REPLACE FUNCTION check_order_status_sequence()
+RETURNS TRIGGER AS $$
+DECLARE
+  prev_status order_status;
+BEGIN
+  SELECT
+    status
+  INTO
+    prev_status
+  FROM
+    order_statuses
+  WHERE
+    order_id = NEW.order_id
+  ORDER BY
+    time DESC
+  LIMIT 1;
+
+  IF prev_status IS NOT NULL AND
+     (prev_status, NEW.status) NOT IN (('ACCEPTED', 'IN PROGRESS'), ('IN PROGRESS', 'ARRIVED AT LOADING LOCATION'), ('ARRIVED AT LOADING LOCATION', 'LOADING'), ('LOADING', 'ARRIVED AT UNLOADING LOCATION'), ('ARRIVED AT UNLOADING LOCATION', 'ON THE WAY'), ('ON THE WAY', 'DELIVERED'), ('DELIVERED', 'COMPLETED')) THEN
+    RAISE EXCEPTION 'Неверная последовательность статусов заказа';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER order_status_sequence_check
+BEFORE INSERT ON order_statuses
+FOR EACH ROW
+EXECUTE FUNCTION check_order_status_sequence();
+
+
+CREATE OR REPLACE FUNCTION check_order_status_time()
+RETURNS TRIGGER AS $$
+DECLARE
+  prev_time timestamp;
+BEGIN
+  -- Получаем время предыдущей записи для данного заказа
+  SELECT
+    MAX(time)
+  INTO
+    prev_time
+  FROM
+    order_statuses
+  WHERE
+    order_id = NEW.order_id;
+
+  -- Проверяем, что новое время больше предыдущего
+  IF prev_time IS NOT NULL AND NEW.time <= prev_time THEN
+    RAISE EXCEPTION 'Время статуса заказа должно быть больше времени предыдущей записи';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER order_status_time_check
+BEFORE INSERT ON order_statuses
+FOR EACH ROW
+EXECUTE FUNCTION check_order_status_time();
