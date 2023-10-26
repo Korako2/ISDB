@@ -132,10 +132,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER country_match_check
+CREATE TRIGGER country_match_check
 BEFORE INSERT ON loading_unloading_agreement
 FOR EACH ROW
-EXECUTE FUNCTION check_country_match();
+EXECUTE PROCEDURE check_country_match();
 
 
 CREATE OR REPLACE FUNCTION check_order_status_sequence()
@@ -167,7 +167,7 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER order_status_sequence_check
 BEFORE INSERT ON order_statuses
 FOR EACH ROW
-EXECUTE FUNCTION check_order_status_sequence();
+EXECUTE PROCEDURE check_order_status_sequence();
 
 
 CREATE OR REPLACE FUNCTION check_order_status_time()
@@ -197,7 +197,7 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER order_status_time_check
 BEFORE INSERT ON order_statuses
 FOR EACH ROW
-EXECUTE FUNCTION check_order_status_time();
+EXECUTE PROCEDURE check_order_status_time();
 
 
 -- Статусы заказа должны синхронизироваться со статусом водителя
