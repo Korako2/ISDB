@@ -198,3 +198,28 @@ CREATE TRIGGER order_status_time_check
 BEFORE INSERT ON order_statuses
 FOR EACH ROW
 EXECUTE FUNCTION check_order_status_time();
+
+
+-- Статусы заказа должны синхронизироваться со статусом водителя
+-- on driver_status table update we should add new order_status based on driver_status
+CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.status = 'COMPLETED ORDER' THEN
+    INSERT INTO order_statuses (order_id, time, status)
+    VALUES (NEW.order_id, NOW(), 'ACCEPTED');
+  ELSIF NEW.status = 'EN ROUTE' THEN
+    INSERT INTO order_statuses (order_id, time, status)
+    VALUES (NEW.order_id, NOW(), 'IN PROGRESS');
+  ELSIF NEW.status = 'UNLOADING' THEN
+    INSERT INTO order_statuses (order_id, time, status)
+    VALUES (NEW.order_id, NOW(), 'ARRIVED AT UNLOADING LOCATION');
+  ELSIF NEW.status = 'LOADING' THEN
+    INSERT INTO order_statuses (order_id, time, status)
+    VALUES (NEW.order_id, NOW(), 'ARRIVED AT LOADING LOCATION');
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_order_status AFTER INSERT ON driver_status_history
+FOR EACH ROW EXECUTE PROCEDURE update_order_status();
