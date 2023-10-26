@@ -7,7 +7,8 @@ CREATE TYPE driver_status AS ENUM (
   'WAITING FOR ORDER',
   'WAITING FOR LOADING',
   'WAITING FOR UNLOADING',
-  'ARRIVED AT LOADING LOCATION'
+  'ARRIVED AT LOADING LOCATION',
+  'COMPLETED ORDER'
 );
 
 -- Creating the "body type" enumeration
@@ -30,7 +31,6 @@ CREATE TYPE order_status AS ENUM (
   'LOADING',
   'ARRIVED AT UNLOADING LOCATION',
   'ON THE WAY',
-  'DELIVERED',
   'COMPLETED'
 );
 
@@ -214,3 +214,4 @@ CREATE TABLE IF NOT EXISTS fuel_expenses (
   date date,
   amount double precision NOT NULL
 );
+
