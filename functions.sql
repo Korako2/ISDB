@@ -115,27 +115,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
--- расходы должны сопоставляться с пробегом автомобиля
-CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS $$
-DECLARE
-  prev_pay_date timestamp;
-  prev_mileage float;
-  current_mileage float;
-  var_vehicle_id int;
-BEGIN
-  var_vehicle_id = (SELECT VEHICLE_ID FROM vehicle WHERE FUEL_CARD_NUMBER = NEW.FUEL_CARD_NUMBER);
-  -- select record from movement history nearest to prev_pay_date
-  prev_pay_date = (SELECT DATE FROM FUEL_EXPENSES WHERE FUEL_CARD_NUMBER = NEW.FUEL_CARD_NUMBER ORDER BY DATE DESC LIMIT 1);
-  prev_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = var_vehicle_id AND DATE <= prev_pay_date ORDER BY DATE DESC LIMIT 1);
-  current_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = var_vehicle_id AND DATE >= prev_pay_date ORDER BY DATE DESC LIMIT 1);
-  IF (current_mileage - prev_mileage) * 6 < NEW.AMOUNT THEN
-    RAISE EXCEPTION 'Fuel expenses are too high';
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION check_cargo_size()
 RETURNS TRIGGER AS $$
 DECLARE
