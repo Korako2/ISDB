@@ -1,22 +1,3 @@
-CREATE TABLE IF NOT EXISTS order_statuses (
-                                              order_id int REFERENCES orders (order_id),
-                                              time timestamp,
-                                              status order_status,
-                                              PRIMARY KEY (order_id, time)
-);
-
-DROP TYPE IF EXISTS order_status CASCADE;
-CREATE TYPE order_status AS ENUM (
-    'ACCEPTED',
-    'IN PROGRESS',
-    'ARRIVED AT LOADING LOCATION',
-    'LOADING',
-    'ARRIVED AT UNLOADING LOCATION',
-    'ON THE WAY',
-    'COMPLETED'
-    );
-
-
 create extension cube;
 create extension earthdistance;
 
@@ -58,5 +39,30 @@ BEGIN
     VALUES (order_id, NOW(), 'ACCEPTED');
 
     RETURN order_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Функция добавления заказчика
+CREATE OR REPLACE FUNCTION add_customer(
+    v_first_name varchar(20),
+    v_last_name varchar(20),
+    v_middle_name varchar(20) default null,
+    v_gender char(1),
+    v_date_of_birth date,
+    v_organization varchar(50) default null
+) RETURNS int AS $$
+DECLARE
+    v_person_id int;
+    customer_id int;
+BEGIN
+    INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
+    VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
+    RETURNING person_id INTO v_person_id;
+
+    INSERT INTO customer (person_id, organization)
+    VALUES (v_person_id, v_organization)
+    RETURNING customer_id INTO customer_id;
+
+    RETURN customer_id;
 END;
 $$ LANGUAGE plpgsql;
