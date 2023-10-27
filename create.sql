@@ -137,9 +137,9 @@ CREATE TABLE IF NOT EXISTS orders (
 
 CREATE TABLE IF NOT EXISTS order_statuses (
   order_id int REFERENCES orders (order_id),
-  time timestamp,
+  date_time timestamp,
   status order_status,
-  PRIMARY KEY (order_id, time)
+  PRIMARY KEY (order_id, date_time)
 );
 
 CREATE TABLE IF NOT EXISTS cargo (
