@@ -23,8 +23,7 @@ BEGIN
       AND b.address_id = address_b_id
     INTO calculated_distance;
 
-    -- Расчет заработной платы за произведенную поездку рассчитывается по формуле - P + S * T,  где  S– расстояние, которое проехал водитель, T – стоимость одного километра пути, P - суточные.
-    SELECT calculated_distance * rate_per_km + daily_rate
+    SELECT 2 * (calculated_distance * rate_per_km + daily_rate)
     FROM tariff_rate
     WHERE driver_id = (SELECT driver_id
                        FROM vehicle_ownership
@@ -55,8 +54,16 @@ DECLARE
     v_person_id int;
     customer_id int;
 BEGIN
-    INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
-    VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
+    INSERT INTO person
+    select *
+    from  (
+      VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
+    ) as data(first_name, last_name, middle_name, gender, date_of_birth)
+    WHERE NOT EXISTS (
+      select *
+      from person
+      where data = person
+    )
     RETURNING person_id INTO v_person_id;
 
     INSERT INTO customer (person_id, organization)
