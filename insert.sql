@@ -87,7 +87,8 @@ VALUES
   (1, '2023-01-01 01:01:02', 'LOADING'),
   (1, '2023-01-01 01:01:03', 'ARRIVED AT UNLOADING LOCATION'),
   (1, '2023-01-01 01:01:04', 'ON THE WAY'),
-  (1, '2023-01-01 01:01:05', 'COMPLETED');
+  (1, '2023-01-01 01:01:05', 'UNLOADING'),
+  (1, '2023-01-01 01:01:06', 'COMPLETED');
 
 TRUNCATE TABLE tariff_rate CASCADE;
 INSERT INTO tariff_rate (driver_id, daily_rate, rate_per_km)
