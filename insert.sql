@@ -5,7 +5,6 @@ VALUES (1, 'А123ЕК152', 'BMW', '2019-01-01', 4.5, 2.0, 2.0, 1000, 'OPEN'),
        (2, 'А111АА52', 'Mercedes', '2018-01-01', 4.5, 2.0, 2.0, 1000, 'OPEN'),
        (3, 'О001ОО152', 'Audi', '2017-01-01', 4.5, 2.0, 2.0, 1000, 'OPEN');
 
--- insert 2 values into vehicle history table
 TRUNCATE TABLE vehicle_movement_history CASCADE;
 ALTER SEQUENCE vehicle_vehicle_id_seq RESTART WITH 1;
 INSERT INTO vehicle_movement_history (vehicle_id, date, latitude, longitude, mileage)

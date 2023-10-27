@@ -1,6 +1,5 @@
 -- triggers & functions
 
--- calculate difference between new and last distance for current VEHICLE_ID and divide by date difference
 CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS $$
 DECLARE
   prev_record float;
@@ -9,11 +8,6 @@ DECLARE
 BEGIN
   prev_record = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = NEW.VEHICLE_ID ORDER BY DATE DESC LIMIT 1);
   prev_date = (SELECT DATE FROM vehicle_movement_history WHERE VEHICLE_ID = NEW.VEHICLE_ID ORDER BY DATE DESC LIMIT 1);
-  -- count difference in hours between two timestamps
-  -- debug prev_record
-  RAISE NOTICE 'Value: %', prev_record;
-  RAISE NOTICE 'Value: %', prev_date;
-
   speed = (NEW.MILEAGE - prev_record) / (EXTRACT(EPOCH FROM (NEW.DATE - prev_date)) / 3600);
   IF speed > 170 THEN
     RAISE EXCEPTION 'Speed cannot be more than 170 km/h';
@@ -44,7 +38,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- расходы должны сопоставляться с пробегом автомобиля
--- Fuel price is 60 RUB per liter. Fuel consumption is 10 liters per 100 km. So 6 RUB per km is the maximum allowed value
 CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS $$
 DECLARE
   prev_pay_date timestamp;
@@ -201,7 +194,6 @@ EXECUTE PROCEDURE check_order_status_time();
 
 
 -- Статусы заказа должны синхронизироваться со статусом водителя
--- on driver_status table update we should add new order_status based on driver_status
 CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS $$
 BEGIN
   IF NEW.status = 'COMPLETED ORDER' THEN

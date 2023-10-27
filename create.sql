@@ -1,4 +1,4 @@
--- Creating the "driver status" enumeration
+DROP TYPE IF EXISTS driver_status CASCADE;
 CREATE TYPE driver_status AS ENUM (
   'OFF DUTY',
   'EN ROUTE',
@@ -11,7 +11,7 @@ CREATE TYPE driver_status AS ENUM (
   'COMPLETED ORDER'
 );
 
--- Creating the "body type" enumeration
+DROP TYPE IF EXISTS body_type CASCADE;
 CREATE TYPE body_type AS ENUM (
   'OPEN',
   'CLOSED'
@@ -23,7 +23,7 @@ CREATE TYPE cargo_type AS ENUM (
   'PALLETIZED'
 );
 
--- Creating the "order status" enumeration
+DROP TYPE IF EXISTS order_status CASCADE;
 CREATE TYPE order_status AS ENUM (
   'ACCEPTED',
   'IN PROGRESS',
@@ -34,14 +34,13 @@ CREATE TYPE order_status AS ENUM (
   'COMPLETED'
 );
 
--- Creating the "contact information type" enumeration
+DROP TYPE IF EXISTS contact_info_type CASCADE;
 CREATE TYPE contact_info_type AS ENUM (
   'PHONE NUMBER',
   'TELEGRAM',
   'EMAIL'
 );
 
--- Creating the "person" table
 CREATE TABLE IF NOT EXISTS person (
   person_id serial PRIMARY KEY,
   first_name varchar(20) NOT NULL,
@@ -51,7 +50,6 @@ CREATE TABLE IF NOT EXISTS person (
   date_of_birth date NOT NULL CHECK (date_of_birth >= '1910-01-01')
 );
 
--- Creating the "contact info" table
 CREATE TABLE IF NOT EXISTS contact_info (
   person_id int REFERENCES person (person_id),
   contact_type contact_info_type,
@@ -59,7 +57,6 @@ CREATE TABLE IF NOT EXISTS contact_info (
   PRIMARY KEY (person_id, contact_type)
 );
 
--- Creating the "driver" table
 CREATE TABLE IF NOT EXISTS driver (
   driver_id serial PRIMARY KEY,
   person_id int REFERENCES person(person_id) NOT NULL,
@@ -67,14 +64,12 @@ CREATE TABLE IF NOT EXISTS driver (
   bank_card_number text NOT NULL
 );
 
--- Creating the "customer" table
 CREATE TABLE IF NOT EXISTS customer (
   customer_id serial PRIMARY KEY,
   person_id int REFERENCES person (person_id),
   organization varchar(50)
 );
 
--- Creating the "driver status history" table
 CREATE TABLE IF NOT EXISTS driver_status_history (
   driver_id int REFERENCES driver (driver_id),
   date date,
@@ -82,14 +77,12 @@ CREATE TABLE IF NOT EXISTS driver_status_history (
   PRIMARY KEY (driver_id, date)
 );
 
--- Creating the "tariff rate" table
 CREATE TABLE IF NOT EXISTS tariff_rate (
   driver_id int REFERENCES driver (driver_id) PRIMARY KEY,
   daily_rate int NOT NULL,
   rate_per_km int NOT NULL
 );
 
--- Creating the "driver license" table
 CREATE TABLE IF NOT EXISTS driver_license (
   driver_id int REFERENCES driver(driver_id) PRIMARY KEY,
   issue_date date NOT NULL,
@@ -98,7 +91,6 @@ CREATE TABLE IF NOT EXISTS driver_license (
   CONSTRAINT check_issue_expire_dates CHECK (issue_date < expiration_date)
 );
 
--- Creating the "vehicle" table
 CREATE TABLE IF NOT EXISTS vehicle (
   vehicle_id serial PRIMARY KEY,
   plate_number varchar(9) NOT NULL CHECK (
@@ -114,7 +106,6 @@ CREATE TABLE IF NOT EXISTS vehicle (
   body_type body_type
 );
 
--- Creating the "vehicle ownership" table
 CREATE TABLE IF NOT EXISTS vehicle_ownership (
   vehicle_id int REFERENCES vehicle (vehicle_id),
   driver_id int REFERENCES driver (driver_id),
@@ -124,7 +115,6 @@ CREATE TABLE IF NOT EXISTS vehicle_ownership (
   CONSTRAINT check_ownership_dates CHECK (ownership_start_date <= ownership_end_date)
 );
 
--- Creating the "vehicle movement history" table
 CREATE TABLE IF NOT EXISTS vehicle_movement_history (
   vehicle_id int REFERENCES vehicle (vehicle_id),
   date timestamp,
@@ -134,7 +124,6 @@ CREATE TABLE IF NOT EXISTS vehicle_movement_history (
   PRIMARY KEY (vehicle_id, date)
 );
 
--- Creating the "order" table
 CREATE TABLE IF NOT EXISTS orders (
   order_id serial PRIMARY KEY,
   customer_id int NOT NULL REFERENCES customer (customer_id),
@@ -144,7 +133,6 @@ CREATE TABLE IF NOT EXISTS orders (
   vehicle_id int REFERENCES vehicle (vehicle_id)
 );
 
--- Creating the "order statuses" table
 CREATE TABLE IF NOT EXISTS order_statuses (
   order_id int REFERENCES orders (order_id),
   time timestamp,
@@ -152,7 +140,6 @@ CREATE TABLE IF NOT EXISTS order_statuses (
   PRIMARY KEY (order_id, time)
 );
 
--- Creating the "cargo" table
 CREATE TABLE IF NOT EXISTS cargo (
   cargo_id serial PRIMARY KEY,
   weight float NOT NULL CHECK (weight <= 25000),
@@ -163,7 +150,6 @@ CREATE TABLE IF NOT EXISTS cargo (
   cargo_type cargo_type
 );
 
--- Creating the "address" table
 CREATE TABLE IF NOT EXISTS address (
   address_id serial PRIMARY KEY,
   country text NOT NULL,
@@ -173,14 +159,12 @@ CREATE TABLE IF NOT EXISTS address (
   corpus int
 );
 
--- Creating the "storage point" table
 CREATE TABLE IF NOT EXISTS storage_point (
   address_id int REFERENCES address(address_id) PRIMARY KEY,
   longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180),
   latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90)
 );
 
--- Creating the "loading_unloading agreement" table
 CREATE TABLE IF NOT EXISTS loading_unloading_agreement (
   order_id int REFERENCES orders (order_id) PRIMARY KEY,
   driver_id int NOT NULL REFERENCES driver (driver_id),
@@ -199,7 +183,6 @@ CREATE TABLE IF NOT EXISTS loading_unloading_agreement (
   )
 );
 
--- Creating the "fuel cards for drivers" table
 CREATE TABLE IF NOT EXISTS fuel_cards_for_drivers (
   driver_id int REFERENCES driver(driver_id),
   fuel_card_number varchar(40) NOT NULL,
@@ -208,7 +191,6 @@ CREATE TABLE IF NOT EXISTS fuel_cards_for_drivers (
   UNIQUE (fuel_card_number)
 );
 
--- Creating the "fuel expenses" table
 CREATE TABLE IF NOT EXISTS fuel_expenses (
   fuel_card_number varchar(40) REFERENCES fuel_cards_for_drivers(fuel_card_number) PRIMARY KEY,
   date date,

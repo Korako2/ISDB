@@ -1,4 +1,3 @@
--- Drop the tables
 DROP TABLE IF EXISTS
   vehicle_ownership,
   loading_unloading_agreement,
@@ -20,7 +19,6 @@ DROP TABLE IF EXISTS
   person
   CASCADE;
 
--- Drop the types
 DROP TYPE IF EXISTS
   driver_status,
   body_type,
