@@ -78,7 +78,7 @@ VALUES
   (2, 2, 2, 1, 3, 4, '10:00', '18:00');
 
 TRUNCATE TABLE order_statuses CASCADE;
-INSERT INTO order_statuses (order_id, time, status)
+INSERT INTO order_statuses (order_id, date_time, status)
 VALUES
   (1, '2023-01-01 00:00:01', 'ACCEPTED'),
   (2, '2023-01-01 01:01:02', 'ACCEPTED'),
