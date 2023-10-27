@@ -1,6 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS cube;
-CREATE EXTENSION IF NOT EXISTS earthdistance;
-
 -- функция добавления заказа в систему.
 CREATE OR REPLACE FUNCTION add_order(
     var_customer_id int,
