@@ -1,4 +1,3 @@
-DROP TYPE IF EXISTS driver_status CASCADE;
 CREATE TYPE driver_status AS ENUM (
   'OFF DUTY',
   'EN ROUTE',
@@ -11,20 +10,17 @@ CREATE TYPE driver_status AS ENUM (
   'COMPLETED ORDER'
 );
 
-DROP TYPE IF EXISTS body_type CASCADE;
 CREATE TYPE body_type AS ENUM (
   'OPEN',
   'CLOSED'
 );
 
-DROP TYPE IF EXISTS cargo_type CASCADE;
 CREATE TYPE cargo_type AS ENUM (
   'BULK',
   'TIPPER',
   'PALLETIZED'
 );
 
-DROP TYPE IF EXISTS order_status CASCADE;
 CREATE TYPE order_status AS ENUM (
   'ACCEPTED',
   'IN PROGRESS',
@@ -36,7 +32,6 @@ CREATE TYPE order_status AS ENUM (
   'COMPLETED'
 );
 
-DROP TYPE IF EXISTS contact_info_type CASCADE;
 CREATE TYPE contact_info_type AS ENUM (
   'PHONE NUMBER',
   'TELEGRAM',
