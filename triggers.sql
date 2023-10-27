@@ -194,24 +194,31 @@ EXECUTE PROCEDURE check_order_status_time();
 
 -- Статусы заказа должны синхронизироваться со статусом водителя
 CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS $$
+DECLARE
+    current_order_id int;
+    var_driver_id int;
 BEGIN
-  -- get current order from driver
-  IF NEW.status = 'COMPLETED ORDER' THEN
-    INSERT INTO order_statuses (order_id, time, status)
-    VALUES (NEW.order_id, NOW(), 'ACCEPTED');
-  ELSIF NEW.status = 'EN ROUTE' THEN
-    INSERT INTO order_statuses (order_id, time, status)
-    VALUES (NEW.order_id, NOW(), 'IN PROGRESS');
-  ELSIF NEW.status = 'UNLOADING' THEN
-    INSERT INTO order_statuses (order_id, time, status)
-    VALUES (NEW.order_id, NOW(), 'ARRIVED AT UNLOADING LOCATION');
-  ELSIF NEW.status = 'LOADING' THEN
-    INSERT INTO order_statuses (order_id, time, status)
-    VALUES (NEW.order_id, NOW(), 'ARRIVED AT LOADING LOCATION');
-  END IF;
-  RETURN NEW;
+    SELECT driver_id INTO var_driver_id FROM driver_status_history WHERE driver_id = NEW.driver_id AND date = NEW.date;
+    SELECT order_id INTO current_order_id FROM orders WHERE vehicle_id = (
+        SELECT vehicle_id FROM vehicle_ownership WHERE vehicle_ownership.driver_id = var_driver_id AND ownership_end_date IS NULL
+    );
+
+    IF NEW.status = 'COMPLETED ORDER' THEN
+        INSERT INTO order_statuses (order_id, time, status)
+        VALUES (order_id, NOW(), 'ACCEPTED');
+    ELSIF NEW.status = 'EN ROUTE' THEN
+        INSERT INTO order_statuses (order_id, time, status)
+        VALUES (order_id, NOW(), 'IN PROGRESS');
+    ELSIF NEW.status = 'UNLOADING' THEN
+        INSERT INTO order_statuses (order_id, time, status)
+        VALUES (order_id, NOW(), 'ARRIVED AT UNLOADING LOCATION');
+    ELSIF NEW.status = 'LOADING' THEN
+        INSERT INTO order_statuses (order_id, time, status)
+        VALUES (order_id, NOW(), 'ARRIVED AT LOADING LOCATION');
+    END IF;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_order_status_trigger AFTER INSERT ON driver_status_history
+CREATE TRIGGER update_order_status AFTER INSERT ON driver_status_history
 FOR EACH ROW EXECUTE PROCEDURE update_order_status();
