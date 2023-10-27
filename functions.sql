@@ -1,3 +1,22 @@
+CREATE TABLE IF NOT EXISTS order_statuses (
+                                              order_id int REFERENCES orders (order_id),
+                                              time timestamp,
+                                              status order_status,
+                                              PRIMARY KEY (order_id, time)
+);
+
+DROP TYPE IF EXISTS order_status CASCADE;
+CREATE TYPE order_status AS ENUM (
+    'ACCEPTED',
+    'IN PROGRESS',
+    'ARRIVED AT LOADING LOCATION',
+    'LOADING',
+    'ARRIVED AT UNLOADING LOCATION',
+    'ON THE WAY',
+    'COMPLETED'
+    );
+
+
 create extension cube;
 create extension earthdistance;
 
@@ -34,6 +53,9 @@ BEGIN
     INSERT INTO orders (customer_id, distance, price, order_date, vehicle_id)
     VALUES (var_customer_id, calculated_distance, calculated_price, NOW(), var_vehicle_id)
     RETURNING order_id INTO order_id;
+
+    INSERT INTO order_statuses (order_id, time, status)
+    VALUES (order_id, NOW(), 'ACCEPTED');
 
     RETURN order_id;
 END;
