@@ -55,6 +55,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER check_fuel_expenses_trigger
+  BEFORE INSERT OR UPDATE ON fuel_expenses
+  FOR EACH ROW EXECUTE PROCEDURE check_fuel_expenses();
 
 CREATE OR REPLACE FUNCTION check_cargo_size()
 RETURNS TRIGGER AS $$
@@ -85,11 +88,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER cargo_check_size
+CREATE TRIGGER cargo_check_size_trigger
 BEFORE INSERT ON cargo
 FOR EACH ROW
 EXECUTE PROCEDURE check_cargo_size();
-
 
 CREATE OR REPLACE FUNCTION check_country_match()
 RETURNS TRIGGER AS $$
@@ -125,11 +127,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER country_match_check
+CREATE TRIGGER country_match_check_trigger
 BEFORE INSERT ON loading_unloading_agreement
 FOR EACH ROW
 EXECUTE PROCEDURE check_country_match();
-
 
 CREATE OR REPLACE FUNCTION check_order_status_sequence()
 RETURNS TRIGGER AS $$
@@ -157,11 +158,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER order_status_sequence_check
+CREATE TRIGGER order_status_sequence_check_trigger
 BEFORE INSERT ON order_statuses
 FOR EACH ROW
 EXECUTE PROCEDURE check_order_status_sequence();
-
 
 CREATE OR REPLACE FUNCTION check_order_status_time()
 RETURNS TRIGGER AS $$
@@ -187,15 +187,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER order_status_time_check
+CREATE TRIGGER order_status_time_check_trigger
 BEFORE INSERT ON order_statuses
 FOR EACH ROW
 EXECUTE PROCEDURE check_order_status_time();
 
-
 -- Статусы заказа должны синхронизироваться со статусом водителя
 CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS $$
 BEGIN
+  -- get current order from driver
   IF NEW.status = 'COMPLETED ORDER' THEN
     INSERT INTO order_statuses (order_id, time, status)
     VALUES (NEW.order_id, NOW(), 'ACCEPTED');
@@ -213,5 +213,5 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_order_status AFTER INSERT ON driver_status_history
+CREATE TRIGGER update_order_status_trigger AFTER INSERT ON driver_status_history
 FOR EACH ROW EXECUTE PROCEDURE update_order_status();
