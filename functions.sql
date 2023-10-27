@@ -1,5 +1,5 @@
-create extension cube;
-create extension earthdistance;
+CREATE EXTENSION IF NOT EXISTS cube;
+CREATE EXTENSION IF NOT EXISTS earthdistance;
 
 -- функция добавления заказа в систему.
 CREATE OR REPLACE FUNCTION add_order(
@@ -46,9 +46,9 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION add_customer(
     v_first_name varchar(20),
     v_last_name varchar(20),
-    v_middle_name varchar(20) default null,
     v_gender char(1),
     v_date_of_birth date,
+    v_middle_name varchar(20) default null,
     v_organization varchar(50) default null
 ) RETURNS int AS $$
 DECLARE
