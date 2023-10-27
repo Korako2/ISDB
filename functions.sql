@@ -15,8 +15,8 @@ DECLARE
     order_id            int;
 BEGIN
     SELECT (
-               point(a.latitude, a.longitude) <@> point(b.latitude, b.longitude)
-               )
+      a.latitude - b.latitude
+    )
     FROM storage_point a,
          storage_point b
     WHERE a.address_id = address_a_id
