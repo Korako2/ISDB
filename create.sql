@@ -17,6 +17,7 @@ CREATE TYPE body_type AS ENUM (
   'CLOSED'
 );
 
+DROP TYPE IF EXISTS cargo_type CASCADE;
 CREATE TYPE cargo_type AS ENUM (
   'BULK',
   'TIPPER',
