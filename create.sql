@@ -198,4 +198,3 @@ CREATE TABLE IF NOT EXISTS fuel_expenses (
   date date,
   amount double precision NOT NULL
 );
-
