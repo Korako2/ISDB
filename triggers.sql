@@ -16,20 +16,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS check_speed_trigger ON vehicle_movement_history;
 CREATE TRIGGER check_speed_trigger
   BEFORE INSERT OR UPDATE ON vehicle_movement_history
   FOR EACH ROW EXECUTE PROCEDURE check_speed();
 
 -- Подобранный автомобиль должен соответствовать типу груза. Насыпной, навалочный -- открытый. Тарный -- закрытый.
 CREATE OR REPLACE FUNCTION check_vehicle_type() RETURNS TRIGGER AS $$
+DECLARE
+    var_cargo_id int;
+    var_cargo_type text;
+    var_body_type text;
 BEGIN
-  IF NEW.CARGO_TYPE = 'BULK' OR NEW.CARGO_TYPE = 'TIPPER' THEN
-    IF NEW.BODY_TYPE != 'OPEN' THEN
+  SELECT cargo_id INTO var_cargo_id FROM cargo WHERE order_id = NEW.order_id;
+  SELECT cargo_type INTO var_cargo_type FROM cargo WHERE cargo.cargo_id = var_cargo_id;
+  SELECT body_type INTO var_body_type FROM vehicle WHERE vehicle.vehicle_id = NEW.vehicle_id;
+  IF var_cargo_type = 'BULK' OR var_cargo_type = 'TIPPER' THEN
+    IF var_body_type != 'OPEN' THEN
       RAISE EXCEPTION 'Vehicle type must be OPEN';
     END IF;
   END IF;
-  IF NEW.CARGO_TYPE = 'PALLETIZED' THEN
-    IF NEW.BODY_TYPE != 'CLOSED' THEN
+  IF var_cargo_type = 'PALLETIZED' THEN
+    IF var_body_type != 'CLOSED' THEN
       RAISE EXCEPTION 'Vehicle type must be CLOSED';
     END IF;
   END IF;
@@ -37,17 +45,24 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS check_vehicle_type_trigger ON orders;
+CREATE TRIGGER check_vehicle_type_trigger
+  BEFORE INSERT OR UPDATE ON orders
+  EXECUTE PROCEDURE check_vehicle_type();
+
 -- расходы должны сопоставляться с пробегом автомобиля
 CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS $$
 DECLARE
   prev_pay_date timestamp;
   prev_mileage float;
   current_mileage float;
+  var_vehicle_id int;
 BEGIN
+  var_vehicle_id = (SELECT VEHICLE_ID FROM vehicle WHERE FUEL_CARD_NUMBER = NEW.FUEL_CARD_NUMBER);
   -- select record from movement history nearest to prev_pay_date
   prev_pay_date = (SELECT DATE FROM FUEL_EXPENSES WHERE FUEL_CARD_NUMBER = NEW.FUEL_CARD_NUMBER ORDER BY DATE DESC LIMIT 1);
-  prev_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = NEW.VEHICLE_ID AND DATE <= prev_pay_date ORDER BY DATE DESC LIMIT 1);
-  current_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = NEW.VEHICLE_ID AND DATE >= prev_pay_date ORDER BY DATE DESC LIMIT 1);
+  prev_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = var_vehicle_id AND DATE <= prev_pay_date ORDER BY DATE DESC LIMIT 1);
+  current_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = var_vehicle_id AND DATE >= prev_pay_date ORDER BY DATE DESC LIMIT 1);
   IF (current_mileage - prev_mileage) * 6 < NEW.AMOUNT THEN
     RAISE EXCEPTION 'Fuel expenses are too high';
   END IF;
@@ -55,6 +70,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS check_fuel_expenses_trigger ON fuel_expenses;
 CREATE TRIGGER check_fuel_expenses_trigger
   BEFORE INSERT OR UPDATE ON fuel_expenses
   FOR EACH ROW EXECUTE PROCEDURE check_fuel_expenses();
@@ -88,6 +104,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS cargo_check_size_trigger ON cargo;
 CREATE TRIGGER cargo_check_size_trigger
 BEFORE INSERT ON cargo
 FOR EACH ROW
@@ -127,6 +144,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS country_match_check_trigger ON loading_unloading_agreement;
 CREATE TRIGGER country_match_check_trigger
 BEFORE INSERT ON loading_unloading_agreement
 FOR EACH ROW
@@ -158,6 +176,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS order_status_sequence_check_trigger ON order_statuses;
 CREATE TRIGGER order_status_sequence_check_trigger
 BEFORE INSERT ON order_statuses
 FOR EACH ROW
@@ -187,6 +206,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS order_status_time_check_trigger ON order_statuses;
 CREATE TRIGGER order_status_time_check_trigger
 BEFORE INSERT ON order_statuses
 FOR EACH ROW
@@ -220,5 +240,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_order_status ON driver_status_history;
 CREATE TRIGGER update_order_status AFTER INSERT ON driver_status_history
 FOR EACH ROW EXECUTE PROCEDURE update_order_status();
