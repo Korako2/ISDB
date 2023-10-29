@@ -10,6 +10,11 @@ CREATE TRIGGER check_vehicle_type_trigger
   BEFORE INSERT OR UPDATE ON orders
   EXECUTE PROCEDURE check_vehicle_type();
 
+DROP TRIGGER IF EXISTS check_fuel_expenses_trigger ON fuel_expenses;
+CREATE TRIGGER check_fuel_expenses_trigger
+  BEFORE INSERT OR UPDATE ON fuel_expenses
+  FOR EACH ROW EXECUTE PROCEDURE check_fuel_expenses();
+
 DROP TRIGGER IF EXISTS cargo_check_size_trigger ON cargo;
 CREATE TRIGGER cargo_check_size_trigger
 BEFORE INSERT ON cargo
@@ -28,11 +33,13 @@ BEFORE INSERT ON order_statuses
 FOR EACH ROW
 EXECUTE PROCEDURE check_order_status_sequence();
 
+
 DROP TRIGGER IF EXISTS order_status_time_check_trigger ON order_statuses;
 CREATE TRIGGER order_status_time_check_trigger
 BEFORE INSERT ON order_statuses
 FOR EACH ROW
 EXECUTE PROCEDURE check_order_status_time();
+
 
 DROP TRIGGER IF EXISTS update_order_status ON driver_status_history;
 CREATE TRIGGER update_order_status AFTER INSERT ON driver_status_history
