@@ -8,9 +8,9 @@ VALUES (1, 'А123ЕК152', 'BMW', '2019-01-01', 4.5, 2.0, 2.0, 1000, 'OPEN'),
 TRUNCATE TABLE vehicle_movement_history CASCADE;
 ALTER SEQUENCE vehicle_vehicle_id_seq RESTART WITH 1;
 INSERT INTO vehicle_movement_history (vehicle_id, date, latitude, longitude, mileage)
-VALUES (1, '2019-01-01 00:00:00', 1.0, 1.0, 1000),
-       (2, '2019-01-01 00:10:01', 1.0, 1.0, 1100),
-       (1, '2019-01-01 00:20:03', 1.0, 1.0, 2100);
+VALUES (1, '2023-01-01 00:00:00', 1.0, 1.0, 1000),
+       (2, '2023-01-01 00:10:01', 2.0, 2.0, 1010),
+       (1, '2023-01-01 00:20:03', 3.0, 3.0, 1020);
 
 TRUNCATE TABLE address CASCADE;
 ALTER SEQUENCE address_address_id_seq RESTART WITH 1;
