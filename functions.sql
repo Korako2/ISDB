@@ -112,14 +112,16 @@ END;
 $check_vehicle_type$ LANGUAGE plpgsql;
 
 -- расходы должны сопоставляться с пробегом автомобиля
-CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS $check_fuel_expenses$
 DECLARE
   prev_pay_date timestamp;
   prev_mileage float;
   current_mileage float;
   var_vehicle_id int;
 BEGIN
-  var_vehicle_id = (SELECT VEHICLE_ID FROM vehicle WHERE FUEL_CARD_NUMBER = NEW.FUEL_CARD_NUMBER);
+  var_vehicle_id = (SELECT vehicle_id FROM vehicle WHERE vehicle_id =
+       (SELECT vehicle_id FROM vehicle_ownership WHERE vehicle_ownership.driver_id =
+           (SELECT fuel_cards_for_drivers.driver_id FROM fuel_cards_for_drivers WHERE fuel_card_number = NEW.FUEL_CARD_NUMBER)));
   -- select record from movement history nearest to prev_pay_date
   prev_pay_date = (SELECT DATE FROM FUEL_EXPENSES WHERE FUEL_CARD_NUMBER = NEW.FUEL_CARD_NUMBER ORDER BY DATE DESC LIMIT 1);
   prev_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = var_vehicle_id AND DATE <= prev_pay_date ORDER BY DATE DESC LIMIT 1);
@@ -129,7 +131,7 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$check_fuel_expenses$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION check_cargo_size() RETURNS TRIGGER AS $check_cargo_size$
 DECLARE
@@ -233,7 +235,7 @@ BEGIN
     order_id = NEW.order_id;
 
   -- Проверяем, что новое время больше предыдущего
-  IF prev_time IS NOT NULL AND NEW.time <= prev_time THEN
+  IF prev_time IS NOT NULL AND NEW.date_time <= prev_time THEN
     RAISE EXCEPTION 'Время статуса заказа должно быть больше времени предыдущей записи';
   END IF;
 
