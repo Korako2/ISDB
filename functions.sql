@@ -4,8 +4,7 @@ CREATE OR REPLACE FUNCTION add_order(
     address_a_id int,
     address_b_id int,
     var_vehicle_id int
-) RETURNS int AS
-$$
+) RETURNS int AS $order_id$
 DECLARE
     calculated_distance float;
     calculated_price    float;
@@ -31,12 +30,12 @@ BEGIN
     VALUES (var_customer_id, calculated_distance, calculated_price, NOW(), var_vehicle_id)
     RETURNING order_id INTO order_id;
 
-    INSERT INTO order_statuses (order_id, time, status)
+    INSERT INTO order_statuses (order_id, date_time, status)
     VALUES (order_id, NOW(), 'ACCEPTED');
 
     RETURN order_id;
 END;
-$$ LANGUAGE plpgsql;
+$order_id$ LANGUAGE plpgsql;
 
 -- Функция добавления заказчика
 CREATE OR REPLACE FUNCTION add_customer(
@@ -46,7 +45,7 @@ CREATE OR REPLACE FUNCTION add_customer(
     v_date_of_birth date,
     v_middle_name varchar(20) default null,
     v_organization varchar(50) default null
-) RETURNS int AS $$
+) RETURNS int AS $customer_id$
 DECLARE
     v_person_id int;
     customer_id int;
@@ -69,10 +68,10 @@ BEGIN
 
     RETURN customer_id;
 END;
-$$ LANGUAGE plpgsql;
+$customer_id$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS $check_speed$
 DECLARE
   prev_record float;
   prev_date timestamp;
@@ -86,10 +85,10 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$check_speed$ LANGUAGE plpgsql;
 
 -- Подобранный автомобиль должен соответствовать типу груза. Насыпной, навалочный -- открытый. Тарный -- закрытый.
-CREATE OR REPLACE FUNCTION check_vehicle_type() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION check_vehicle_type() RETURNS TRIGGER AS $check_vehicle_type$
 DECLARE
     var_cargo_id int;
     var_cargo_type text;
@@ -110,10 +109,31 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$check_vehicle_type$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION check_cargo_size()
-RETURNS TRIGGER AS $$
+-- расходы должны сопоставляться с пробегом автомобиля
+CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS $check_fuel_expenses$
+DECLARE
+  prev_pay_date timestamp;
+  prev_mileage float;
+  current_mileage float;
+  var_vehicle_id int;
+BEGIN
+  var_vehicle_id = (SELECT vehicle_id FROM vehicle WHERE vehicle_id =
+       (SELECT vehicle_id FROM vehicle_ownership WHERE vehicle_ownership.driver_id =
+           (SELECT fuel_cards_for_drivers.driver_id FROM fuel_cards_for_drivers WHERE fuel_card_number = NEW.FUEL_CARD_NUMBER)));
+  -- select record from movement history nearest to prev_pay_date
+  prev_pay_date = (SELECT DATE FROM FUEL_EXPENSES WHERE FUEL_CARD_NUMBER = NEW.FUEL_CARD_NUMBER ORDER BY DATE DESC LIMIT 1);
+  prev_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = var_vehicle_id AND DATE <= prev_pay_date ORDER BY DATE DESC LIMIT 1);
+  current_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = var_vehicle_id AND DATE >= prev_pay_date ORDER BY DATE DESC LIMIT 1);
+  IF (current_mileage - prev_mileage) * 6 < NEW.AMOUNT THEN
+    RAISE EXCEPTION 'Fuel expenses are too high';
+  END IF;
+  RETURN NEW;
+END;
+$check_fuel_expenses$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION check_cargo_size() RETURNS TRIGGER AS $check_cargo_size$
 DECLARE
   var_length float;
   var_width float;
@@ -139,10 +159,9 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$check_cargo_size$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION check_country_match()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION check_country_match() RETURNS TRIGGER AS $check_country_match$
 DECLARE
   departure_country text;
   delivery_country text;
@@ -173,11 +192,10 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$check_country_match$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION check_order_status_sequence()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION check_order_status_sequence() RETURNS TRIGGER AS $check_order_status_sequence$
 DECLARE
   prev_status order_status;
 BEGIN
@@ -190,7 +208,7 @@ BEGIN
   WHERE
     order_id = NEW.order_id
   ORDER BY
-    time DESC
+    date_time DESC
   LIMIT 1;
 
   IF prev_status IS NOT NULL AND
@@ -200,16 +218,15 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$check_order_status_sequence$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION check_order_status_time()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION check_order_status_time() RETURNS TRIGGER AS $check_order_status_time$
 DECLARE
   prev_time timestamp;
 BEGIN
   -- Получаем время предыдущей записи для данного заказа
   SELECT
-    MAX(time)
+    MAX(date_time)
   INTO
     prev_time
   FROM
@@ -218,16 +235,16 @@ BEGIN
     order_id = NEW.order_id;
 
   -- Проверяем, что новое время больше предыдущего
-  IF prev_time IS NOT NULL AND NEW.time <= prev_time THEN
+  IF prev_time IS NOT NULL AND NEW.date_time <= prev_time THEN
     RAISE EXCEPTION 'Время статуса заказа должно быть больше времени предыдущей записи';
   END IF;
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$check_order_status_time$ LANGUAGE plpgsql;
 
 -- Статусы заказа должны синхронизироваться со статусом водителя
-CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS $update_order_status$
 DECLARE
     current_order_id int;
     var_driver_id int;
@@ -238,18 +255,18 @@ BEGIN
     );
 
     IF NEW.status = 'COMPLETED ORDER' THEN
-        INSERT INTO order_statuses (order_id, time, status)
+        INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (order_id, NOW(), 'ACCEPTED');
     ELSIF NEW.status = 'EN ROUTE' THEN
-        INSERT INTO order_statuses (order_id, time, status)
+        INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (order_id, NOW(), 'IN PROGRESS');
     ELSIF NEW.status = 'UNLOADING' THEN
-        INSERT INTO order_statuses (order_id, time, status)
+        INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (order_id, NOW(), 'ARRIVED AT UNLOADING LOCATION');
     ELSIF NEW.status = 'LOADING' THEN
-        INSERT INTO order_statuses (order_id, time, status)
+        INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (order_id, NOW(), 'ARRIVED AT LOADING LOCATION');
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$update_order_status$ LANGUAGE plpgsql;
