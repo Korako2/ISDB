@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS driver_license (
 
 CREATE TABLE IF NOT EXISTS vehicle (
   vehicle_id serial PRIMARY KEY,
-  plate_number varchar(9) NOT NULL CHECK (
+  plate_number varchar(9) NOT NULL UNIQUE CHECK (
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
   ),
