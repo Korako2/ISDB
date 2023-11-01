@@ -77,19 +77,6 @@ VALUES
   (1, 1, 1, 2, 1, 2, '08:00', '16:00'),
   (2, 2, 2, 1, 3, 4, '10:00', '18:00');
 
-TRUNCATE TABLE order_statuses CASCADE;
-INSERT INTO order_statuses (order_id, date_time, status)
-VALUES
-  (1, '2023-01-01 00:00:01', 'ACCEPTED'),
-  (2, '2023-01-01 01:01:02', 'ACCEPTED'),
-  (1, '2023-01-01 00:00:02', 'IN PROGRESS'),
-  (1, '2023-01-01 01:01:01', 'ARRIVED AT LOADING LOCATION'),
-  (1, '2023-01-01 01:01:02', 'LOADING'),
-  (1, '2023-01-01 01:01:03', 'ARRIVED AT UNLOADING LOCATION'),
-  (1, '2023-01-01 01:01:04', 'ON THE WAY'),
-  (1, '2023-01-01 01:01:05', 'UNLOADING'),
-  (1, '2023-01-01 01:01:06', 'COMPLETED');
-
 TRUNCATE TABLE tariff_rate CASCADE;
 INSERT INTO tariff_rate (driver_id, daily_rate, rate_per_km)
 VALUES
@@ -99,14 +86,14 @@ VALUES
 TRUNCATE TABLE driver_license CASCADE;
 INSERT INTO driver_license (driver_id, issue_date, expiration_date, license_number)
 VALUES
-  (1, '2010-01-01', '2023-01-01', 1234542),
-  (2, '2012-05-15', '2024-05-15', 5432112);
+  (1, '1990-01-01', '2040-01-01', 1234542),
+  (2, '1980-05-15', '2042-05-15', 5432112);
 
 TRUNCATE TABLE vehicle_ownership CASCADE;
 INSERT INTO vehicle_ownership (vehicle_id, driver_id, ownership_start_date, ownership_end_date)
 VALUES
-  (1, 1, '2023-01-01', '2023-12-31'),
-  (2, 2, '2023-01-01', '2023-12-31');
+  (1, 1, '1990-01-01', null),
+  (2, 2, '1990-01-01', null);
 
 TRUNCATE TABLE fuel_cards_for_drivers  CASCADE;
 INSERT INTO fuel_cards_for_drivers (driver_id, fuel_card_number, fuel_station_name)
@@ -119,3 +106,24 @@ INSERT INTO fuel_expenses (fuel_card_number, date, amount)
 VALUES
   ('1234567890123456', '2023-10-25', 120.50),
   ('9876543210987654', '2023-10-26', 110.20);
+
+TRUNCATE TABLE driver_status_history CASCADE;
+TRUNCATE TABLE order_statuses CASCADE;
+INSERT INTO driver_status_history (driver_id, date, status)
+VALUES
+  (1, '2023-10-25', 'ACCEPTED ORDER'),
+  (1, '2023-10-26', 'OFF DUTY'),
+  (1, '2023-10-27', 'EN ROUTE'),
+  (1, '2023-10-28', 'ARRIVED AT LOADING LOCATION'),
+  (1, '2023-10-29', 'LOADING'),
+  (1, '2023-10-30', 'ARRIVED AT UNLOADING LOCATION'),
+  (1, '2023-10-31', 'UNLOADING'),
+  (1, '2023-11-01', 'COMPLETED ORDER'),
+  (2, '2023-10-25', 'ACCEPTED ORDER'),
+  (2, '2023-10-26', 'OFF DUTY'),
+  (2, '2023-10-27', 'EN ROUTE'),
+  (2, '2023-10-28', 'ARRIVED AT LOADING LOCATION'),
+  (2, '2023-10-29', 'LOADING'),
+  (2, '2023-10-30', 'ARRIVED AT UNLOADING LOCATION'),
+  (2, '2023-10-31', 'UNLOADING'),
+  (2, '2023-11-01', 'COMPLETED ORDER');

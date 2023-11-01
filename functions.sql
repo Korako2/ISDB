@@ -248,25 +248,35 @@ $check_order_status_time$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS $update_order_status$
 DECLARE
     current_order_id int;
-    var_driver_id int;
 BEGIN
-    SELECT driver_id INTO var_driver_id FROM driver_status_history WHERE driver_id = NEW.driver_id AND date = NEW.date;
-    SELECT order_id INTO current_order_id FROM orders WHERE vehicle_id = (
-        SELECT vehicle_id FROM vehicle_ownership WHERE vehicle_ownership.driver_id = var_driver_id AND ownership_end_date IS NULL
-    );
+    current_order_id = (SELECT order_id FROM orders WHERE vehicle_id = (
+        SELECT vehicle_id FROM vehicle_ownership WHERE vehicle_ownership.driver_id = NEW.driver_id AND ownership_end_date IS NULL
+    ));
+    IF current_order_id IS NULL THEN
+        RAISE EXCEPTION 'Заказ не существует или авто не назначен';
+    END IF;
 
-    IF NEW.status = 'COMPLETED ORDER' THEN
+    IF NEW.status = 'ACCEPTED ORDER' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (order_id, NOW(), 'ACCEPTED');
+        VALUES (current_order_id, NEW.date, 'ACCEPTED');
     ELSIF NEW.status = 'EN ROUTE' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (order_id, NOW(), 'IN PROGRESS');
-    ELSIF NEW.status = 'UNLOADING' THEN
+        VALUES (current_order_id, NEW.date, 'IN PROGRESS');
+    ELSIF NEW.status = 'ARRIVED AT LOADING LOCATION' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (order_id, NOW(), 'ARRIVED AT UNLOADING LOCATION');
+        VALUES (current_order_id, NEW.date, 'ARRIVED AT LOADING LOCATION');
     ELSIF NEW.status = 'LOADING' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (order_id, NOW(), 'ARRIVED AT LOADING LOCATION');
+        VALUES (current_order_id, NEW.date, 'LOADING');
+    ELSIF NEW.status = 'ARRIVED AT UNLOADING LOCATION' THEN
+        INSERT INTO order_statuses (order_id, date_time, status)
+        VALUES (current_order_id, NEW.date, 'ARRIVED AT UNLOADING LOCATION');
+    ELSIF NEW.status = 'UNLOADING' THEN
+        INSERT INTO order_statuses (order_id, date_time, status)
+        VALUES (current_order_id, NEW.date, 'UNLOADING');
+    ELSIF NEW.status = 'COMPLETED ORDER' THEN
+        INSERT INTO order_statuses (order_id, date_time, status)
+        VALUES (current_order_id, NEW.date, 'COMPLETED');
     END IF;
     RETURN NEW;
 END;
