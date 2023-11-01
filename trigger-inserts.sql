@@ -19,7 +19,7 @@ ALTER SEQUENCE vehicle_vehicle_id_seq RESTART WITH 1;
 INSERT INTO vehicle (vehicle_id, plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
 VALUES
     (1, 'А123ЕК152', 'a', '2000-01-01', 1.0, 1.0, 0.0, 1000, 'OPEN'),
-    (2, 'А123ЕК152', 'a', '2000-01-01', 1.0, 1.0, 0.0, 1000, 'CLOSED');
+    (2, 'А123ЕБ152', 'a', '2000-01-01', 1.0, 1.0, 0.0, 1000, 'CLOSED');
 
 TRUNCATE TABLE orders CASCADE;
 ALTER SEQUENCE orders_order_id_seq RESTART WITH 1;
