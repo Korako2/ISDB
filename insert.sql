@@ -20,7 +20,7 @@ VALUES ('Россия', 'Санкт-Петербург', 'Кронверский
        ('Беларусь', 'Солигорск', 'Козлова', 35, NULL);
 
 TRUNCATE TABLE storage_point CASCADE;
-INSERT INTO storage_point(address_id, longitude, latitude)
+INSERT INTO storage_point(address_id, latitude, longitude)
 VALUES (1, 59.956363, 30.310029),
        (2, 55.769048, 37.653765),
        (3, 53.895058, 27.561382),
