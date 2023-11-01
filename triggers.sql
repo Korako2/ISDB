@@ -8,33 +8,33 @@ FOR EACH ROW EXECUTE FUNCTION check_speed();
 DROP TRIGGER IF EXISTS check_vehicle_type_trigger ON orders;
 CREATE TRIGGER check_vehicle_type_trigger
 BEFORE INSERT OR UPDATE ON orders
-EXECUTE FUNCTION check_vehicle_type();
+FOR EACH ROW EXECUTE FUNCTION check_vehicle_type();
 
 DROP TRIGGER IF EXISTS check_fuel_expenses_trigger ON fuel_expenses;
 CREATE TRIGGER check_fuel_expenses_trigger
 BEFORE INSERT ON fuel_expenses
-EXECUTE FUNCTION check_fuel_expenses();
+FOR EACH ROW EXECUTE FUNCTION check_fuel_expenses();
 
 DROP TRIGGER IF EXISTS cargo_check_size_trigger ON cargo;
 CREATE TRIGGER cargo_check_size_trigger
 BEFORE INSERT ON cargo
-EXECUTE FUNCTION check_cargo_size();
+FOR EACH ROW EXECUTE FUNCTION check_cargo_size();
 
 DROP TRIGGER IF EXISTS country_match_check_trigger ON loading_unloading_agreement;
 CREATE TRIGGER country_match_check_trigger
 BEFORE INSERT ON loading_unloading_agreement
-EXECUTE FUNCTION check_country_match();
+FOR EACH ROW EXECUTE FUNCTION check_country_match();
 
 DROP TRIGGER IF EXISTS order_status_sequence_check_trigger ON order_statuses CASCADE;
 CREATE TRIGGER order_status_sequence_check_trigger
 BEFORE INSERT ON order_statuses
-EXECUTE FUNCTION check_order_status_sequence();
+FOR EACH ROW EXECUTE FUNCTION check_order_status_sequence();
 
 
 DROP TRIGGER IF EXISTS order_status_time_check_trigger ON order_statuses CASCADE;
 CREATE TRIGGER order_status_time_check_trigger
 BEFORE INSERT ON order_statuses
-EXECUTE FUNCTION check_order_status_time();
+FOR EACH ROW EXECUTE FUNCTION check_order_status_time();
 
 
 DROP TRIGGER IF EXISTS update_order_status ON driver_status_history CASCADE;
