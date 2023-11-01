@@ -162,8 +162,8 @@ CREATE TABLE IF NOT EXISTS address (
 
 CREATE TABLE IF NOT EXISTS storage_point (
   address_id int REFERENCES address(address_id) PRIMARY KEY,
-  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180),
-  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90)
+  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90),
+  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180)
 );
 
 CREATE TABLE IF NOT EXISTS loading_unloading_agreement (
