@@ -10,6 +10,7 @@ DECLARE
     calculated_price    float;
     ord_id            int;
 BEGIN
+-- формула гаверсинусов
     2 * 6371 * ASIN(
         SQRT(
             POWER(SIN(RADIANS(b.latitude - a.latitude) / 2), 2) +
