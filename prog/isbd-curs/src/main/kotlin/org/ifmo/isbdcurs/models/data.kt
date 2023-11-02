@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Max
 import org.hibernate.annotations.Check
 import org.hibernate.validator.constraints.Range
 import java.sql.Timestamp
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.*
 
 enum class DriverStatus {
@@ -67,7 +67,7 @@ open class Customer(
 @Entity
 open class DriverStatusHistory(
     @Id open val driverId: Long,
-    @Id open val date: LocalDateTime,
+    @Id open val date: Instant,
     open val status: DriverStatus,
 )
 
@@ -82,8 +82,8 @@ open class TariffRate(
 @Check(constraints = "issueDate < expirationDate")
 open class DriverLicense(
     @Id open val driverId: Long,
-    open val issueDate: LocalDateTime,
-    open val expirationDate: LocalDateTime,
+    open val issueDate: Instant,
+    open val expirationDate: Instant,
     open val licenseNumber: Int,
 )
 
@@ -93,7 +93,7 @@ open class Vehicle(
     @Check(constraints = "plateNumber ~ '^[А-Я]{1}\\d{3}[А-Я]{2}\\d{2}$' OR plateNumber ~ '^[А-Я]{1}\\d{3}[А-Я]{2}\\d{3}$'")
     open val plateNumber: String,
     open val model: String,
-    open val manufactureYear: LocalDateTime,
+    open val manufactureYear: Instant,
     open val length: Float,
     open val width: Float,
     open val height: Float,
@@ -106,8 +106,8 @@ open class Vehicle(
 open class VehicleOwnership(
     @Id open val vehicleId: Long,
     @Id open val driverId: Long,
-    open val ownershipStartDate: LocalDateTime,
-    open val ownershipEndDate: LocalDateTime,
+    open val ownershipStartDate: Instant,
+    open val ownershipEndDate: Instant,
 )
 
 @Entity
