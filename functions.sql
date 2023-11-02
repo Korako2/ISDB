@@ -11,7 +11,7 @@ DECLARE
     ord_id            int;
 BEGIN
 -- формула гаверсинусов
-    2 * 6371 * ASIN(
+    SELECT 2 * 6371 * ASIN(
         SQRT(
             POWER(SIN(RADIANS(b.latitude - a.latitude) / 2), 2) +
             COS(RADIANS(a.latitude)) * COS(RADIANS(b.latitude)) *
@@ -24,8 +24,6 @@ BEGIN
     WHERE a.address_id = address_a_id
       AND b.address_id = address_b_id
     INTO calculated_distance;
-
-
 
     SELECT 2 * (calculated_distance * rate_per_km + daily_rate)
     FROM tariff_rate
