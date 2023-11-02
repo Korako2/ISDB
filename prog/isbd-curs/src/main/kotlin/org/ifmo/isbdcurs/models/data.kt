@@ -2,8 +2,8 @@ package org.ifmo.isbdcurs.models
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
-import java.sql.Timestamp
 import java.time.Instant
+import java.time.LocalTime
 import java.util.*
 
 enum class DriverStatus {
@@ -28,7 +28,7 @@ enum class ContactInfoType {
 
 @Table
 data class Person(
-    @Id val id: Long? = null,
+    @Id var id: Long? = null,
     val firstName: String,
     val lastName: String,
     val middleName: String?,
@@ -43,14 +43,14 @@ data class ContactInfo(
 
 @Table
 data class Driver(
-    @Id val id: Long? = null,
+    @Id var id: Long? = null,
     val personId: Long,
     val bankCardNumber: String,
 )
 
 @Table
 data class Customer(
-    @Id val id: Long? = null,
+    @Id var id: Long? = null,
     val personId: Long,
     val organization: String?,
 )
@@ -79,7 +79,7 @@ data class DriverLicense(
 
 @Table
 data class Vehicle(
-    @Id val id: Long? = null,
+    @Id var id: Long? = null,
     val plateNumber: String,
     val model: String,
     val manufactureYear: Instant,
@@ -109,7 +109,7 @@ data class VehicleMovementHistory(
 
 @Table
 data class Order(
-    @Id val id: Long? = null,
+    @Id var id: Long? = null,
     val customerId: Long,
     val distance: Float,
     val price: Float,
@@ -120,13 +120,13 @@ data class Order(
 @Table
 data class OrderStatuses(
     @Id val orderId: Long,
-    @Id val dateTime: Timestamp,
+    @Id val dateTime: Instant,
     val status: OrderStatus,
 )
 
 @Table
 data class Cargo(
-    @Id val id: Long? = null,
+    @Id var id: Long? = null,
     val weight: Float,
     val width: Float,
     val height: Float,
@@ -137,7 +137,7 @@ data class Cargo(
 
 @Table
 data class Address(
-    @Id val id: Long? = null,
+    @Id var id: Long? = null,
     val country: String,
     val city: String,
     val street: String,
@@ -160,8 +160,8 @@ data class LoadingUnloadingAgreement(
     val deliveryPoint: Long,
     val senderId: Long,
     val receiverId: Long,
-    val unloadingTime: Timestamp,
-    val loadingTime: Timestamp,
+    val unloadingTime: LocalTime,
+    val loadingTime: LocalTime,
 )
 
 @Table
