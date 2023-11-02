@@ -8,11 +8,12 @@ import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.Max
 import org.hibernate.annotations.Check
 import org.hibernate.validator.constraints.Range
-import java.sql.Date
 import java.sql.Timestamp
+import java.time.LocalDateTime
+import java.util.*
 
 enum class DriverStatus {
-    ACCEPTED_ORDER, OFF_DUTY, EN_ROUTE, ARRIVED_AT_LOADING_LOCATION, LOADING, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED_ORDER,
+    OFF_DUTY, ACCEPTED_ORDER, EN_ROUTE, ARRIVED_AT_LOADING_LOCATION, LOADING, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED_ORDER,
 }
 
 enum class BodyType {
@@ -66,7 +67,7 @@ open class Customer(
 @Entity
 open class DriverStatusHistory(
     @Id open val driverId: Long,
-    @Id open val date: Date,
+    @Id open val date: LocalDateTime,
     open val status: DriverStatus,
 )
 
@@ -81,8 +82,8 @@ open class TariffRate(
 @Check(constraints = "issueDate < expirationDate")
 open class DriverLicense(
     @Id open val driverId: Long,
-    open val issueDate: Date,
-    open val expirationDate: Date,
+    open val issueDate: LocalDateTime,
+    open val expirationDate: LocalDateTime,
     open val licenseNumber: Int,
 )
 
@@ -92,7 +93,7 @@ open class Vehicle(
     @Check(constraints = "plateNumber ~ '^[А-Я]{1}\\d{3}[А-Я]{2}\\d{2}$' OR plateNumber ~ '^[А-Я]{1}\\d{3}[А-Я]{2}\\d{3}$'")
     open val plateNumber: String,
     open val model: String,
-    open val manufactureYear: Date,
+    open val manufactureYear: LocalDateTime,
     open val length: Float,
     open val width: Float,
     open val height: Float,
@@ -105,8 +106,8 @@ open class Vehicle(
 open class VehicleOwnership(
     @Id open val vehicleId: Long,
     @Id open val driverId: Long,
-    open val ownershipStartDate: Date,
-    open val ownershipEndDate: Date,
+    open val ownershipStartDate: LocalDateTime,
+    open val ownershipEndDate: LocalDateTime,
 )
 
 @Entity

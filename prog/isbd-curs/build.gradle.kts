@@ -29,6 +29,12 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    // generate random data
+    implementation("io.github.serpro69:kotlin-faker:1.15.0")
+
+    // datetime
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
 }
 
 tasks.withType<KotlinCompile> {
