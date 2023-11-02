@@ -4,7 +4,12 @@ CREATE OR REPLACE FUNCTION add_order(
     address_a_id int,
     address_b_id int,
     distance float,
-    var_vehicle_id int
+    var_vehicle_id int,
+    weight float,
+    width float,
+    height float,
+    length float,
+    cargo_type cargo_type
 ) RETURNS int AS $ord_id$
 DECLARE
     calculated_price    float;
@@ -24,6 +29,8 @@ BEGIN
     INSERT INTO order_statuses (order_id, date_time, status)
     VALUES (ord_id, NOW(), 'ACCEPTED');
 
+    INSERT INTO cargo (weight, width, height, length, order_id, cargo_type)
+    VALUES (weight, width, height, length, currval('orders_order_id_seq'), cargo_type);
     RETURN ord_id;
 END;
 $ord_id$ LANGUAGE plpgsql;
