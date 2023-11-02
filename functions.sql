@@ -3,29 +3,14 @@ CREATE OR REPLACE FUNCTION add_order(
     var_customer_id int,
     address_a_id int,
     address_b_id int,
+    distance float,
     var_vehicle_id int
 ) RETURNS int AS $ord_id$
 DECLARE
-    calculated_distance float;
     calculated_price    float;
     ord_id            int;
 BEGIN
--- формула гаверсинусов
-    SELECT 2 * 6371 * ASIN(
-        SQRT(
-            POWER(SIN(RADIANS(b.latitude - a.latitude) / 2), 2) +
-            COS(RADIANS(a.latitude)) * COS(RADIANS(b.latitude)) *
-            POWER(SIN(RADIANS(b.longitude - a.longitude) / 2), 2)
-        )
-    )
-
-    FROM storage_point a,
-         storage_point b
-    WHERE a.address_id = address_a_id
-      AND b.address_id = address_b_id
-    INTO calculated_distance;
-
-    SELECT 2 * (calculated_distance * rate_per_km + daily_rate)
+    SELECT 2 * (distance * rate_per_km + daily_rate)
     FROM tariff_rate
     WHERE driver_id = (SELECT driver_id
                        FROM vehicle_ownership
@@ -33,7 +18,7 @@ BEGIN
     INTO calculated_price;
 
     INSERT INTO orders (order_id, customer_id, distance, price, order_date, vehicle_id)
-    VALUES (nextval('orders_order_id_seq'), var_customer_id, calculated_distance, calculated_price, NOW(), var_vehicle_id)
+    VALUES (nextval('orders_order_id_seq'), var_customer_id, distance, calculated_price, NOW(), var_vehicle_id)
     RETURNING order_id INTO ord_id;
 
     INSERT INTO order_statuses (order_id, date_time, status)
@@ -287,3 +272,18 @@ BEGIN
     RETURN NEW;
 END;
 $update_order_status$ LANGUAGE plpgsql;
+
+-- формула гаверсинусов
+--    SELECT 2 * 6371 * ASIN(
+--        SQRT(
+--            POWER(SIN(RADIANS(b.latitude - a.latitude) / 2), 2) +
+--            COS(RADIANS(a.latitude)) * COS(RADIANS(b.latitude)) *
+--            POWER(SIN(RADIANS(b.longitude - a.longitude) / 2), 2)
+--        )
+--    )
+
+--    FROM storage_point a,
+--         storage_point b
+--    WHERE a.address_id = address_a_id
+--      AND b.address_id = address_b_id
+--    INTO calculated_distance;
