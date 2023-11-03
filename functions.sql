@@ -1,36 +1,28 @@
 -- функция добавления заказа в систему.
 CREATE OR REPLACE FUNCTION add_order(
     var_customer_id int,
-    address_a_id int,
-    address_b_id int,
     distance float,
     var_vehicle_id int,
-    weight float,
-    width float,
-    height float,
-    length float,
-    cargo_type cargo_type
+    v_weight float,
+    v_width float,
+    v_height float,
+    v_length float,
+    v_cargo_type cargo_type
 ) RETURNS int AS $ord_id$
 DECLARE
     calculated_price    float;
     ord_id            int;
 BEGIN
-    SELECT 2 * (distance * rate_per_km + daily_rate)
-    FROM tariff_rate
-    WHERE driver_id = (SELECT driver_id
-                       FROM vehicle_ownership
-                       WHERE vehicle_ownership.vehicle_id = var_vehicle_id)
-    INTO calculated_price;
-
-    INSERT INTO orders (order_id, customer_id, distance, price, order_date, vehicle_id)
-    VALUES (nextval('orders_order_id_seq'), var_customer_id, distance, calculated_price, NOW(), var_vehicle_id)
+    calculated_price = distance * 20;
+    INSERT INTO orders (customer_id, distance, price, order_date, vehicle_id)
+    VALUES (var_customer_id, distance, calculated_price, NOW(), var_vehicle_id)
     RETURNING order_id INTO ord_id;
 
     INSERT INTO order_statuses (order_id, date_time, status)
     VALUES (ord_id, NOW(), 'ACCEPTED');
 
     INSERT INTO cargo (weight, width, height, length, order_id, cargo_type)
-    VALUES (weight, width, height, length, currval('orders_order_id_seq'), cargo_type);
+    VALUES (v_weight, v_width, v_height, v_length, ord_id, v_cargo_type);
     RETURN ord_id;
 END;
 $ord_id$ LANGUAGE plpgsql;
