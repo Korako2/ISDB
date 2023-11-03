@@ -33,30 +33,29 @@ CREATE OR REPLACE FUNCTION add_customer(
     v_last_name varchar(20),
     v_gender char(1),
     v_date_of_birth date,
+    is_registered boolean,
+    s_person_id int default null,
     v_middle_name varchar(20) default null,
     v_organization varchar(50) default null
 ) RETURNS int AS $customer_id$
 DECLARE
     v_person_id int;
-    customer_id int;
+    v_customer_id int;
 BEGIN
-    INSERT INTO person
-    select *
-    from  (
-      VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
-    ) as data(first_name, last_name, middle_name, gender, date_of_birth)
-    WHERE NOT EXISTS (
-      select *
-      from person
-      where data = person
-    )
-    RETURNING person_id INTO v_person_id;
+    IF (NOT(is_registered)) THEN
+        INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
+        VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
+        RETURNING person_id INTO v_person_id;
+    ELSE
+
+        v_person_id = s_person_id;
+    END IF;
 
     INSERT INTO customer (person_id, organization)
     VALUES (v_person_id, v_organization)
-    RETURNING customer_id INTO customer_id;
+    RETURNING customer_id INTO v_customer_id;
 
-    RETURN customer_id;
+    RETURN v_customer_id;
 END;
 $customer_id$ LANGUAGE plpgsql;
 
