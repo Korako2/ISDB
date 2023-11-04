@@ -1,41 +1,63 @@
-CREATE TYPE driver_status AS ENUM (
-  'ACCEPTED ORDER',
-  'OFF DUTY',
-  'EN ROUTE',
-  'ARRIVED AT LOADING LOCATION',
-  'LOADING',
-  'ARRIVED AT UNLOADING LOCATION',
-  'UNLOADING',
-  'COMPLETED ORDER'
-);
+DO
+'
+    DECLARE
+    BEGIN
+        if not exists (select 1 from pg_type where typname = ''driver_status'') then
+            CREATE TYPE driver_status AS ENUM (
+                ''ACCEPTED ORDER'',
+                ''OFF DUTY'',
+                ''EN ROUTE'',
+                ''ARRIVED AT LOADING LOCATION'',
+                ''LOADING'',
+                ''ARRIVED AT UNLOADING LOCATION'',
+                ''UNLOADING'',
+                ''COMPLETED ORDER''
+                );
+            CREATE CAST ( varchar AS driver_status ) WITH INOUT AS IMPLICIT;
+        end if;
 
-CREATE TYPE body_type AS ENUM (
-  'OPEN',
-  'CLOSED'
-);
+        if not exists (select 1 from pg_type where typname = ''body_type'') then
+            CREATE TYPE body_type AS ENUM (
+                ''OPEN'',
+                ''CLOSED''
+                );
+            CREATE CAST ( varchar AS body_type ) WITH INOUT AS IMPLICIT;
+        end if;
 
-CREATE TYPE cargo_type AS ENUM (
-  'BULK',
-  'TIPPER',
-  'PALLETIZED'
-);
+        if not exists (select 1 from pg_type where typname = ''cargo_type'') then
+            CREATE TYPE cargo_type AS ENUM (
+                ''BULK'',
+                ''TIPPER'',
+                ''PALLETIZED''
+                );
+            CREATE CAST ( varchar AS cargo_type ) WITH INOUT AS IMPLICIT;
+        end if;
 
-CREATE TYPE order_status AS ENUM (
-  'ACCEPTED',
-  'IN PROGRESS',
-  'ARRIVED AT LOADING LOCATION',
-  'LOADING',
-  'ARRIVED AT UNLOADING LOCATION',
-  'ON THE WAY',
-  'UNLOADING',
-  'COMPLETED'
-);
+        if not exists (select 1 from pg_type where typname = ''order_status'') then
+            CREATE TYPE order_status AS ENUM (
+                ''ACCEPTED'',
+                ''IN PROGRESS'',
+                ''ARRIVED AT LOADING LOCATION'',
+                ''LOADING'',
+                ''ARRIVED AT UNLOADING LOCATION'',
+                ''ON THE WAY'',
+                ''UNLOADING'',
+                ''COMPLETED''
+                );
+            CREATE CAST ( varchar AS order_status ) WITH INOUT AS IMPLICIT;
+        end if;
 
-CREATE TYPE contact_info_type AS ENUM (
-  'PHONE NUMBER',
-  'TELEGRAM',
-  'EMAIL'
-);
+        if not exists (select 1 from pg_type where typname = ''contact_info_type'') then
+            CREATE TYPE contact_info_type AS ENUM (
+                ''PHONE NUMBER'',
+                ''TELEGRAM'',
+                ''EMAIL''
+                );
+            CREATE CAST ( varchar AS contact_info_type ) WITH INOUT AS IMPLICIT;
+        end if;
+    end;
+' LANGUAGE plpgsql;
+
 
 CREATE TABLE IF NOT EXISTS person (
   id serial PRIMARY KEY,
