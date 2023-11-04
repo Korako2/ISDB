@@ -28,3 +28,16 @@ class DateToLocalDateConverter : Converter<Date, LocalDate> {
     }
 }
 
+@WritingConverter
+class InstantToTimestampConverter : Converter<Instant, Timestamp> {
+    override fun convert(source: Instant): Timestamp {
+        return Timestamp(source.toEpochMilliseconds())
+    }
+}
+
+@ReadingConverter
+class TimestampToInstantConverter : Converter<Timestamp, Instant> {
+    override fun convert(source: Timestamp): Instant {
+        return source.toInstant().toKotlinInstant()
+    }
+}
