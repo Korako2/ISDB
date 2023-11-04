@@ -394,4 +394,33 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION find_suitable_vehicles(
+    v_length float,
+    v_width float,
+    v_height float,
+    v_cargo_type cargo_type,
+    v_weight float
+) RETURNS TABLE (
+    vehicle_id int
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        v.vehicle_id
+    FROM
+        vehicle v
+    WHERE
+        v.length >= v_length
+        AND v.width >= v_width
+        AND v.height >= v_height
+        AND (
+            (v_cargo_type = 'BULK' AND v.body_type = 'OPEN') OR
+            (v_cargo_type = 'TIPPER' AND v.body_type = 'OPEN') OR
+            (v_cargo_type = 'PALLETIZED' AND v.body_type = 'CLOSED')
+        )
+        AND v.load_capacity >= v_weight;
+
+END;
+$$ LANGUAGE plpgsql;
+
 
