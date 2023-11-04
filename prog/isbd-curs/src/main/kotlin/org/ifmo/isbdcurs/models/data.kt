@@ -1,9 +1,9 @@
 package org.ifmo.isbdcurs.models
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalTime
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
-import java.time.Instant
-import java.time.LocalTime
 import java.util.*
 
 enum class DriverStatus {
@@ -83,10 +83,10 @@ data class Vehicle(
     val plateNumber: String,
     val model: String,
     val manufactureYear: Instant,
-    val length: Float,
-    val width: Float,
-    val height: Float,
-    val loadCapacity: Float,
+    val length: Double,
+    val width: Double,
+    val height: Double,
+    val loadCapacity: Double,
     val bodyType: BodyType,
 )
 
@@ -101,19 +101,19 @@ data class VehicleOwnership(
 @Table
 data class VehicleMovementHistory(
     @Id val vehicleId: Long,
-    @Id val date: Date,
-    val latitude: Float,
-    val longitude: Float,
-    val mileage: Float,
+    @Id val date: Instant,
+    val latitude: Double,
+    val longitude: Double,
+    val mileage: Double,
 )
 
 @Table
 data class Order(
     @Id var id: Long? = null,
     val customerId: Long,
-    val distance: Float,
-    val price: Float,
-    val orderDate: Date,
+    val distance: Double,
+    val price: Double,
+    val orderDate: Instant,
     val vehicleId: Long?,
 )
 
@@ -127,10 +127,10 @@ data class OrderStatuses(
 @Table
 data class Cargo(
     @Id var id: Long? = null,
-    val weight: Float,
-    val width: Float,
-    val height: Float,
-    val length: Float,
+    val weight: Double,
+    val width: Double,
+    val height: Double,
+    val length: Double,
     val orderId: Long,
     val cargoType: CargoType,
 )
@@ -148,8 +148,8 @@ data class Address(
 @Table
 data class StoragePoint(
     @Id val addressId: Long,
-    val longitude: Float,
-    val latitude: Float,
+    val longitude: Double,
+    val latitude: Double,
 )
 
 @Table

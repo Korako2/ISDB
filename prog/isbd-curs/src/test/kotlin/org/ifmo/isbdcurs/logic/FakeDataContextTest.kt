@@ -32,7 +32,7 @@ class FakeDataContextTest() {
         val a = Point(0.0, 0.0)
         val b = Point(1.0, 1.0)
         val stepCount = 10
-        val noise = 0.1f
+        val noise = 0.0
         val series = generateSeriesBetweenPoints(a, b, stepCount, noise)
         assertEquals(series.size, stepCount + 1)
         assertEquals(series[0], a)
