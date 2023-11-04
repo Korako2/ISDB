@@ -331,4 +331,30 @@ BEGIN
 END;
 $driver_id$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION add_vehicle(
+    v_plate_number varchar(9),
+    v_model varchar(50),
+    v_manufacture_year date,
+    v_length float,
+    v_width float,
+    v_height float,
+    v_load_capacity float,
+    v_body_type body_type,
+    v_driver_id int,
+    v_ownership_start_date date
+) RETURNS int AS $vehicle_id$
+DECLARE
+    v_vehicle_id int;
+BEGIN
+    -- Добавляем запись в таблицу vehicle
+    INSERT INTO vehicle (plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
+    VALUES (v_plate_number, v_model, v_manufacture_year, v_length, v_width, v_height, v_load_capacity, v_body_type)
+    RETURNING vehicle_id INTO v_vehicle_id;
 
+    -- Устанавливаем связь с водителем в таблице vehicle_ownership
+    INSERT INTO vehicle_ownership (vehicle_id, driver_id, ownership_start_date)
+    VALUES (v_vehicle_id, v_driver_id, v_ownership_start_date);
+
+    RETURN v_vehicle_id;
+END;
+$vehicle_id$ LANGUAGE plpgsql;

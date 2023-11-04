@@ -34,14 +34,16 @@ VALUES
   ('Мария', 'Петрова', 'Александровна', 'F', '1980-11-23'),
   ('Алексей', 'Сидоров', NULL, 'M', '1985-01-01'),
   ('Екатерина', 'Смирнова', 'Андреевна', 'F', '2000-01-01'),
-  ('Иван', 'Варюхин', 'Андреевич', 'M', '2000-01-12');
+  ('Иван', 'Варюхин', 'Андреевич', 'M', '2000-01-12'),
+  ('Иван', 'Варюхин', 'Андреевич', 'M', '2000-01-11');
 
 TRUNCATE TABLE driver CASCADE;
 ALTER SEQUENCE driver_driver_id_seq RESTART WITH 1;
 INSERT INTO driver (person_id, passport, bank_card_number)
 VALUES
   (4, '1234567890', '1234 5678 9012 3456'),
-  (5, '0987654321', '9876 5432 1098 7654');
+  (5, '0987654321', '9876 5432 1098 7654'),
+  (6, '0987623421', '9876 5432 1098 7652');
 --todo вернуть id и сделать его человеком
 
 TRUNCATE TABLE customer CASCADE;
@@ -86,7 +88,8 @@ TRUNCATE TABLE driver_license CASCADE;
 INSERT INTO driver_license (driver_id, issue_date, expiration_date, license_number)
 VALUES
   (1, '1990-01-01', '2040-01-01', 1234542),
-  (2, '1980-05-15', '2042-05-15', 5432112);
+  (2, '1980-05-15', '2042-05-15', 5432112),
+  (3, '1980-05-15', '2042-05-15', 5432112);
 
 TRUNCATE TABLE vehicle_ownership CASCADE;
 INSERT INTO vehicle_ownership (vehicle_id, driver_id, ownership_start_date, ownership_end_date)
