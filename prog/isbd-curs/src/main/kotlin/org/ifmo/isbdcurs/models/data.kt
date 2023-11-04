@@ -1,6 +1,7 @@
 package org.ifmo.isbdcurs.models
 
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
@@ -31,12 +32,14 @@ data class Person(
     val firstName: String,
     val lastName: String,
     val middleName: String?,
+    val gender: Char,
+    val dateOfBirth: LocalDate,
 )
 
 @Table
 data class ContactInfo(
-    @Id val personId: Long,
-    @Id val contactType: ContactInfoType,
+    val personId: Long,
+    val contactType: ContactInfoType,
     val value: String,
 )
 
@@ -56,21 +59,21 @@ data class Customer(
 
 @Table
 data class DriverStatusHistory(
-    @Id val driverId: Long,
-    @Id val date: Instant,
+    val driverId: Long,
+    val date: Instant,
     val status: DriverStatus,
 )
 
 @Table
 data class TariffRate(
-    @Id val driverId: Long,
+    val driverId: Long,
     val dailyRate: Int,
     val ratePerKm: Int,
 )
 
 @Table
 data class DriverLicense(
-    @Id val driverId: Long,
+    val driverId: Long,
     val issueDate: Instant,
     val expirationDate: Instant,
     val licenseNumber: Int,
@@ -91,16 +94,16 @@ data class Vehicle(
 
 @Table
 data class VehicleOwnership(
-    @Id val vehicleId: Long,
-    @Id val driverId: Long,
+    val vehicleId: Long,
+    val driverId: Long,
     val ownershipStartDate: Instant,
     val ownershipEndDate: Instant,
 )
 
 @Table
 data class VehicleMovementHistory(
-    @Id val vehicleId: Long,
-    @Id val date: Instant,
+    val vehicleId: Long,
+    val date: Instant,
     val latitude: Double,
     val longitude: Double,
     val mileage: Double,
@@ -118,8 +121,8 @@ data class Order(
 
 @Table
 data class OrderStatuses(
-    @Id val orderId: Long,
-    @Id val dateTime: Instant,
+    val orderId: Long,
+    val dateTime: Instant,
     val status: OrderStatus,
 )
 
@@ -146,14 +149,14 @@ data class Address(
 
 @Table
 data class StoragePoint(
-    @Id val addressId: Long,
+    val addressId: Long,
     val longitude: Double,
     val latitude: Double,
 )
 
 @Table
 data class LoadingUnloadingAgreement(
-    @Id val orderId: Long,
+    val orderId: Long,
     val driverId: Long,
     val departurePoint: Long,
     val deliveryPoint: Long,
@@ -165,14 +168,14 @@ data class LoadingUnloadingAgreement(
 
 @Table
 data class FuelCardsForDrivers(
-    @Id val driverId: Long,
-    @Id val fuelCardNumber: String,
+    val driverId: Long,
+    val fuelCardNumber: String,
     val fuelStationName: String?,
 )
 
 @Table
 data class FuelExpenses(
-    @Id val fuelCardNumberId: Long,
+    val fuelCardNumberId: Long,
     val date: Instant,
     val amount: Double,
 )

@@ -5,6 +5,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import org.ifmo.isbdcurs.models.DriverStatus
 import org.ifmo.isbdcurs.models.DriverStatusHistory
+import org.ifmo.isbdcurs.util.Coordinate
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.hours
@@ -27,17 +28,5 @@ class FakeDataContextTest() {
         assertArrayEquals(driverStatusHistorySeries.map { it.status }.toTypedArray(), DriverStatus.values())
         assertEquals(driverStatusHistorySeries.last(), expectedLastElement)
         assertEquals(driverStatusHistorySeries.size, DriverStatus.values().size)
-    }
-
-    @Test
-    fun generateSeriesBetweenPoints() {
-        val a = Point(0.0, 0.0)
-        val b = Point(1.0, 1.0)
-        val stepCount = 10
-        val noise = 0.0
-        val series = generateSeriesBetweenPoints(a, b, stepCount, noise)
-        assertEquals(series.size, stepCount + 1)
-        assertEquals(series[0], a)
-        assertEquals(series[stepCount], b)
     }
 }

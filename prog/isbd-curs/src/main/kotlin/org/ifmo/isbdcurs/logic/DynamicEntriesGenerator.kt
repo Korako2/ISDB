@@ -12,13 +12,14 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
+val random = Random(42)
 
 data class TimePeriod(val start: Instant, val end: Instant);
 
 data class TransferTimePattern(val start: Instant, val increment: Duration, val noiseHoursMax: Double);
 
 fun TransferTimePattern.calculatePointInTime(stepIndex: Int): Instant {
-    val noiseHoursDelta = Random.nextDouble(-this.noiseHoursMax, +this.noiseHoursMax).hours
+    val noiseHoursDelta = random.nextDouble(-this.noiseHoursMax, +this.noiseHoursMax).hours
     val totalIncrement = this.increment.times(stepIndex)
     return this.start.plus(totalIncrement).plus(noiseHoursDelta)
 }
@@ -40,17 +41,16 @@ class DynamicEntriesGenerator(
     private val actionsPeriod: TimePeriod,
     private val transferTimePattern: TransferTimePattern,
 ) {
-    companion object {
-        fun generateSeriesBetweenPoints(a: Coordinate, b: Coordinate, points: Int, noiseMax: Double): List<Coordinate> {
-            val noise = Random.nextDouble(-noiseMax, +noiseMax);
-            val xStep = (b.lat - a.lat) / (points - 1) + noise
-            val yStep = (b.lon - a.lon) / (points - 1) + noise
-            return (0 until points).map { i -> Coordinate(a.lat + i * xStep, a.lon + i * yStep) }
-        }
+
+    fun generateSeriesBetweenPoints(a: Coordinate, b: Coordinate, points: Int, noiseMax: Double): List<Coordinate> {
+        val noise = random.nextDouble(-noiseMax, +noiseMax);
+        val xStep = (b.lat - a.lat) / (points - 1) + noise
+        val yStep = (b.lon - a.lon) / (points - 1) + noise
+        return (0 until points).map { i -> Coordinate(a.lat + i * xStep, a.lon + i * yStep) }
     }
 
     private fun actionsPeriodNoised(): TimePeriod {
-        val noise = Random.nextLong(5, 60).days;
+        val noise = random.nextLong(5, 60).days;
         return TimePeriod(actionsPeriod.start.plus(noise), actionsPeriod.end.minus(noise));
     }
 
@@ -83,7 +83,7 @@ class DynamicEntriesGenerator(
     }
 
     fun genOrderStatuses(): List<DriverStatusHistory> {
-        val initialStatus = DriverStatusHistory(1L, actionsPeriod.start, DriverStatus.OFF_DUTY)
+        val initialStatus = DriverStatusHistory(1L, actionsPeriodNoised().start, DriverStatus.OFF_DUTY)
         return initialStatus.generateSeriesFromFirst(
             transferTimePattern.increment, transferTimePattern.noiseHoursMax
         )
@@ -91,18 +91,5 @@ class DynamicEntriesGenerator(
 
     fun genFuelExpenses(fuelCardNumberId: Long, distance: Double): FuelExpenses {
         return FuelExpenses(fuelCardNumberId, actionsPeriodNoised().end, distance * 4.0)
-    }
-}
-
-class SingleRouteGenerator(
-    private val largePeriod: TimePeriod,
-    private val actionsPeriod: TimePeriod,
-    private val transferTimePattern: TransferTimePattern,
-) {
-    fun generateRoute(): List<DriverStatusHistory> {
-        val initialStatus = DriverStatusHistory(1L, largePeriod.start, DriverStatus.OFF_DUTY)
-        return initialStatus.generateSeriesFromFirst(
-            transferTimePattern.increment, transferTimePattern.noiseHoursMax
-        )
     }
 }
