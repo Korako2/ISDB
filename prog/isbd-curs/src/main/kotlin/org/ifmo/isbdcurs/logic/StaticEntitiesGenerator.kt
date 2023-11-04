@@ -1,53 +1,14 @@
 package org.ifmo.isbdcurs.logic
 
 import io.github.serpro69.kfaker.faker
-import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalTime
 import org.ifmo.isbdcurs.models.*
 import kotlin.random.Random
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.ExperimentalTime
-
-data class TimePeriod(val start: Instant, val end: Instant);
-
-data class TransferTimePattern(val start: Instant, val increment: Duration, val noiseHoursMax: Double);
-
-data class Point(val x: Double, val y: Double);
-
-fun TransferTimePattern.calculatePointInTime(stepIndex: Int): Instant {
-    val noiseHoursDelta = Random.nextDouble(-this.noiseHoursMax, +this.noiseHoursMax).hours
-    val totalIncrement = this.increment.times(stepIndex)
-    return this.start.plus(totalIncrement).plus(noiseHoursDelta)
-}
-
-fun DriverStatusHistory.generateSeriesFromFirst(
-    intervalHours: Duration, noiseHoursMax: Double
-): List<DriverStatusHistory> {
-    val driverId = this.driverId
-    val startDate = this.date
-
-    val allStatuses = DriverStatus.values()
-    val timePattern = TransferTimePattern(startDate, intervalHours, noiseHoursMax)
-    //  add the initial status to the start of the list
-    return mutableListOf(this) + allStatuses.slice(1 until allStatuses.size).mapIndexed { i, status ->
-        DriverStatusHistory(driverId, timePattern.calculatePointInTime(i + 1), status)
-    }
-}
-
-// function to generate series of (x,y) points between point A and point B with noise
-// distance between each point should be a little bit different
-fun generateSeriesBetweenPoints(a: Point, b: Point, stepCount: Int, noiseMax: Double): List<Point> {
-    val noise = Random.nextDouble(-noiseMax, +noiseMax);
-    val xStep = (b.x - a.x) / stepCount + noise
-    val yStep = (b.y - a.y) / stepCount + noise
-    return (0..stepCount).map { i -> Point(a.x + i * xStep, a.x + i * yStep) }
-}
 
 class StaticEntitiesGenerator(
     private val largePeriod: TimePeriod,
     private val actionsPeriod: TimePeriod,
-    private val transferTimePattern: TransferTimePattern,
 ) {
     private val faker = faker {}
 
@@ -116,23 +77,58 @@ class StaticEntitiesGenerator(
             vehicleId = vehicleId,
         )
     }
-}
 
-// dynamic:
-// movementHistory
-// orderStatuses
-// driverStatuses
-// FuelExpenses
-
-    class SingleRouteGenerator(
-        private val largePeriod: TimePeriod,
-        private val actionsPeriod: TimePeriod,
-        private val transferTimePattern: TransferTimePattern,
-    ) {
-        fun generateRoute(): List<DriverStatusHistory> {
-            val initialStatus = DriverStatusHistory(1L, largePeriod.start, DriverStatus.OFF_DUTY)
-            return initialStatus.generateSeriesFromFirst(
-                transferTimePattern.increment, transferTimePattern.noiseHoursMax
-            )
-        }
+    fun genCargo(orderId: Long): Cargo {
+        return Cargo(
+            -1L,
+            weight = Random.nextDouble(1.0, 100.0),
+            width = Random.nextDouble(0.4, 2.5),
+            height = Random.nextDouble(0.4, 4.0),
+            length = Random.nextDouble(0.4, 15.0),
+            orderId = orderId,
+            cargoType = CargoType.values().random(),
+        )
     }
+
+    fun genAddress(): Address {
+        return Address(
+            -1L,
+            country = "Thailand",
+            city = faker.address.city(),
+            street = faker.address.streetName(),
+            building = Random.nextInt(1, 100),
+            corpus = Random.nextInt(1, 10),
+        )
+    }
+
+    fun genStoragePoint(addressId: Long): StoragePoint {
+        return StoragePoint(
+            addressId,
+            latitude = Random.nextDouble(14.0, 17.0),
+            longitude = Random.nextDouble(98.0, 103.0),
+        )
+    }
+
+    fun genLoadingUnloadingAgreement(
+        orderId: Long, driverId: Long, departurePoint: Long, deliveryPoint: Long, senderId: Long, receiverId: Long
+    ): LoadingUnloadingAgreement {
+        return LoadingUnloadingAgreement(
+            orderId,
+            driverId,
+            departurePoint,
+            deliveryPoint,
+            senderId,
+            receiverId,
+            unloadingTime = LocalTime(Random.nextInt(1, 12), 0),
+            loadingTime = LocalTime(Random.nextInt(1, 12), 0),
+        )
+    }
+
+    fun genFuelCardsForDrivers(driverId: Long): FuelCardsForDrivers {
+        return FuelCardsForDrivers(
+            driverId,
+            fuelCardNumber = faker.string.numerify("################"),
+            fuelStationName = faker.company.buzzwords() + " fuel station",
+        )
+    }
+}
