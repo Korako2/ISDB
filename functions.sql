@@ -27,14 +27,12 @@ BEGIN
 END;
 $ord_id$ LANGUAGE plpgsql;
 
--- Функция добавления заказчика
-CREATE OR REPLACE FUNCTION add_customer(
+-- Функция добавления нового заказчика
+CREATE OR REPLACE FUNCTION add_new_customer(
     v_first_name varchar(20),
     v_last_name varchar(20),
     v_gender char(1),
     v_date_of_birth date,
-    is_registered boolean,
-    s_person_id int default null,
     v_middle_name varchar(20) default null,
     v_organization varchar(50) default null
 ) RETURNS int AS $customer_id$
@@ -42,14 +40,9 @@ DECLARE
     v_person_id int;
     v_customer_id int;
 BEGIN
-    IF (NOT(is_registered)) THEN
-        INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
-        VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
-        RETURNING person_id INTO v_person_id;
-    ELSE
-
-        v_person_id = s_person_id;
-    END IF;
+    INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
+    VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
+    RETURNING person_id INTO v_person_id;
 
     INSERT INTO customer (person_id, organization)
     VALUES (v_person_id, v_organization)
@@ -58,6 +51,7 @@ BEGIN
     RETURN v_customer_id;
 END;
 $customer_id$ LANGUAGE plpgsql;
+
 
 
 CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS $check_speed$
