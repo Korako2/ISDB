@@ -88,8 +88,7 @@ TRUNCATE TABLE driver_license CASCADE;
 INSERT INTO driver_license (driver_id, issue_date, expiration_date, license_number)
 VALUES
   (1, '1990-01-01', '2040-01-01', 1234542),
-  (2, '1980-05-15', '2042-05-15', 5432112),
-  (3, '1980-05-15', '2042-05-15', 5432112);
+  (2, '1980-05-15', '2042-05-15', 5432112);
 
 TRUNCATE TABLE vehicle_ownership CASCADE;
 INSERT INTO vehicle_ownership (vehicle_id, driver_id, ownership_start_date, ownership_end_date)

@@ -358,3 +358,40 @@ BEGIN
     RETURN v_vehicle_id;
 END;
 $vehicle_id$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION add_driver_info(
+    v_driver_id int,
+    v_daily_rate int,
+    v_rate_per_km int,
+    v_issue_date date,
+    v_expiration_date date,
+    v_license_number int,
+    v_fuel_cards text[],
+    v_fuel_station_names text[]
+) RETURNS void AS $$
+DECLARE
+    fuel_card text;
+    station_name text;
+BEGIN
+    -- Добавляем тарифную ставку
+    INSERT INTO tariff_rate (driver_id, daily_rate, rate_per_km)
+    VALUES (v_driver_id, v_daily_rate, v_rate_per_km);
+
+    -- Добавляем водительское удостоверение
+    INSERT INTO driver_license (driver_id, issue_date, expiration_date, license_number)
+    VALUES (v_driver_id, v_issue_date, v_expiration_date, v_license_number);
+
+    -- Добавляем топливные карты и названия заправочных станций
+    FOR i IN 1..GREATEST(array_length(v_fuel_cards, 1), array_length(v_fuel_station_names, 1)) LOOP
+        fuel_card := v_fuel_cards[i];
+        station_name := v_fuel_station_names[i];
+
+        INSERT INTO fuel_cards_for_drivers (driver_id, fuel_card_number, fuel_station_name)
+        VALUES (v_driver_id, fuel_card, station_name);
+    END LOOP;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+
