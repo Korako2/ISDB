@@ -1,9 +1,13 @@
 package org.ifmo.isbdcurs.logic
 
 import kotlinx.datetime.Instant
+import org.ifmo.isbdcurs.persistence.*
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.hours
 
+@Service
 class FillTables {
     companion object {
         private val random = Random(42)
@@ -46,30 +50,99 @@ class FillTables {
         }
     }
 
+    @Autowired
+    lateinit var repository: PersonRepository
+
+    @Autowired
+    lateinit var personRepository: PersonRepository
+
+    @Autowired
+    lateinit var contactInfoRepository: ContactInfoRepository
+
+    @Autowired
+    lateinit var driverRepository: DriverRepository
+
+    @Autowired
+    lateinit var customerRepository: CustomerRepository
+
+    @Autowired
+    lateinit var driverStatusHistoryRepository: DriverStatusHistoryRepository
+
+    @Autowired
+    lateinit var tariffRateRepository: TariffRateRepository
+
+    @Autowired
+    lateinit var driverLicenseRepository: DriverLicenseRepository
+
+    @Autowired
+    lateinit var vehicleRepository: VehicleRepository
+
+    @Autowired
+    lateinit var vehicleOwnershipRepository: VehicleOwnershipRepository
+
+    @Autowired
+    lateinit var vehicleMovementHistoryRepository: VehicleMovementHistoryRepository
+
+    @Autowired
+    lateinit var orderRepository: OrderRepository
+
+    @Autowired
+    lateinit var orderStatusesRepository: OrderStatusesRepository
+
+    @Autowired
+    lateinit var cargoRepository: CargoRepository
+
+    @Autowired
+    lateinit var addressRepository: AddressRepository
+
+    @Autowired
+    lateinit var storagePointRepository: StoragePointRepository
+
+    @Autowired
+    lateinit var loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository
+
+    @Autowired
+    lateinit var fuelCardsForDriversRepository: FuelCardsForDriversRepository
+
+    @Autowired
+    lateinit var fuelExpensesRepository: FuelExpensesRepository
+
     fun fill() {
         // static:
         val driversCount = 100L
         val customersCount = 50L
         val addressesCount = 10L
         val personsCount = driversCount + customersCount;
-        val persons = (1..personsCount).map { staticEntriesGenerator.genPerson(it) }
-        val drivers = (1..driversCount).map { staticEntriesGenerator.genDriver(it, persons.random().id!!) }
-        val customers = (1..customersCount).map { staticEntriesGenerator.genCustomer(it, persons.random().id!!) }
-        val vehicles = (1..driversCount).map { staticEntriesGenerator.genVehicle(it) }
+        val persons = (1..personsCount).map { staticEntriesGenerator.genPerson() }
+        personRepository.saveAll(persons)
+        val drivers = (1..driversCount).map { staticEntriesGenerator.genDriver(persons.random().id!!) }
+        driverRepository.saveAll(drivers)
+        val customers = (1..customersCount).map { staticEntriesGenerator.genCustomer(persons.random().id!!) }
+        customerRepository.saveAll(customers)
+        val vehicles = (1..driversCount).map { staticEntriesGenerator.genVehicle() }
+        vehicleRepository.saveAll(vehicles)
         val orders = (1..customersCount).map {
-            staticEntriesGenerator.genOrder(
-                it, customers.random().id!!, vehicles.random().id!!
+            staticEntriesGenerator.genOrder(customers.random().id!!, vehicles.random().id!!
             )
         }
+        orderRepository.saveAll(orders)
 
         val fuelCards = drivers.map { staticEntriesGenerator.genFuelCardsForDrivers(it.id!!) }
+        fuelCardsForDriversRepository.saveAll(fuelCards)
         val licenses = drivers.map { staticEntriesGenerator.genDriverLicense(it.id!!) }
+        driverLicenseRepository.saveAll(licenses)
         val tariffRates = drivers.map { staticEntriesGenerator.genTariffRate(it.id!!) }
+        tariffRateRepository.saveAll(tariffRates)
         val contactInfos = persons.map { staticEntriesGenerator.genContactInfo(it.id!!) }
+        contactInfoRepository.saveAll(contactInfos)
         val ownerships = vehicles.map { staticEntriesGenerator.genOwnerShip(vehicleId = it.id!!, driverId = it.id!!) }
-        val cargos = orders.map { staticEntriesGenerator.genCargo(it.id!!, orderId = it.id!!) }
-        val addresses = (1..addressesCount).map { staticEntriesGenerator.genAddress(it) }
+        vehicleOwnershipRepository.saveAll(ownerships)
+        val cargos = orders.map { staticEntriesGenerator.genCargo(orderId = it.id!!) }
+        cargoRepository.saveAll(cargos)
+        val addresses = (1..addressesCount).map { staticEntriesGenerator.genAddress() }
+        addressRepository.saveAll(addresses)
         val storagePoints = addresses.map { staticEntriesGenerator.genStoragePoint(it.id!!) }
+        storagePointRepository.saveAll(storagePoints)
 
         val agreements = orders.map {
             val addressA = addresses.random()
@@ -81,5 +154,6 @@ class FillTables {
                 receiverId = customers.random().id!!,
             )
         }
+        loadingUnloadingAgreementRepository.saveAll(agreements)
     }
 }

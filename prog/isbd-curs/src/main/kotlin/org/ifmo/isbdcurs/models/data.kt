@@ -47,6 +47,7 @@ data class ContactInfo(
 data class Driver(
     @Id var id: Long? = null,
     val personId: Long,
+    val passport: String,
     val bankCardNumber: String,
 )
 

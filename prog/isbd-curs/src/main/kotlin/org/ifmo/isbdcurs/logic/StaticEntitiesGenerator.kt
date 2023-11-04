@@ -27,22 +27,23 @@ class StaticEntitiesGenerator(
         return TimePeriod(actionsPeriod.start.plus(noise), actionsPeriod.end.minus(noise));
     }
 
-    fun genPerson(id: Long): Person {
+    fun genPerson(): Person {
         val gender = if (random.nextBoolean()) 'M' else 'F'
         val birthDate = LocalDate(largePeriodNoised().start.toLocalDateTime(TimeZone.UTC).year, 1, 1)
-        return Person(id, faker.name.firstName(), faker.name.lastName(), null, gender, birthDate)
+        return Person(null, faker.name.firstName(), faker.name.lastName(), null, gender, birthDate)
     }
 
     fun genContactInfo(personId: Long): ContactInfo {
         return ContactInfo(personId, ContactInfoType.EMAIL, faker.internet.email())
     }
 
-    fun genDriver(id: Long, personId: Long): Driver {
-        return Driver(id, personId, faker.finance.creditCard("visa"))
+    fun genDriver(personId: Long): Driver {
+        val passport = faker.string.regexify("""\d{10}""")
+        return Driver(null, personId, passport, faker.finance.creditCard("visa"))
     }
 
-    fun genCustomer(id: Long, personId: Long): Customer {
-        return Customer(id, personId, faker.company.name())
+    fun genCustomer(personId: Long): Customer {
+        return Customer(null, personId, faker.company.name())
     }
 
     fun genTariffRate(driverId: Long): TariffRate {
@@ -55,10 +56,10 @@ class StaticEntitiesGenerator(
         )
     }
 
-    fun genVehicle(id: Long): Vehicle {
+    fun genVehicle(): Vehicle {
         val plateNumber = faker.string.regexify("""[А-Я]{1}\d{3}[А-Я]{2}\d{2}""")
         return Vehicle(
-            id,
+            null,
             plateNumber,
             model = faker.vehicle.modelsByMake(""),
             manufactureYear = largePeriod.start,
@@ -74,9 +75,9 @@ class StaticEntitiesGenerator(
         return VehicleOwnership(vehicleId, driverId, largePeriodNoised().start, largePeriodNoised().end)
     }
 
-    fun genOrder(id: Long, customerId: Long, vehicleId: Long): Order {
+    fun genOrder(customerId: Long, vehicleId: Long): Order {
         return Order(
-            id,
+            null,
             customerId = customerId,
             distance = random.nextDouble(30.0, 1000.0),
             price = random.nextDouble(1000.0, 100000.0),
@@ -85,9 +86,9 @@ class StaticEntitiesGenerator(
         )
     }
 
-    fun genCargo(id: Long, orderId: Long): Cargo {
+    fun genCargo( orderId: Long): Cargo {
         return Cargo(
-            id,
+            null,
             weight = random.nextDouble(1.0, 100.0),
             width = random.nextDouble(0.4, 2.5),
             height = random.nextDouble(0.4, 4.0),
@@ -97,9 +98,9 @@ class StaticEntitiesGenerator(
         )
     }
 
-    fun genAddress(id: Long): Address {
+    fun genAddress(): Address {
         return Address(
-            id,
+            null,
             country = "Thailand",
             city = faker.address.city(),
             street = faker.address.streetName(),
