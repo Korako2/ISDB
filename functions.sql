@@ -281,3 +281,24 @@ $update_order_status$ LANGUAGE plpgsql;
 --    WHERE a.address_id = address_a_id
 --      AND b.address_id = address_b_id
 --    INTO calculated_distance;
+
+-- Функция добавления заказчика
+CREATE OR REPLACE FUNCTION add_customer(
+    v_person_id int,
+    v_organization varchar(50) default null
+) RETURNS int AS $customer_id$
+DECLARE
+    v_customer_id int;
+BEGIN
+    -- Проверка, что заказчика с person_id = v_person_id не существует
+    IF EXISTS (SELECT 1 FROM customer WHERE person_id = v_person_id) THEN
+        RAISE EXCEPTION 'Заказчик с person_id = % уже существует', v_person_id;
+    ELSE
+        INSERT INTO customer (person_id, organization)
+        VALUES (v_person_id, v_organization)
+        RETURNING customer_id INTO v_customer_id;
+    END IF;
+
+    RETURN v_customer_id;
+END;
+$customer_id$ LANGUAGE plpgsql;
