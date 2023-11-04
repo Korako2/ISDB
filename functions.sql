@@ -202,8 +202,9 @@ BEGIN
     date_time DESC
   LIMIT 1;
 
+
   IF prev_status IS NOT NULL AND
-     (prev_status, NEW.status) NOT IN (('ACCEPTED', 'IN PROGRESS'), ('IN PROGRESS', 'ARRIVED AT LOADING LOCATION'), ('ARRIVED AT LOADING LOCATION', 'LOADING'), ('LOADING', 'ARRIVED AT UNLOADING LOCATION'), ('ARRIVED AT UNLOADING LOCATION', 'ON THE WAY'), ('ON THE WAY', 'UNLOADING'), ('UNLOADING', 'COMPLETED')) THEN
+     (prev_status, NEW.status) NOT IN (('ACCEPTED', 'ARRIVED AT LOADING LOCATION'), ('ARRIVED AT LOADING LOCATION', 'LOADING'), ('LOADING', 'ON THE WAY'), ('ON THE WAY', 'ARRIVED AT UNLOADING LOCATION'), ('ARRIVED AT UNLOADING LOCATION', 'UNLOADING'), ('UNLOADING', 'COMPLETED')) THEN
     RAISE EXCEPTION 'Неверная последовательность статусов заказа';
   END IF;
 
@@ -249,15 +250,15 @@ BEGIN
     IF NEW.status = 'ACCEPTED ORDER' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'ACCEPTED');
-    ELSIF NEW.status = 'EN ROUTE' THEN
-        INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (current_order_id, NEW.date, 'IN PROGRESS');
     ELSIF NEW.status = 'ARRIVED AT LOADING LOCATION' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'ARRIVED AT LOADING LOCATION');
     ELSIF NEW.status = 'LOADING' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'LOADING');
+    ELSIF NEW.status = 'EN ROUTE' THEN
+        INSERT INTO order_statuses (order_id, date_time, status)
+        VALUES (current_order_id, NEW.date, 'ON THE WAY');
     ELSIF NEW.status = 'ARRIVED AT UNLOADING LOCATION' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'ARRIVED AT UNLOADING LOCATION');
@@ -269,6 +270,7 @@ BEGIN
         VALUES (current_order_id, NEW.date, 'COMPLETED');
     END IF;
     RETURN NEW;
+
 END;
 $update_order_status$ LANGUAGE plpgsql;
 

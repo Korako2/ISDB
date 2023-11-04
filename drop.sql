@@ -24,4 +24,5 @@ DROP TYPE IF EXISTS
   body_type,
   cargo_type,
   order_status,
-  contact_info_type;
+  contact_info_type
+  CASCADE;
