@@ -93,18 +93,28 @@ data class Vehicle(
     val bodyType: BodyType,
 )
 
+data class VehicleOwnershipPK(
+    val vehicleId: Long? = null,
+    val driverId: Long? = null
+)
+
 @Table
 data class VehicleOwnership(
-    @Id val vehicleId: Long,
-    /* @Id */ val driverId: Long,
+    val vehicleId: Long,
+    val driverId: Long,
     val ownershipStartDate: Instant,
     val ownershipEndDate: Instant,
 )
 
+data class VehicleMovementHistoryPK(
+    val vehicleId: Long? = null,
+    val date: Instant? = null
+)
+
 @Table
 data class VehicleMovementHistory(
-    @Id val vehicleId: Long,
-    /* @Id */ val date: Instant,
+    val vehicleId: Long,
+    val date: Instant,
     val latitude: Double,
     val longitude: Double,
     val mileage: Double,
@@ -120,10 +130,14 @@ data class Orders(
     val vehicleId: Long?,
 )
 
+data class OrderStatusesPK(
+    val orderId: Long? = null,
+    val dateTime: Instant? = null
+)
 @Table
 data class OrderStatuses(
-    @Id val orderId: Long,
-    /* @Id */ val dateTime: Instant,
+    val orderId: Long,
+    val dateTime: Instant,
     val status: OrderStatus,
 )
 
@@ -155,10 +169,15 @@ data class StoragePoint(
     val latitude: Double,
 )
 
+data class LoadingUnloadingAgreementPK(
+    val orderId: Long? = null,
+    val driverId: Long? = null
+)
+
 @Table
 data class LoadingUnloadingAgreement(
-    @Id val orderId: Long,
-    /* @Id */ val driverId: Long,
+    val orderId: Long,
+    val driverId: Long,
     val departurePoint: Long,
     val deliveryPoint: Long,
     val senderId: Long,
@@ -167,16 +186,26 @@ data class LoadingUnloadingAgreement(
     val loadingTime: LocalTime,
 )
 
+data class FuelCardsForDriversPK(
+    val driverId: Long? = null,
+    val fuelCardNumber: String? = null
+)
+
 @Table
 data class FuelCardsForDrivers(
-    @Id val driverId: Long,
-    /* @Id */ val fuelCardNumber: String,
+    val driverId: Long,
+    val fuelCardNumber: String,
     val fuelStationName: String?,
+)
+
+data class FuelExpensesPK(
+    val fuelCardNumberId: Long? = null,
+    val date: Instant? = null
 )
 
 @Table
 data class FuelExpenses(
-    @Id val fuelCardNumberId: Long,
-    /* @Id */ val date: Instant,
+    val fuelCardNumberId: Long,
+    val date: Instant,
     val amount: Double,
 )
