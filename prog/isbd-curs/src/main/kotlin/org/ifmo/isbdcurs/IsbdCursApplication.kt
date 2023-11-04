@@ -1,9 +1,7 @@
 package org.ifmo.isbdcurs
 
 import org.ifmo.isbdcurs.logic.FillTables
-import org.ifmo.isbdcurs.persistence.DateToLocalDateConverter
-import org.ifmo.isbdcurs.persistence.LocalDateToTimestampConverter
-import org.ifmo.isbdcurs.persistence.TimestampToLocalDateConverter
+import org.ifmo.isbdcurs.persistence.*
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -30,6 +28,8 @@ class DbConfiguration : AbstractJdbcConfiguration() {
                 LocalDateToTimestampConverter(),
                 TimestampToLocalDateConverter(),
                 DateToLocalDateConverter(),
+                InstantToTimestampConverter(),
+                TimestampToInstantConverter(),
             )
         )
     }

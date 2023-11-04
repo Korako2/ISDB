@@ -23,7 +23,7 @@ interface VehicleOwnershipRepository : CrudRepository<VehicleOwnership, Long>
 
 interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHistory, Long>
 
-interface OrderRepository : CrudRepository<Order, Long>
+interface OrderRepository : CrudRepository<Orders, Long>
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, Long>
 

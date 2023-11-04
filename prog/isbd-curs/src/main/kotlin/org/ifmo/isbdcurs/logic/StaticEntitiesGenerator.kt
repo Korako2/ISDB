@@ -6,7 +6,6 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.ifmo.isbdcurs.models.*
-import java.time.LocalDateTime
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.days
 
@@ -75,8 +74,8 @@ class StaticEntitiesGenerator(
         return VehicleOwnership(vehicleId, driverId, largePeriodNoised().start, largePeriodNoised().end)
     }
 
-    fun genOrder(customerId: Long, vehicleId: Long): Order {
-        return Order(
+    fun genOrder(customerId: Long, vehicleId: Long): Orders {
+        return Orders(
             null,
             customerId = customerId,
             distance = random.nextDouble(30.0, 1000.0),

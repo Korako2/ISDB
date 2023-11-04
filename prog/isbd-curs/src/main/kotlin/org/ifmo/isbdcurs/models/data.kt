@@ -111,7 +111,7 @@ data class VehicleMovementHistory(
 )
 
 @Table
-data class Order(
+data class Orders(
     @Id var id: Long? = null,
     val customerId: Long,
     val distance: Double,
