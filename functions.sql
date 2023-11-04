@@ -302,3 +302,33 @@ BEGIN
     RETURN v_customer_id;
 END;
 $customer_id$ LANGUAGE plpgsql;
+
+-- Функция добавления водителя
+CREATE OR REPLACE FUNCTION add_driver(
+    v_first_name varchar(20),
+    v_last_name varchar(20),
+    v_middle_name varchar(20),
+    v_gender char(1),
+    v_date_of_birth date,
+    v_passport varchar(10),
+    v_bank_card_number text
+) RETURNS int AS $driver_id$
+DECLARE
+    v_person_id int;
+    v_driver_id int;
+BEGIN
+    -- Добавляем запись в таблицу person
+    INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
+    VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
+    RETURNING person_id INTO v_person_id;
+
+    -- Добавляем запись в таблицу driver
+    INSERT INTO driver (person_id, passport, bank_card_number)
+    VALUES (v_person_id, v_passport, v_bank_card_number)
+    RETURNING driver_id INTO v_driver_id;
+
+    RETURN v_driver_id;
+END;
+$driver_id$ LANGUAGE plpgsql;
+
+
