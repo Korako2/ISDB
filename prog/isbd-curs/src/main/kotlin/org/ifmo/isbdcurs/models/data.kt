@@ -38,7 +38,7 @@ data class Person(
 
 @Table
 data class ContactInfo(
-    val personId: Long,
+    @Id var personId: Long,
     val contactType: ContactInfoType,
     val value: String,
 )
@@ -60,21 +60,21 @@ data class Customer(
 
 @Table
 data class DriverStatusHistory(
-    val driverId: Long,
+    @Id var driverId: Long,
     val date: Instant,
     val status: DriverStatus,
 )
 
 @Table
 data class TariffRate(
-    val driverId: Long,
+    @Id var driverId: Long,
     val dailyRate: Int,
     val ratePerKm: Int,
 )
 
 @Table
 data class DriverLicense(
-    val driverId: Long,
+    @Id val driverId: Long,
     val issueDate: Instant,
     val expirationDate: Instant,
     val licenseNumber: Int,
@@ -95,16 +95,16 @@ data class Vehicle(
 
 @Table
 data class VehicleOwnership(
-    val vehicleId: Long,
-    val driverId: Long,
+    @Id val vehicleId: Long,
+    /* @Id */ val driverId: Long,
     val ownershipStartDate: Instant,
     val ownershipEndDate: Instant,
 )
 
 @Table
 data class VehicleMovementHistory(
-    val vehicleId: Long,
-    val date: Instant,
+    @Id val vehicleId: Long,
+    /* @Id */ val date: Instant,
     val latitude: Double,
     val longitude: Double,
     val mileage: Double,
@@ -122,8 +122,8 @@ data class Orders(
 
 @Table
 data class OrderStatuses(
-    val orderId: Long,
-    val dateTime: Instant,
+    @Id val orderId: Long,
+    /* @Id */ val dateTime: Instant,
     val status: OrderStatus,
 )
 
@@ -150,15 +150,15 @@ data class Address(
 
 @Table
 data class StoragePoint(
-    val addressId: Long,
+    @Id val addressId: Long,
     val longitude: Double,
     val latitude: Double,
 )
 
 @Table
 data class LoadingUnloadingAgreement(
-    val orderId: Long,
-    val driverId: Long,
+    @Id val orderId: Long,
+    /* @Id */ val driverId: Long,
     val departurePoint: Long,
     val deliveryPoint: Long,
     val senderId: Long,
@@ -169,14 +169,14 @@ data class LoadingUnloadingAgreement(
 
 @Table
 data class FuelCardsForDrivers(
-    val driverId: Long,
-    val fuelCardNumber: String,
+    @Id val driverId: Long,
+    /* @Id */ val fuelCardNumber: String,
     val fuelStationName: String?,
 )
 
 @Table
 data class FuelExpenses(
-    val fuelCardNumberId: Long,
-    val date: Instant,
+    @Id val fuelCardNumberId: Long,
+    /* @Id */ val date: Instant,
     val amount: Double,
 )
