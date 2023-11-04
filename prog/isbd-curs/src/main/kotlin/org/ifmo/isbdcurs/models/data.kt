@@ -4,7 +4,6 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalTime
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
-import java.util.*
 
 enum class DriverStatus {
     OFF_DUTY, ACCEPTED_ORDER, EN_ROUTE, ARRIVED_AT_LOADING_LOCATION, LOADING, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED_ORDER,
@@ -174,6 +173,6 @@ data class FuelCardsForDrivers(
 @Table
 data class FuelExpenses(
     @Id val fuelCardNumberId: Long,
-    val date: Date,
+    val date: Instant,
     val amount: Double,
 )
