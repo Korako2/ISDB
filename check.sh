@@ -1,6 +1,3 @@
 # need to set PGHOST, PGPORT, PGPASSWORD and PGUSER
-psql -f drop.sql && \
-psql -f create.sql && \
-psql -f functions.sql && \
-psql -f triggers.sql && \
-psql -f insert.sql
+cat drop.sql create.sql functions.sql triggers.sql insert.sql | \
+  psql -1 -v ON_ERROR_STOP=1 -q -f -
