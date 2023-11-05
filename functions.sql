@@ -78,7 +78,7 @@ DECLARE
       var_cargo_type text;
       var_body_type text;
   BEGIN
-    SELECT id INTO var_cargo_id FROM cargo WHERE order_id = NEW.order_id;
+    SELECT id INTO var_cargo_id FROM cargo WHERE order_id = NEW.id;
     SELECT cargo_type INTO var_cargo_type FROM cargo WHERE cargo.id = var_cargo_id;
     SELECT body_type INTO var_body_type FROM vehicle WHERE vehicle.id = NEW.vehicle_id;
     IF var_cargo_type = ''BULK'' OR var_cargo_type = ''TIPPER'' THEN
@@ -251,7 +251,7 @@ BEGIN
         VALUES (current_order_id, NEW.date, ''LOADING'');
     ELSIF NEW.status = ''EN_ROUTE'' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (current_order_id, NEW.date, ''ON THE WAY'');
+        VALUES (current_order_id, NEW.date, ''ON_THE_WAY'');
     ELSIF NEW.status = ''ARRIVED_AT_UNLOADING_LOCATION'' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, ''ARRIVED_AT_UNLOADING_LOCATION'');

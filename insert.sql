@@ -1,5 +1,5 @@
 TRUNCATE TABLE vehicle CASCADE;
-ALTER SEQUENCE vehicle_vehicle_id_seq RESTART WITH 1;
+ALTER SEQUENCE vehicle_id_seq RESTART WITH 1;
 INSERT INTO vehicle (plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
 VALUES ('А123ЕК152', 'BMW', '2019-01-01', 4.5, 2.0, 2.0, 1000, 'OPEN'),
        ('А111АА52', 'Mercedes', '2018-01-01', 4.5, 2.0, 2.0, 1000, 'OPEN'),
@@ -12,7 +12,7 @@ VALUES (1, '2023-01-01 00:00:00', 1.0, 1.0, 1000),
        (1, '2023-01-01 00:20:03', 3.0, 3.0, 1020);
 
 TRUNCATE TABLE address CASCADE;
-ALTER SEQUENCE address_address_id_seq RESTART WITH 1;
+ALTER SEQUENCE address_id_seq RESTART WITH 1;
 INSERT INTO address (country, city, street, building, corpus)
 VALUES ('Россия', 'Санкт-Петербург', 'Кронверский проспект', '49', NULL),
        ('Россия', 'Москва', 'Новая Басманная', 4, 1),
@@ -27,7 +27,7 @@ VALUES (1, 59.956363, 30.310029),
        (4, 52.784080, 27.543973);
 
 TRUNCATE TABLE person CASCADE;
-ALTER SEQUENCE person_person_id_seq RESTART WITH 1;
+ALTER SEQUENCE person_id_seq RESTART WITH 1;
 INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
 VALUES
   ('Иван', 'Иванов', 'Иванович', 'M', '1990-10-25'),
@@ -38,7 +38,7 @@ VALUES
   ('Иван', 'Варюхин', 'Андреевич', 'M', '2000-01-11');
 
 TRUNCATE TABLE driver CASCADE;
-ALTER SEQUENCE driver_driver_id_seq RESTART WITH 1;
+ALTER SEQUENCE driver_id_seq RESTART WITH 1;
 INSERT INTO driver (person_id, passport, bank_card_number)
 VALUES
   (4, '1234567890', '1234 5678 9012 3456'),
@@ -47,7 +47,7 @@ VALUES
 --todo вернуть id и сделать его человеком
 
 TRUNCATE TABLE customer CASCADE;
-ALTER SEQUENCE customer_customer_id_seq RESTART WITH 1;
+ALTER SEQUENCE customer_id_seq RESTART WITH 1;
 INSERT INTO customer (person_id, organization)
 VALUES
   (1, 'ООО Рога и Копыта'),
@@ -56,7 +56,7 @@ VALUES
 --todo вернуть id и сделать его человеком
 
 TRUNCATE TABLE orders CASCADE;
-ALTER SEQUENCE orders_order_id_seq RESTART WITH 1;
+ALTER SEQUENCE orders_id_seq RESTART WITH 1;
 INSERT INTO orders (customer_id, distance, price, order_date, vehicle_id)
 VALUES
   (1, 800, 30000, '2023-10-25', 1),
@@ -65,7 +65,7 @@ VALUES
 
 
 TRUNCATE TABLE cargo CASCADE;
-ALTER SEQUENCE cargo_cargo_id_seq RESTART WITH 1;
+ALTER SEQUENCE cargo_id_seq RESTART WITH 1;
 INSERT INTO cargo (weight, width, height, length, order_id, cargo_type)
 VALUES
   (900.0, 1.0, 1.9, 4.0, 1, 'BULK'),
