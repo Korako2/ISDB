@@ -112,16 +112,22 @@ class FillTables {
         val driversCount = 50L
         val customersCount = 50L
         val addressesCount = 10L
+
         val personsCount = driversCount + customersCount;
         val persons = (1..personsCount).map { staticEntriesGenerator.genPerson() }
         personRepository.saveAll(persons)
         val drivers = (1..driversCount).map { staticEntriesGenerator.genDriver(persons.random().id!!) }
         driverRepository.saveAll(drivers)
+        val driversWithOrders = drivers.filter { random.nextBoolean() }
+        val ordersCount = driversWithOrders.size
+        val getDriverWithOrder = { driversWithOrders.random().id!! }
+
         val customers = (1..customersCount).map { staticEntriesGenerator.genCustomer(persons.random().id!!) }
         customerRepository.saveAll(customers)
         val vehicles = (1..driversCount).map { staticEntriesGenerator.genVehicle() }
         vehicleRepository.saveAll(vehicles)
-        val orders = (1..customersCount).map {
+
+        val orders = (1..ordersCount).map {
             staticEntriesGenerator.genOrder(
                 customers.random().id!!, vehicles.random().id!!
             )
@@ -148,7 +154,7 @@ class FillTables {
         val agreements = orders.map {
             val addressA = addresses.random()
             staticEntriesGenerator.genLoadingUnloadingAgreement(
-                it.id!!, drivers.random().id!!,
+                it.id!!, getDriverWithOrder(),
                 departurePoint = addressA.id!!,
                 deliveryPoint = addresses.minus(addressA).random().id!!,
                 senderId = customers.random().id!!,
@@ -168,7 +174,9 @@ class FillTables {
             }
         }
 
-        drivers.map { dynamicGen.genDriverStatusesHistory(it.id!!) }.map { statusHistoryList ->
+        // asssign order to driver
+
+        driversWithOrders.map { dynamicGen.genDriverStatusesHistory(it.id!!) }.map { statusHistoryList ->
             driverStatusHistoryRepository.saveAll(statusHistoryList)
         }
     }
