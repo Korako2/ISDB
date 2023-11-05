@@ -4,14 +4,14 @@ DO
     BEGIN
         if not exists (select 1 from pg_type where typname = ''driver_status'') then
             CREATE TYPE driver_status AS ENUM (
-                ''ACCEPTED ORDER'',
-                ''OFF DUTY'',
-                ''EN ROUTE'',
-                ''ARRIVED AT LOADING LOCATION'',
+                ''OFF_DUTY'',
+                ''ACCEPTED_ORDER'',
+                ''EN_ROUTE'',
+                ''ARRIVED_AT_LOADING_LOCATION'',
                 ''LOADING'',
-                ''ARRIVED AT UNLOADING LOCATION'',
+                ''ARRIVED_AT_UNLOADING_LOCATION'',
                 ''UNLOADING'',
-                ''COMPLETED ORDER''
+                ''COMPLETED_ORDER''
                 );
             CREATE CAST ( varchar AS driver_status ) WITH INOUT AS IMPLICIT;
         end if;
@@ -36,11 +36,11 @@ DO
         if not exists (select 1 from pg_type where typname = ''order_status'') then
             CREATE TYPE order_status AS ENUM (
                 ''ACCEPTED'',
-                ''IN PROGRESS'',
-                ''ARRIVED AT LOADING LOCATION'',
+                ''IN_PROGRESS'',
+                ''ARRIVED_AT_LOADING_LOCATION'',
                 ''LOADING'',
-                ''ARRIVED AT UNLOADING LOCATION'',
-                ''ON THE WAY'',
+                ''ARRIVED_AT_UNLOADING_LOCATION'',
+                ''ON_THE_WAY'',
                 ''UNLOADING'',
                 ''COMPLETED''
                 );

@@ -19,11 +19,17 @@ interface DriverLicenseRepository : CrudRepository<DriverLicense, Long>
 
 interface VehicleRepository : CrudRepository<Vehicle, Long>
 
-interface VehicleOwnershipRepository : CrudRepository<VehicleOwnership, VehicleOwnershipPK>
+interface VehicleOwnershipRepository : CrudRepository<VehicleOwnership, VehicleOwnershipPK> {
+    fun findByDriverId(driverId: Long): List<VehicleOwnership>
+}
 
-interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHistory, VehicleMovementHistoryPK>
+interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHistory, VehicleMovementHistoryPK> {
+    fun findByVehicleId(vehicleId: Long): List<VehicleMovementHistory>
+}
 
-interface OrderRepository : CrudRepository<Orders, Long>
+interface OrderRepository : CrudRepository<Orders, Long> {
+    fun findByVehicleId(vehicleId: Long): List<Orders>
+}
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK>
 
@@ -35,7 +41,9 @@ interface StoragePointRepository : CrudRepository<StoragePoint, Long>
 
 interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, LoadingUnloadingAgreementPK>
 
-interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, FuelCardsForDriversPK>
+interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, FuelCardsForDriversPK> {
+    fun findByFuelCardNumber(fuelCardNumber: String): FuelCardsForDrivers?
+}
 
 interface FuelExpensesRepository : CrudRepository<FuelExpenses, FuelExpensesPK>
 

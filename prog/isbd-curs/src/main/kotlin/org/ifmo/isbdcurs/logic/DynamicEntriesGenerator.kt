@@ -84,14 +84,14 @@ class DynamicEntriesGenerator(
         }
     }
 
-    fun genOrderStatuses(): List<DriverStatusHistory> {
-        val initialStatus = DriverStatusHistory(1L, actionsPeriodNoised().start.toJavaInstant(), DriverStatus.OFF_DUTY)
+    fun genDriverStatusesHistory(driverId: Long): List<DriverStatusHistory> {
+        val initialStatus = DriverStatusHistory(driverId, actionsPeriodNoised().start.toJavaInstant(), DriverStatus.OFF_DUTY)
         return initialStatus.generateSeriesFromFirst(
             transferTimePattern.increment, transferTimePattern.noiseHoursMax
         )
     }
 
-    fun genFuelExpenses(fuelCardNumberId: Long, distance: Double): FuelExpenses {
-        return FuelExpenses(fuelCardNumberId, actionsPeriodNoised().end.toJavaInstant(), distance * 4.0)
+    fun genFuelExpenses(fuelCardNumber: String, distance: Double): FuelExpenses {
+        return FuelExpenses(fuelCardNumber, actionsPeriodNoised().end.toJavaInstant(), distance * 4.0)
     }
 }

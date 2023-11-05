@@ -5,9 +5,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlinx.serialization.Serializable
-import org.ifmo.isbdcurs.persistence.InstantConverter
-import org.ifmo.isbdcurs.persistence.LocalDateConverter
-import org.ifmo.isbdcurs.persistence.LocalTimeConverter
 
 enum class DriverStatus {
     OFF_DUTY, ACCEPTED_ORDER, EN_ROUTE, ARRIVED_AT_LOADING_LOCATION, LOADING, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED_ORDER,
@@ -65,10 +62,15 @@ data class Customer(
     val organization: String?,
 )
 
+data class DriverStatusHistoryPK(
+    var driverId: Long? = null,
+    var date: Instant? = null
+) : java.io.Serializable
+
 @Entity
 data class DriverStatusHistory(
     @Id var driverId: Long,
-    val date: Instant,
+    @Id val date: Instant,
     @Enumerated(EnumType.STRING)
     val status: DriverStatus,
 )
@@ -152,8 +154,6 @@ data class OrderStatusesPK(
 @Entity
 @IdClass(OrderStatusesPK::class)
 data class OrderStatuses(
-//    @EmbeddedId
-//    val id: OrderStatusesPK,
     @Id val orderId: Long,
     @Id val dateTime: Instant,
     @Enumerated(EnumType.STRING)
@@ -226,15 +226,14 @@ data class FuelCardsForDrivers(
 )
 
 data class FuelExpensesPK(
-    var fuelCardNumberId: Long? = null,
-    @Column(name = "date")
+    var fuelCardNumber: String? = null,
     var date: Instant? = null
 ) : java.io.Serializable
 
 @Entity
 @IdClass(FuelExpensesPK::class)
 data class FuelExpenses(
-    @Id val fuelCardNumberId: Long,
+    @Id val fuelCardNumber: String,
     @Id val date: Instant,
     val amount: Double,
 )

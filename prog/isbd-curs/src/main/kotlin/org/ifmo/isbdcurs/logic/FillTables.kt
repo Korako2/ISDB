@@ -109,7 +109,7 @@ class FillTables {
 
     fun fill() {
         // static:
-        val driversCount = 100L
+        val driversCount = 50L
         val customersCount = 50L
         val addressesCount = 10L
         val personsCount = driversCount + customersCount;
@@ -122,7 +122,8 @@ class FillTables {
         val vehicles = (1..driversCount).map { staticEntriesGenerator.genVehicle() }
         vehicleRepository.saveAll(vehicles)
         val orders = (1..customersCount).map {
-            staticEntriesGenerator.genOrder(customers.random().id!!, vehicles.random().id!!
+            staticEntriesGenerator.genOrder(
+                customers.random().id!!, vehicles.random().id!!
             )
         }
         orderRepository.saveAll(orders)
@@ -155,5 +156,20 @@ class FillTables {
             )
         }
         loadingUnloadingAgreementRepository.saveAll(agreements)
+
+        // dynamic:
+        val dynamicGen = dynamicGenerators.random()
+        fuelCards.map { fuelCard ->
+            fuelCardsForDriversRepository.findByFuelCardNumber(fuelCard.fuelCardNumber)!!.driverId.let {
+                orderRepository.findByVehicleId(it).lastOrNull()?.distance?.let { distance ->
+                    val expenses = dynamicGen.genFuelExpenses(fuelCard.fuelCardNumber, distance)
+                    fuelExpensesRepository.save(expenses)
+                }
+            }
+        }
+
+        drivers.map { dynamicGen.genDriverStatusesHistory(it.id!!) }.map { statusHistoryList ->
+            driverStatusHistoryRepository.saveAll(statusHistoryList)
+        }
     }
 }
