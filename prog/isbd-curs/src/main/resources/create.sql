@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS customer (
 
 CREATE TABLE IF NOT EXISTS driver_status_history (
   driver_id int REFERENCES driver (id),
-  date date,
+  date timestamp,
   status driver_status,
   PRIMARY KEY (driver_id, date)
 );
@@ -211,6 +211,7 @@ CREATE TABLE IF NOT EXISTS fuel_cards_for_drivers (
 
 CREATE TABLE IF NOT EXISTS fuel_expenses (
   fuel_card_number varchar(40) REFERENCES fuel_cards_for_drivers(fuel_card_number) ON DELETE CASCADE PRIMARY KEY,
-  date date,
-  amount double precision NOT NULL
+  date timestamp,
+  amount double precision NOT NULL,
+  PRIMARY KEY (fuel_card_number, date)
 );
