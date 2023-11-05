@@ -197,7 +197,7 @@ BEGIN
 
 
   IF prev_status IS NOT NULL AND
-     (prev_status, NEW.status) NOT IN (('ACCEPTED', 'ARRIVED AT LOADING LOCATION'), ('ARRIVED AT LOADING LOCATION', 'LOADING'), ('LOADING', 'ON THE WAY'), ('ON THE WAY', 'ARRIVED AT UNLOADING LOCATION'), ('ARRIVED AT UNLOADING LOCATION', 'UNLOADING'), ('UNLOADING', 'COMPLETED')) THEN
+     (prev_status, NEW.status) NOT IN (('ACCEPTED', 'ARRIVED_AT_LOADING_LOCATION'), ('ARRIVED_AT_LOADING_LOCATION', 'LOADING'), ('LOADING', 'ON_THE_WAY'), ('ON_THE_WAY', 'ARRIVED_AT_UNLOADING_LOCATION'), ('ARRIVED_AT_UNLOADING_LOCATION', 'UNLOADING'), ('UNLOADING', 'COMPLETED')) THEN
     RAISE EXCEPTION 'Неверная последовательность статусов заказа';
   END IF;
 
@@ -240,25 +240,25 @@ BEGIN
         RAISE EXCEPTION 'Заказ не существует или авто не назначен';
     END IF;
 
-    IF NEW.status = 'ACCEPTED ORDER' THEN
+    IF NEW.status = 'ACCEPTED_ORDER' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'ACCEPTED');
-    ELSIF NEW.status = 'ARRIVED AT LOADING LOCATION' THEN
+    ELSIF NEW.status = 'ARRIVED_AT_LOADING_LOCATION' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (current_order_id, NEW.date, 'ARRIVED AT LOADING LOCATION');
+        VALUES (current_order_id, NEW.date, 'ARRIVED_AT_LOADING_LOCATION');
     ELSIF NEW.status = 'LOADING' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'LOADING');
-    ELSIF NEW.status = 'EN ROUTE' THEN
+    ELSIF NEW.status = 'EN_ROUTE' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'ON THE WAY');
-    ELSIF NEW.status = 'ARRIVED AT UNLOADING LOCATION' THEN
+    ELSIF NEW.status = 'ARRIVED_AT_UNLOADING_LOCATION' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (current_order_id, NEW.date, 'ARRIVED AT UNLOADING LOCATION');
+        VALUES (current_order_id, NEW.date, 'ARRIVED_AT_UNLOADING_LOCATION');
     ELSIF NEW.status = 'UNLOADING' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'UNLOADING');
-    ELSIF NEW.status = 'COMPLETED ORDER' THEN
+    ELSIF NEW.status = 'COMPLETED_ORDER' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'COMPLETED');
     END IF;
