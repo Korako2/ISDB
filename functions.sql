@@ -16,7 +16,7 @@ BEGIN
     calculated_price = distance * 20;
     INSERT INTO orders (customer_id, distance, price, order_date, vehicle_id)
     VALUES (var_customer_id, distance, calculated_price, NOW(), var_vehicle_id)
-    RETURNING order_id INTO ord_id;
+    RETURNING id INTO ord_id;
 
     INSERT INTO order_statuses (order_id, date_time, status)
     VALUES (ord_id, NOW(), 'ACCEPTED');
@@ -42,11 +42,11 @@ DECLARE
 BEGIN
     INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
     VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
-    RETURNING person_id INTO v_person_id;
+    RETURNING id INTO v_person_id;
 
     INSERT INTO customer (person_id, organization)
     VALUES (v_person_id, v_organization)
-    RETURNING customer_id INTO v_customer_id;
+    RETURNING id INTO v_customer_id;
 
     RETURN v_customer_id;
 END;
@@ -78,9 +78,9 @@ DECLARE
     var_cargo_type text;
     var_body_type text;
 BEGIN
-  SELECT cargo_id INTO var_cargo_id FROM cargo WHERE order_id = NEW.order_id;
-  SELECT cargo_type INTO var_cargo_type FROM cargo WHERE cargo.cargo_id = var_cargo_id;
-  SELECT body_type INTO var_body_type FROM vehicle WHERE vehicle.vehicle_id = NEW.vehicle_id;
+  SELECT id INTO var_cargo_id FROM cargo WHERE order_id = NEW.order_id;
+  SELECT cargo_type INTO var_cargo_type FROM cargo WHERE cargo.id = var_cargo_id;
+  SELECT body_type INTO var_body_type FROM vehicle WHERE vehicle.id = NEW.vehicle_id;
   IF var_cargo_type = 'BULK' OR var_cargo_type = 'TIPPER' THEN
     IF var_body_type != 'OPEN' THEN
       RAISE EXCEPTION 'Vehicle type must be OPEN';
@@ -296,7 +296,7 @@ BEGIN
     ELSE
         INSERT INTO customer (person_id, organization)
         VALUES (v_person_id, v_organization)
-        RETURNING customer_id INTO v_customer_id;
+        RETURNING id INTO v_customer_id;
     END IF;
 
     RETURN v_customer_id;
@@ -320,12 +320,12 @@ BEGIN
     -- Добавляем запись в таблицу person
     INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
     VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
-    RETURNING person_id INTO v_person_id;
+    RETURNING id INTO v_person_id;
 
     -- Добавляем запись в таблицу driver
     INSERT INTO driver (person_id, passport, bank_card_number)
     VALUES (v_person_id, v_passport, v_bank_card_number)
-    RETURNING driver_id INTO v_driver_id;
+    RETURNING id INTO v_driver_id;
 
     RETURN v_driver_id;
 END;
@@ -349,7 +349,7 @@ BEGIN
     -- Добавляем запись в таблицу vehicle
     INSERT INTO vehicle (plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
     VALUES (v_plate_number, v_model, v_manufacture_year, v_length, v_width, v_height, v_load_capacity, v_body_type)
-    RETURNING vehicle_id INTO v_vehicle_id;
+    RETURNING id INTO v_vehicle_id;
 
     -- Устанавливаем связь с водителем в таблице vehicle_ownership
     INSERT INTO vehicle_ownership (vehicle_id, driver_id, ownership_start_date)
@@ -406,7 +406,7 @@ CREATE OR REPLACE FUNCTION find_suitable_vehicles(
 BEGIN
     RETURN QUERY
     SELECT
-        v.vehicle_id
+        v.id
     FROM
         vehicle v
     WHERE

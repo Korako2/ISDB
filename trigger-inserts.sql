@@ -2,7 +2,7 @@
 
 TRUNCATE TABLE vehicle CASCADE;
 ALTER SEQUENCE vehicle_vehicle_id_seq RESTART WITH 1;
-INSERT INTO vehicle (vehicle_id, plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
+INSERT INTO vehicle (id, plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
 VALUES (1, 'А123ЕК152', 'a', '2000-01-01', 1.0, 1.0, 0.0, 1000, 'OPEN');
 
 TRUNCATE TABLE vehicle_movement_history CASCADE;
@@ -16,14 +16,14 @@ VALUES (1, '2023-01-01 00:00:00', 1.0, 1.0, 0),
 -- or BULK/TIPPER to CLOSED vehicle
 TRUNCATE TABLE vehicle CASCADE;
 ALTER SEQUENCE vehicle_vehicle_id_seq RESTART WITH 1;
-INSERT INTO vehicle (vehicle_id, plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
+INSERT INTO vehicle (id, plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
 VALUES
     (1, 'А123ЕК152', 'a', '2000-01-01', 1.0, 1.0, 0.0, 1000, 'OPEN'),
     (2, 'А123ЕБ152', 'a', '2000-01-01', 1.0, 1.0, 0.0, 1000, 'CLOSED');
 
 TRUNCATE TABLE orders CASCADE;
 ALTER SEQUENCE orders_order_id_seq RESTART WITH 1;
-INSERT INTO orders (order_id, customer_id, distance, price, order_date, vehicle_id)
+INSERT INTO orders (id, customer_id, distance, price, order_date, vehicle_id)
 VALUES
     (1, 1, 800, 30000, '2023-10-25', 1),
     (2, 2, 700, 28000, '2023-10-26', 2),
