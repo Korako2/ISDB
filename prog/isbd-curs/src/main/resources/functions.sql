@@ -62,7 +62,7 @@ BEGIN
       from person
       where data = person
     )
-    RETURNING person_id INTO v_person_id;
+    RETURNING id INTO v_person_id;
 
     INSERT INTO customer (person_id, organization)
     VALUES (v_person_id, v_organization)
@@ -97,9 +97,9 @@ DECLARE
     var_cargo_type text;
     var_body_type text;
 BEGIN
-  SELECT cargo_id INTO var_cargo_id FROM cargo WHERE order_id = NEW.order_id;
-  SELECT cargo_type INTO var_cargo_type FROM cargo WHERE cargo.cargo_id = var_cargo_id;
-  SELECT body_type INTO var_body_type FROM vehicle WHERE vehicle.vehicle_id = NEW.vehicle_id;
+  SELECT id INTO var_cargo_id FROM cargo WHERE order_id = NEW.id;
+  SELECT cargo_type INTO var_cargo_type FROM cargo WHERE cargo.id = var_cargo_id;
+  SELECT body_type INTO var_body_type FROM vehicle WHERE vehicle.id = NEW.vehicle_id;
   IF var_cargo_type = ''BULK'' OR var_cargo_type = ''TIPPER'' THEN
     IF var_body_type != ''OPEN'' THEN
       RAISE EXCEPTION ''Vehicle type must be OPEN'';
@@ -122,7 +122,7 @@ DECLARE
   current_mileage float;
   var_vehicle_id int;
 BEGIN
-  var_vehicle_id = (SELECT vehicle_id FROM vehicle WHERE vehicle_id =
+  var_vehicle_id = (SELECT id FROM vehicle WHERE id =
        (SELECT vehicle_id FROM vehicle_ownership WHERE vehicle_ownership.driver_id =
            (SELECT fuel_cards_for_drivers.driver_id FROM fuel_cards_for_drivers WHERE fuel_card_number = NEW.FUEL_CARD_NUMBER)));
   -- select record from movement history nearest to prev_pay_date
@@ -150,9 +150,9 @@ BEGIN
   FROM
     orders o
   JOIN
-    vehicle v ON o.vehicle_id = v.vehicle_id
+    vehicle v ON o.vehicle_id = v.id
   WHERE
-    o.order_id = NEW.order_id;
+    o.id = NEW.order_id;
 
   IF NEW.length > var_length OR
      NEW.width > var_width OR
@@ -177,7 +177,7 @@ BEGIN
   FROM
     address a
   WHERE
-    a.address_id = NEW.departure_point;
+    a.id = NEW.departure_point;
 
   -- Получаем страну получения
   SELECT
@@ -187,7 +187,7 @@ BEGIN
   FROM
     address a
   WHERE
-    a.address_id = NEW.delivery_point;
+    a.id = NEW.delivery_point;
 
   IF departure_country <> delivery_country THEN
     RAISE EXCEPTION ''Страна отправления и страна получения не совпадают'';
@@ -251,7 +251,7 @@ CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS '
 DECLARE
     current_order_id int;
 BEGIN
-    current_order_id = (SELECT order_id FROM orders WHERE vehicle_id = (
+    current_order_id = (SELECT id FROM orders WHERE vehicle_id = (
         SELECT vehicle_id FROM vehicle_ownership WHERE vehicle_ownership.driver_id = NEW.driver_id AND ownership_end_date IS NULL
     ));
     IF current_order_id IS NULL THEN

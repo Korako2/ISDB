@@ -68,6 +68,7 @@ data class DriverStatusHistoryPK(
 ) : java.io.Serializable
 
 @Entity
+@IdClass(DriverStatusHistoryPK::class)
 data class DriverStatusHistory(
     @Id var driverId: Long,
     @Id val date: Instant,
