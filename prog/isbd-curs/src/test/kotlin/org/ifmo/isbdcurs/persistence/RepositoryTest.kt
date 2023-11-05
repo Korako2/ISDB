@@ -2,6 +2,8 @@ package org.ifmo.isbdcurs.persistence
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaInstant
+import kotlinx.datetime.toJavaLocalDate
 import org.assertj.core.api.Assertions.assertThat
 import org.ifmo.isbdcurs.models.BodyType
 import org.ifmo.isbdcurs.models.Person
@@ -32,7 +34,7 @@ class RepositoryTests {
     val vehicle = Vehicle(
         plateNumber = "П123УП78",
         model = "Lada",
-        manufactureYear = Instant.parse("2020-01-01T00:00:00Z"),
+        manufactureYear = Instant.parse("2020-01-01T00:00:00Z").toJavaInstant(),
         length = 1.0,
         width = 1.0,
         height = 1.0,
@@ -51,7 +53,7 @@ class RepositoryTests {
         vehicleRepository.save(vehicle);
         val movementHistory = VehicleMovementHistory(
             vehicleId = 1,
-            date = Instant.parse("2020-01-01T00:00:00Z"),
+            date = Instant.parse("2020-01-01T00:00:00Z").toJavaInstant(),
             latitude = 1.0,
             longitude = 1.0,
             mileage = 1.0,
@@ -71,7 +73,7 @@ class RepositoryTests {
                 lastName = "White",
                 middleName = null,
                 gender = 'M',
-                dateOfBirth = LocalDate(1980, 1, 1),
+                dateOfBirth = LocalDate(1980, 1, 1).toJavaLocalDate(),
             )
         )
 

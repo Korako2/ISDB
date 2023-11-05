@@ -1,6 +1,8 @@
 package org.ifmo.isbdcurs.logic
 
 import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
+import kotlinx.datetime.toKotlinInstant
 import org.ifmo.isbdcurs.models.DriverStatus
 import org.ifmo.isbdcurs.models.DriverStatusHistory
 import org.ifmo.isbdcurs.models.FuelExpenses
@@ -28,12 +30,12 @@ fun DriverStatusHistory.generateSeriesFromFirst(
     intervalHours: Duration, noiseHoursMax: Double
 ): List<DriverStatusHistory> {
     val driverId = this.driverId
-    val startDate = this.date
+    val startDate = this.date.toKotlinInstant()
 
     val allStatuses = DriverStatus.values()
     val timePattern = TransferTimePattern(startDate, intervalHours, noiseHoursMax)
     return mutableListOf(this) + allStatuses.slice(1 until allStatuses.size).mapIndexed { i, status ->
-        DriverStatusHistory(driverId, timePattern.calculatePointInTime(i + 1), status)
+        DriverStatusHistory(driverId, timePattern.calculatePointInTime(i + 1).toJavaInstant(), status)
     }
 }
 
@@ -83,13 +85,13 @@ class DynamicEntriesGenerator(
     }
 
     fun genOrderStatuses(): List<DriverStatusHistory> {
-        val initialStatus = DriverStatusHistory(1L, actionsPeriodNoised().start, DriverStatus.OFF_DUTY)
+        val initialStatus = DriverStatusHistory(1L, actionsPeriodNoised().start.toJavaInstant(), DriverStatus.OFF_DUTY)
         return initialStatus.generateSeriesFromFirst(
             transferTimePattern.increment, transferTimePattern.noiseHoursMax
         )
     }
 
     fun genFuelExpenses(fuelCardNumberId: Long, distance: Double): FuelExpenses {
-        return FuelExpenses(fuelCardNumberId, actionsPeriodNoised().end, distance * 4.0)
+        return FuelExpenses(fuelCardNumberId, actionsPeriodNoised().end.toJavaInstant(), distance * 4.0)
     }
 }

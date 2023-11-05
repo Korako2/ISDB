@@ -1,9 +1,9 @@
 package org.ifmo.isbdcurs.models
 
 import jakarta.persistence.*
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import kotlinx.serialization.Serializable
 import org.ifmo.isbdcurs.persistence.InstantConverter
 import org.ifmo.isbdcurs.persistence.LocalDateConverter
@@ -31,24 +31,26 @@ enum class ContactInfoType {
 
 @Entity
 data class Person(
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id var id: Long? = null,
     val firstName: String,
     val lastName: String,
     val middleName: String?,
     val gender: Char,
-    @Convert(converter = LocalDateConverter::class)
     val dateOfBirth: LocalDate,
 )
 
 @Entity
 data class ContactInfo(
-    @Id var personId: Long,
+    @Id val personId: Long,
+    @Enumerated(EnumType.STRING)
     val contactType: ContactInfoType,
     val value: String,
 )
 
 @Entity
 data class Driver(
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id var id: Long? = null,
     val personId: Long,
     val passport: String,
@@ -57,6 +59,7 @@ data class Driver(
 
 @Entity
 data class Customer(
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id var id: Long? = null,
     val personId: Long,
     val organization: String?,
@@ -65,7 +68,6 @@ data class Customer(
 @Entity
 data class DriverStatusHistory(
     @Id var driverId: Long,
-    @Convert(converter = InstantConverter::class)
     val date: Instant,
     @Enumerated(EnumType.STRING)
     val status: DriverStatus,
@@ -81,19 +83,18 @@ data class TariffRate(
 @Entity
 data class DriverLicense(
     @Id val driverId: Long,
-    @Convert(converter = InstantConverter::class)
     val issueDate: Instant,
-    @Convert(converter = InstantConverter::class)
     val expirationDate: Instant,
     val licenseNumber: Int,
 )
 
 @Entity
+@Table(name = "vehicle")
 data class Vehicle(
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id var id: Long? = null,
     val plateNumber: String,
     val model: String,
-    @Convert(converter = InstantConverter::class)
     val manufactureYear: Instant,
     val length: Double,
     val width: Double,
@@ -103,10 +104,9 @@ data class Vehicle(
     val bodyType: BodyType,
 )
 
-@Embeddable
 data class VehicleOwnershipPK(
-    val vehicleId: Long? = null,
-    val driverId: Long? = null
+    var vehicleId: Long? = null,
+    var driverId: Long? = null
 ) : java.io.Serializable
 
 @Entity
@@ -114,26 +114,20 @@ data class VehicleOwnershipPK(
 data class VehicleOwnership(
     @Id val vehicleId: Long,
     @Id val driverId: Long,
-    @Convert(converter = InstantConverter::class)
     val ownershipStartDate: Instant,
-    @Convert(converter = InstantConverter::class)
     val ownershipEndDate: Instant,
 )
 
-@Serializable
-@Embeddable
 data class VehicleMovementHistoryPK(
-    val vehicleId: Long,
-    val date: Instant
+    var vehicleId: Long? = null,
+    var date: Instant? = null
 ) : java.io.Serializable
 
 @Entity
-//@IdClass(VehicleMovementHistoryPK::class)
+@IdClass(VehicleMovementHistoryPK::class)
 data class VehicleMovementHistory(
-    @EmbeddedId
-    val id: VehicleMovementHistoryPK,
-//    @Id val vehicleId: Long,
-//    @Id val date: Instant,
+    @Id val vehicleId: Long,
+    @Id val date: Instant,
     val latitude: Double,
     val longitude: Double,
     val mileage: Double,
@@ -141,35 +135,34 @@ data class VehicleMovementHistory(
 
 @Entity
 data class Orders(
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id var id: Long? = null,
     val customerId: Long,
     val distance: Double,
     val price: Double,
-    @Convert(converter = InstantConverter::class)
     val orderDate: Instant,
     val vehicleId: Long?,
 )
 
-@Serializable
 data class OrderStatusesPK(
     val orderId: Long,
-//    @Convert(converter = InstantConverter::class)
     val dateTime: Instant
 ) : java.io.Serializable
 
 @Entity
+@IdClass(OrderStatusesPK::class)
 data class OrderStatuses(
-    @EmbeddedId
-    val id: OrderStatusesPK,
-//    @Id val orderId: Long,
-//    @Convert(converter = InstantConverter::class)
-//    @Id val dateTime: Instant,
+//    @EmbeddedId
+//    val id: OrderStatusesPK,
+    @Id val orderId: Long,
+    @Id val dateTime: Instant,
     @Enumerated(EnumType.STRING)
     val status: OrderStatus,
 )
 
 @Entity
 data class Cargo(
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id var id: Long? = null,
     val weight: Double,
     val width: Double,
@@ -182,6 +175,7 @@ data class Cargo(
 
 @Entity
 data class Address(
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id var id: Long? = null,
     val country: String,
     val city: String,
@@ -198,25 +192,22 @@ data class StoragePoint(
 )
 
 @Serializable
-@Embeddable
 data class LoadingUnloadingAgreementPK(
     val orderId: Long? = null,
     val driverId: Long? = null
 ) : java.io.Serializable
 
 @Entity
-//@IdClass(LoadingUnloadingAgreementPK::class)
+@IdClass(LoadingUnloadingAgreementPK::class)
 data class LoadingUnloadingAgreement(
-    @EmbeddedId val id: LoadingUnloadingAgreementPK,
-//    @Id val orderId: Long,
-//    @Id val driverId: Long,
+//    @EmbeddedId val id: LoadingUnloadingAgreementPK,
+    @Id val orderId: Long,
+    @Id val driverId: Long,
     val departurePoint: Long,
     val deliveryPoint: Long,
     val senderId: Long,
     val receiverId: Long,
-    @Convert(converter = LocalTimeConverter::class)
     val unloadingTime: LocalTime,
-    @Convert(converter = LocalTimeConverter::class)
     val loadingTime: LocalTime,
 )
 
@@ -234,19 +225,16 @@ data class FuelCardsForDrivers(
     val fuelStationName: String?,
 )
 
-@Serializable
 data class FuelExpensesPK(
-    val fuelCardNumberId: Long? = null,
-    @Convert(converter = InstantConverter::class)
+    var fuelCardNumberId: Long? = null,
     @Column(name = "date")
-    val date: Instant? = null
+    var date: Instant? = null
 ) : java.io.Serializable
 
 @Entity
 @IdClass(FuelExpensesPK::class)
 data class FuelExpenses(
     @Id val fuelCardNumberId: Long,
-    @Convert(converter = InstantConverter::class)
     @Id val date: Instant,
     val amount: Double,
 )

@@ -69,10 +69,10 @@ CREATE TABLE IF NOT EXISTS person (
 );
 
 CREATE TABLE IF NOT EXISTS contact_info (
-  id int REFERENCES person (id) ON DELETE CASCADE,
+  person_id int REFERENCES person (id) ON DELETE CASCADE,
   contact_type contact_info_type,
   value text,
-  PRIMARY KEY (id, contact_type)
+  PRIMARY KEY (person_id, contact_type)
 );
 
 CREATE TABLE IF NOT EXISTS driver (

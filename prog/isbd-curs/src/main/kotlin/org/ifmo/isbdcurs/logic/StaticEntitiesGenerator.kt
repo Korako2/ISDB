@@ -1,10 +1,7 @@
 package org.ifmo.isbdcurs.logic
 
 import io.github.serpro69.kfaker.faker
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 import org.ifmo.isbdcurs.models.*
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.days
@@ -29,7 +26,7 @@ class StaticEntitiesGenerator(
     fun genPerson(): Person {
         val gender = if (random.nextBoolean()) 'M' else 'F'
         val birthDate = LocalDate(largePeriodNoised().start.toLocalDateTime(TimeZone.UTC).year, 1, 1)
-        return Person(null, faker.name.firstName(), faker.name.lastName(), null, gender, birthDate)
+        return Person(null, faker.name.firstName(), faker.name.lastName(), null, gender, birthDate.toJavaLocalDate())
     }
 
     fun genContactInfo(personId: Long): ContactInfo {
@@ -51,7 +48,7 @@ class StaticEntitiesGenerator(
 
     fun genDriverLicense(driverId: Long): DriverLicense {
         return DriverLicense(
-            driverId, largePeriodNoised().start, largePeriodNoised().end, random.nextInt(100000, 999999)
+            driverId, largePeriodNoised().start.toJavaInstant(), largePeriodNoised().end.toJavaInstant(), random.nextInt(100000, 999999)
         )
     }
 
@@ -61,7 +58,7 @@ class StaticEntitiesGenerator(
             null,
             plateNumber,
             model = faker.vehicle.modelsByMake(""),
-            manufactureYear = largePeriod.start,
+            manufactureYear = largePeriod.start.toJavaInstant(),
             length = random.nextDouble(12.0, 15.0),
             width = random.nextDouble(1.5, 2.5),
             height = random.nextDouble(1.5, 4.0),
@@ -71,7 +68,7 @@ class StaticEntitiesGenerator(
     }
 
     fun genOwnerShip(vehicleId: Long, driverId: Long): VehicleOwnership {
-        return VehicleOwnership(vehicleId, driverId, largePeriodNoised().start, largePeriodNoised().end)
+        return VehicleOwnership(vehicleId, driverId, largePeriodNoised().start.toJavaInstant(), largePeriodNoised().end.toJavaInstant())
     }
 
     fun genOrder(customerId: Long, vehicleId: Long): Orders {
@@ -80,7 +77,7 @@ class StaticEntitiesGenerator(
             customerId = customerId,
             distance = random.nextDouble(30.0, 1000.0),
             price = random.nextDouble(1000.0, 100000.0),
-            orderDate = actionsPeriodNoised().start,
+            orderDate = actionsPeriodNoised().start.toJavaInstant(),
             vehicleId = vehicleId,
         )
     }
@@ -126,8 +123,8 @@ class StaticEntitiesGenerator(
             deliveryPoint,
             senderId,
             receiverId,
-            unloadingTime = LocalTime(random.nextInt(1, 12), 0),
-            loadingTime = LocalTime(random.nextInt(1, 12), 0),
+            unloadingTime = LocalTime(random.nextInt(1, 12), 0).toJavaLocalTime(),
+            loadingTime = LocalTime(random.nextInt(1, 12), 0).toJavaLocalTime(),
         )
     }
 

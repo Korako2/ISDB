@@ -3,6 +3,7 @@ package org.ifmo.isbdcurs.logic
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toJavaInstant
 import org.ifmo.isbdcurs.models.DriverStatus
 import org.ifmo.isbdcurs.models.DriverStatusHistory
 import org.ifmo.isbdcurs.util.Coordinate
@@ -19,10 +20,10 @@ class FakeDataContextTest() {
         val intervalHours = 1L
         val noiseHoursMax = 0.0
         val initialDateTime = LocalDateTime.parse("2020-01-01T00:00")
-        val initialStatus = DriverStatusHistory(1L, initialDateTime.toInstant(TimeZone.UTC), DriverStatus.OFF_DUTY)
+        val initialStatus = DriverStatusHistory(1L, initialDateTime.toInstant(TimeZone.UTC).toJavaInstant(), DriverStatus.OFF_DUTY)
         val driverStatusHistorySeries = initialStatus.generateSeriesFromFirst(intervalHours.hours, noiseHoursMax)
         val expectedLastElement = DriverStatusHistory(
-            1L, LocalDateTime.parse("2020-01-01T07:00").toInstant(TimeZone.UTC), DriverStatus.COMPLETED_ORDER
+            1L, LocalDateTime.parse("2020-01-01T07:00").toInstant(TimeZone.UTC).toJavaInstant(), DriverStatus.COMPLETED_ORDER
         )
         assertEquals(driverStatusHistorySeries[0], initialStatus)
         assertArrayEquals(driverStatusHistorySeries.map { it.status }.toTypedArray(), DriverStatus.values())
