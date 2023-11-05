@@ -68,7 +68,7 @@ class StaticEntitiesGenerator(
     }
 
     fun genOwnerShip(vehicleId: Long, driverId: Long): VehicleOwnership {
-        return VehicleOwnership(vehicleId, driverId, largePeriodNoised().start.toJavaInstant(), largePeriodNoised().end.toJavaInstant())
+        return VehicleOwnership(vehicleId, driverId, largePeriodNoised().start.toJavaInstant(), null)
     }
 
     fun genOrder(customerId: Long, vehicleId: Long): Orders {

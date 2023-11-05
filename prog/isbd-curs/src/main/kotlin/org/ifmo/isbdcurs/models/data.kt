@@ -118,7 +118,7 @@ data class VehicleOwnership(
     @Id val vehicleId: Long,
     @Id val driverId: Long,
     val ownershipStartDate: Instant,
-    val ownershipEndDate: Instant,
+    val ownershipEndDate: Instant?,
 )
 
 data class VehicleMovementHistoryPK(
