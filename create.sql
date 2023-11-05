@@ -59,14 +59,14 @@ CREATE TABLE IF NOT EXISTS contact_info (
 
 CREATE TABLE IF NOT EXISTS driver (
   id serial PRIMARY KEY,
-  person_id int REFERENCES person(id) ON DELETE CASCADE,
-  passport varchar(10) NOT NULL CHECK (passport ~ '^[0-9]{10}$'),
+  person_id int REFERENCES person(id) ON DELETE CASCADE NOT NULL,
+  passport varchar(10) NOT NULL UNIQUE CHECK (passport ~ '^[0-9]{10}$'),
   bank_card_number text NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS customer (
   id serial PRIMARY KEY,
-  person_id int REFERENCES person (id) ON DELETE CASCADE,
+  person_id int REFERENCES person (id) ON DELETE CASCADE NOT NULL,
   organization varchar(50)
 );
 
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS tariff_rate (
 );
 
 CREATE TABLE IF NOT EXISTS driver_license (
-  driver_id int REFERENCES driver(id) ON DELETE CASCADE PRIMARY KEY ,
+  driver_id int REFERENCES driver(id) ON DELETE CASCADE PRIMARY KEY,
   issue_date date NOT NULL,
   expiration_date date NOT NULL,
   license_number int,
