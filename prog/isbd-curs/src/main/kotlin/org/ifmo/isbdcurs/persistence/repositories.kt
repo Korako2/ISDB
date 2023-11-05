@@ -1,10 +1,7 @@
 package org.ifmo.isbdcurs.persistence
 
 import org.ifmo.isbdcurs.models.*
-import org.springframework.data.jdbc.repository.query.Modifying
-import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
-import org.springframework.data.repository.query.Param
 
 interface PersonRepository : CrudRepository<Person, Long>
 
@@ -24,15 +21,7 @@ interface VehicleRepository : CrudRepository<Vehicle, Long>
 
 interface VehicleOwnershipRepository : CrudRepository<VehicleOwnership, VehicleOwnershipPK>
 
-interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHistory, VehicleMovementHistoryPK> {
-    @Query("""
-        INSERT INTO vehicle_movement_history (vehicle_id, date, latitude, longitude, mileage)
-        VALUES (:#{#mh.vehicleId }, :#{#mh.date }, :#{#mh.latitude }, :#{#mh.longitude }, :#{#mh.mileage })
-    """)
-//        ON CONFLICT (vehicle_id, date)
-//        DO UPDATE SET latitude = :#{#mh.latitude }, longitude = :#{#mh.longitude }, mileage = :#{#mh.mileage }
-    fun save(@Param("mh") vehicleMovementHistory: VehicleMovementHistory): VehicleMovementHistory;
-}
+interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHistory, VehicleMovementHistoryPK>
 
 interface OrderRepository : CrudRepository<Orders, Long>
 

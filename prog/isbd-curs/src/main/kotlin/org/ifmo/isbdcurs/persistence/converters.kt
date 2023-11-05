@@ -1,43 +1,57 @@
 package org.ifmo.isbdcurs.persistence
 
+import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Converter
 import kotlinx.datetime.*
-import org.springframework.core.convert.converter.Converter
-import org.springframework.data.convert.ReadingConverter
-import org.springframework.data.convert.WritingConverter
-import java.sql.Date
 import java.sql.Timestamp
 
-@WritingConverter
-class LocalDateToTimestampConverter : Converter<LocalDate, Timestamp> {
-    override fun convert(source: LocalDate): Timestamp {
-        return Timestamp(source.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds())
+@Converter(autoApply = true)
+class LocalDateConverter : AttributeConverter<LocalDate, Timestamp> {
+    override fun convertToDatabaseColumn(attribute: LocalDate?): Timestamp? {
+        if (attribute == null) {
+            return null
+        }
+        return Timestamp(attribute.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds())
+    }
+
+    override fun convertToEntityAttribute(dbData: Timestamp?): LocalDate? {
+        if (dbData == null) {
+            return null
+        }
+        return dbData.toLocalDateTime().toKotlinLocalDateTime().date;
     }
 }
 
-@ReadingConverter
-class TimestampToLocalDateConverter : Converter<Timestamp, LocalDate> {
-    override fun convert(source: Timestamp): LocalDate {
-        return source.toLocalDateTime().toKotlinLocalDateTime().date;
+@Converter(autoApply = true)
+class InstantConverter : AttributeConverter<Instant, java.time.Instant> {
+    override fun convertToDatabaseColumn(attribute: Instant?): java.time.Instant? {
+        if (attribute == null) {
+            return null
+        }
+        return attribute.toJavaInstant()
+    }
+
+    override fun convertToEntityAttribute(dbData: java.time.Instant?): Instant? {
+        if (dbData == null) {
+            return null
+        }
+        return dbData.toKotlinInstant()
     }
 }
 
-@ReadingConverter
-class DateToLocalDateConverter : Converter<Date, LocalDate> {
-    override fun convert(source: java.sql.Date): LocalDate {
-        return source.toLocalDate().toKotlinLocalDate()
+@Converter(autoApply = true)
+class LocalTimeConverter : AttributeConverter<LocalTime, java.sql.Time> {
+    override fun convertToDatabaseColumn(attribute: LocalTime?): java.sql.Time? {
+        if (attribute == null) {
+            return null
+        }
+        return java.sql.Time.valueOf(attribute.toString())
     }
-}
 
-@WritingConverter
-class InstantToTimestampConverter : Converter<Instant, Timestamp> {
-    override fun convert(source: Instant): Timestamp {
-        return Timestamp(source.toEpochMilliseconds())
-    }
-}
-
-@ReadingConverter
-class TimestampToInstantConverter : Converter<Timestamp, Instant> {
-    override fun convert(source: Timestamp): Instant {
-        return source.toInstant().toKotlinInstant()
+    override fun convertToEntityAttribute(dbData: java.sql.Time?): LocalTime? {
+        if (dbData == null) {
+            return null
+        }
+        return LocalTime.parse(dbData.toString())
     }
 }
