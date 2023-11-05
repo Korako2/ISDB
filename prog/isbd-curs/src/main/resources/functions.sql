@@ -215,7 +215,7 @@ BEGIN
   LIMIT 1;
 
   IF prev_status IS NOT NULL AND
-     (prev_status, NEW.status) NOT IN ((''ACCEPTED'', ''IN PROGRESS''), (''IN PROGRESS'', ''ARRIVED AT LOADING LOCATION''), (''ARRIVED AT LOADING LOCATION'', ''LOADING''), (''LOADING'', ''ARRIVED AT UNLOADING LOCATION''), (''ARRIVED AT UNLOADING LOCATION'', ''ON THE WAY''), (''ON THE WAY'', ''UNLOADING''), (''UNLOADING'', ''COMPLETED'')) THEN
+     (prev_status, NEW.status) NOT IN ((''ACCEPTED'', ''IN_PROGRESS''), (''IN_PROGRESS'', ''ARRIVED_AT_LOADING_LOCATION''), (''ARRIVED_AT_LOADING_LOCATION'', ''LOADING''), (''LOADING'', ''ARRIVED_AT_UNLOADING_LOCATION''), (''ARRIVED_AT_UNLOADING_LOCATION'', ''ON_THE_WAY''), (''ON_THE_WAY'', ''UNLOADING''), (''UNLOADING'', ''COMPLETED'')) THEN
     RAISE EXCEPTION ''Неверная последовательность статусов заказа'';
   END IF;
 
@@ -255,7 +255,7 @@ BEGIN
         SELECT vehicle_id FROM vehicle_ownership WHERE vehicle_ownership.driver_id = NEW.driver_id AND ownership_end_date IS NULL
     ));
     IF current_order_id IS NULL THEN
-        RAISE EXCEPTION ''Заказ не существует или авто не назначен'';
+        RAISE EXCEPTION ''Заказ не существует или авто не назначен или не связан с водителем (%)'', NEW.driver_id;
     END IF;
 
     IF NEW.status = ''ACCEPTED_ORDER'' THEN
@@ -263,7 +263,7 @@ BEGIN
         VALUES (current_order_id, NEW.date, ''ACCEPTED'');
     ELSIF NEW.status = ''EN_ROUTE'' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (current_order_id, NEW.date, ''IN PROGRESS'');
+        VALUES (current_order_id, NEW.date, ''IN_PROGRESS'');
     ELSIF NEW.status = ''ARRIVED_AT_LOADING_LOCATION'' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, ''ARRIVED_AT_LOADING_LOCATION'');
