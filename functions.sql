@@ -10,26 +10,10 @@ CREATE OR REPLACE FUNCTION add_order(
     v_cargo_type cargo_type
 ) RETURNS int AS '
 DECLARE
-    calculated_distance float;
     calculated_price    float;
-    order_id            int;
+    ord_id            int;
 BEGIN
-    SELECT (
-      a.latitude - b.latitude
-    )
-    FROM storage_point a,
-         storage_point b
-    WHERE a.address_id = address_a_id
-      AND b.address_id = address_b_id
-    INTO calculated_distance;
-
-    SELECT 2 * (calculated_distance * rate_per_km + daily_rate)
-    FROM tariff_rate
-    WHERE driver_id = (SELECT driver_id
-                       FROM vehicle_ownership
-                       WHERE vehicle_ownership.vehicle_id = var_vehicle_id)
-    INTO calculated_price;
-
+    calculated_price = distance * 20;
     INSERT INTO orders (customer_id, distance, price, order_date, vehicle_id)
     VALUES (var_customer_id, distance, calculated_price, NOW(), var_vehicle_id)
     RETURNING id INTO ord_id;
@@ -43,8 +27,8 @@ BEGIN
 END
 ' LANGUAGE plpgsql;
 
--- Функция добавления заказчика
-CREATE OR REPLACE FUNCTION add_customer(
+-- Функция добавления нового заказчика
+CREATE OR REPLACE FUNCTION add_new_customer(
     v_first_name varchar(20),
     v_last_name varchar(20),
     v_gender char(1),
@@ -54,7 +38,7 @@ CREATE OR REPLACE FUNCTION add_customer(
 ) RETURNS int AS '
 DECLARE
     v_person_id int;
-    customer_id int;
+    v_customer_id int;
 BEGIN
     INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
     VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
@@ -211,6 +195,7 @@ BEGIN
     date_time DESC
   LIMIT 1;
 
+
   IF prev_status IS NOT NULL AND
      (prev_status, NEW.status) NOT IN ((''ACCEPTED'', ''ARRIVED_AT_LOADING_LOCATION''), (''ARRIVED_AT_LOADING_LOCATION'', ''LOADING''), (''LOADING'', ''ON_THE_WAY''), (''ON_THE_WAY'', ''ARRIVED_AT_UNLOADING_LOCATION''), (''ARRIVED_AT_UNLOADING_LOCATION'', ''UNLOADING''), (''UNLOADING'', ''COMPLETED'')) THEN
     RAISE EXCEPTION ''Неверная последовательность статусов заказа'';
@@ -278,6 +263,7 @@ BEGIN
         VALUES (current_order_id, NEW.date, ''COMPLETED'');
     END IF;
     RETURN NEW;
+
 END;
 ' LANGUAGE plpgsql;
 
