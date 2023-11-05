@@ -42,7 +42,7 @@ CREATE TYPE contact_info_type AS ENUM (
 );
 
 CREATE TABLE IF NOT EXISTS person (
-  person_id serial PRIMARY KEY,
+  id serial PRIMARY KEY,
   first_name varchar(20) NOT NULL,
   last_name varchar(20) NOT NULL,
   middle_name varchar(20),
@@ -51,40 +51,40 @@ CREATE TABLE IF NOT EXISTS person (
 );
 
 CREATE TABLE IF NOT EXISTS contact_info (
-  person_id int REFERENCES person (person_id),
+  person_id int REFERENCES person (id) ON DELETE CASCADE,
   contact_type contact_info_type,
   value text,
   PRIMARY KEY (person_id, contact_type)
 );
 
 CREATE TABLE IF NOT EXISTS driver (
-  driver_id serial PRIMARY KEY,
-  person_id int REFERENCES person(person_id) NOT NULL,
+  id serial PRIMARY KEY,
+  person_id int REFERENCES person(id) ON DELETE CASCADE,
   passport varchar(10) NOT NULL CHECK (passport ~ '^[0-9]{10}$'),
   bank_card_number text NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS customer (
-  customer_id serial PRIMARY KEY,
-  person_id int REFERENCES person (person_id),
+  id serial PRIMARY KEY,
+  person_id int REFERENCES person (id) ON DELETE CASCADE,
   organization varchar(50)
 );
 
 CREATE TABLE IF NOT EXISTS driver_status_history (
-  driver_id int REFERENCES driver (driver_id),
+  driver_id int REFERENCES driver (id),
   date timestamp,
   status driver_status,
   PRIMARY KEY (driver_id, date)
 );
 
 CREATE TABLE IF NOT EXISTS tariff_rate (
-  driver_id int REFERENCES driver (driver_id) PRIMARY KEY,
+  driver_id int REFERENCES driver (id) ON DELETE CASCADE PRIMARY KEY,
   daily_rate int NOT NULL,
   rate_per_km int NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS driver_license (
-  driver_id int REFERENCES driver(driver_id) PRIMARY KEY,
+  driver_id int REFERENCES driver(id) ON DELETE CASCADE PRIMARY KEY ,
   issue_date date NOT NULL,
   expiration_date date NOT NULL,
   license_number int,
@@ -92,8 +92,8 @@ CREATE TABLE IF NOT EXISTS driver_license (
 );
 
 CREATE TABLE IF NOT EXISTS vehicle (
-  vehicle_id serial PRIMARY KEY,
   plate_number varchar(9) NOT NULL UNIQUE CHECK (
+  id serial PRIMARY KEY,
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
   ),
@@ -103,12 +103,12 @@ CREATE TABLE IF NOT EXISTS vehicle (
   width float NOT NULL,
   height float NOT NULL,
   load_capacity float NOT NULL,
-  body_type body_type
+  body_type body_type NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_ownership (
-  vehicle_id int REFERENCES vehicle (vehicle_id),
-  driver_id int REFERENCES driver (driver_id),
+  vehicle_id int REFERENCES vehicle (id) ON DELETE CASCADE,
+  driver_id int REFERENCES driver (id) ON DELETE CASCADE,
   ownership_start_date date,
   ownership_end_date date,
   PRIMARY KEY (vehicle_id, driver_id),
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS vehicle_ownership (
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_movement_history (
-  vehicle_id int REFERENCES vehicle (vehicle_id),
+  vehicle_id int REFERENCES vehicle (id),
   date timestamp,
   latitude float NOT NULL,
   longitude float NOT NULL,
@@ -125,33 +125,33 @@ CREATE TABLE IF NOT EXISTS vehicle_movement_history (
 );
 
 CREATE TABLE IF NOT EXISTS orders (
-  order_id serial PRIMARY KEY,
-  customer_id int NOT NULL REFERENCES customer (customer_id),
+  id serial PRIMARY KEY,
+  customer_id int NOT NULL REFERENCES customer (id) ON DELETE CASCADE,
   distance float NOT NULL,
   price float NOT NULL,
   order_date date NOT NULL,
-  vehicle_id int REFERENCES vehicle (vehicle_id)
+  vehicle_id int REFERENCES vehicle (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS order_statuses (
-  order_id int REFERENCES orders (order_id),
+  order_id int REFERENCES orders (id) ON DELETE CASCADE,
   date_time timestamp,
   status order_status,
   PRIMARY KEY (order_id, date_time)
 );
 
 CREATE TABLE IF NOT EXISTS cargo (
-  cargo_id serial PRIMARY KEY,
+  id serial PRIMARY KEY,
   weight float NOT NULL CHECK (weight <= 25000),
   width float NOT NULL CHECK (width <= 2.5),
   height float NOT NULL CHECK (height <= 4),
   length float NOT NULL CHECK (length <= 15),
-  order_id int NOT NULL REFERENCES orders (order_id),
+  order_id int NOT NULL REFERENCES orders (id) ON DELETE CASCADE,
   cargo_type cargo_type
 );
 
 CREATE TABLE IF NOT EXISTS address (
-  address_id serial PRIMARY KEY,
+  id serial PRIMARY KEY,
   country text NOT NULL,
   city text NOT NULL,
   street text NOT NULL,
@@ -160,18 +160,18 @@ CREATE TABLE IF NOT EXISTS address (
 );
 
 CREATE TABLE IF NOT EXISTS storage_point (
-  address_id int REFERENCES address(address_id) PRIMARY KEY,
-  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90),
-  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180)
+  address_id int REFERENCES address(id) ON DELETE CASCADE PRIMARY KEY,
+  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180),
+  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90)
 );
 
 CREATE TABLE IF NOT EXISTS loading_unloading_agreement (
-  order_id int REFERENCES orders (order_id) PRIMARY KEY,
-  driver_id int NOT NULL REFERENCES driver (driver_id),
-  departure_point int NOT NULL REFERENCES storage_point (address_id),
-  delivery_point int NOT NULL REFERENCES storage_point (address_id),
-  sender_id int NOT NULL REFERENCES person (person_id),
-  receiver_id int NOT NULL REFERENCES person (person_id),
+  order_id int REFERENCES orders (id) ON DELETE CASCADE PRIMARY KEY,
+  driver_id int NOT NULL REFERENCES driver (id) ON DELETE CASCADE,
+  departure_point int NOT NULL REFERENCES storage_point (address_id)  ON DELETE CASCADE,
+  delivery_point int NOT NULL REFERENCES storage_point (address_id) ON DELETE CASCADE,
+  sender_id int NOT NULL REFERENCES person (id) ON DELETE CASCADE,
+  receiver_id int NOT NULL REFERENCES person (id) ON DELETE CASCADE,
   unloading_time time NOT NULL,
   loading_time time NOT NULL,
   CHECK (departure_point <> delivery_point),
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS loading_unloading_agreement (
 );
 
 CREATE TABLE IF NOT EXISTS fuel_cards_for_drivers (
-  driver_id int REFERENCES driver(driver_id),
+  driver_id int REFERENCES driver(id) ON DELETE CASCADE,
   fuel_card_number varchar(40) NOT NULL,
   fuel_station_name varchar(50),
   PRIMARY KEY (driver_id, fuel_card_number),
