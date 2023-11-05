@@ -25,12 +25,6 @@ CREATE TRIGGER country_match_check_trigger
 BEFORE INSERT ON loading_unloading_agreement
 FOR EACH ROW EXECUTE FUNCTION check_country_match();
 
-DROP TRIGGER IF EXISTS order_status_sequence_check_trigger ON order_statuses CASCADE;
-CREATE TRIGGER order_status_sequence_check_trigger
-BEFORE INSERT ON order_statuses
-FOR EACH ROW EXECUTE FUNCTION check_order_status_sequence();
-
-
 DROP TRIGGER IF EXISTS order_status_time_check_trigger ON order_statuses CASCADE;
 CREATE TRIGGER order_status_time_check_trigger
 BEFORE INSERT ON order_statuses
