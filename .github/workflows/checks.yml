@@ -9,7 +9,8 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      changed-files: ${{ steps.changed-files.outputs.changed-files }}
+      sql_any_changed: ${{ steps.changed-files.outputs.sql_any_changed }}
+      src_any_changed: ${{ steps.changed-files.outputs.src_any_changed }}
     permissions:
       pull-requests: read
     steps:
@@ -26,7 +27,7 @@ jobs:
   # runs only when *.sql files are changed
   basic-check:
     needs: prepare
-    if: needs.prepare.outputs.changed-files.sql_any_changed == 'true'
+    if: needs.prepare.outputs.sql_any_changed == 'true'
     runs-on: ubuntu-latest
     container:
       image: postgres:15
@@ -61,7 +62,7 @@ jobs:
   jpa-tests:
     runs-on: ubuntu-latest
     needs: prepare
-    if: needs.prepare.outputs.changed-files.src_any_changed == 'true'
+    if: needs.prepare.outputs.src_any_changed == 'true'
     services:
       postgres:
         image: postgres:15
