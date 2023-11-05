@@ -127,9 +127,9 @@ class FillTables {
         val vehicles = (1..driversCount).map { staticEntriesGenerator.genVehicle() }
         vehicleRepository.saveAll(vehicles)
 
-        val orders = (1..ordersCount).map {
+        val orders = (1..ordersCount).zip(vehicles.shuffled()).map {(o, v) ->
             staticEntriesGenerator.genOrder(
-                customers.random().id!!, vehicles.random().id!!
+                customers.random().id!!, v.id!!
             )
         }
         orderRepository.saveAll(orders)
