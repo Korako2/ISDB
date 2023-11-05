@@ -85,5 +85,5 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: Run build with Gradle Wrapper
-        working-directory: ./prog
+        working-directory: ./prog/isbd-curs
         run: ./gradlew clean test
