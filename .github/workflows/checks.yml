@@ -2,7 +2,29 @@ name: Integration tests & linting
 on: push
 
 jobs:
-  integration-tests:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      changed-files: ${{ steps.changed-files.outputs.changed-files }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # OR "2" -> To retrieve the preceding commit.
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v40
+        with:
+          files_yaml: |
+            sql:
+              - '**.sql'
+            src:
+              - prog/
+
+  # runs only when *.sql files are changed
+  basic-check:
+    needs: prepare
+    if: needs.prepare.outputs.changed-files.sql_any_changed == 'true'
     runs-on: ubuntu-latest
     container:
       image: postgres:15
@@ -33,3 +55,31 @@ jobs:
           PGPASSWORD: postgres
           PGUSER: runner
           PGOPTIONS: '--client-min-messages=warning'
+
+  jpa-tests:
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: needs.prepare.outputs.changed-files.src_any_changed == 'true'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: runner
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - "5432:5432"
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Checkout project sources
+        uses: actions/checkout@v3
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Run build with Gradle Wrapper
+        run: ./gradlew clean test
