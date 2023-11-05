@@ -142,7 +142,7 @@ class FillTables {
         tariffRateRepository.saveAll(tariffRates)
         val contactInfos = persons.map { staticEntriesGenerator.genContactInfo(it.id!!) }
         contactInfoRepository.saveAll(contactInfos)
-        val ownerships = vehicles.map { staticEntriesGenerator.genOwnerShip(vehicleId = it.id!!, driverId = getDriverWithOrder()) }
+        val ownerships = vehicles.zip(driversWithOrders.shuffled()).map { (v, d) -> staticEntriesGenerator.genOwnerShip(vehicleId = v.id!!, driverId = d.id!!) }
         vehicleOwnershipRepository.saveAll(ownerships)
         val cargos = orders.map { staticEntriesGenerator.genCargo(orderId = it.id!!) }
         cargoRepository.saveAll(cargos)
