@@ -210,7 +210,7 @@ CREATE TABLE IF NOT EXISTS fuel_cards_for_drivers (
 );
 
 CREATE TABLE IF NOT EXISTS fuel_expenses (
-  fuel_card_number varchar(40) REFERENCES fuel_cards_for_drivers(fuel_card_number) ON DELETE CASCADE PRIMARY KEY,
+  fuel_card_number varchar(40) REFERENCES fuel_cards_for_drivers(fuel_card_number) ON DELETE CASCADE,
   date timestamp,
   amount double precision NOT NULL,
   PRIMARY KEY (fuel_card_number, date)
