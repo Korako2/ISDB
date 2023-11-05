@@ -1,0 +1,39 @@
+name: Integration tests & linting
+on: push
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: postgres:15
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: runner
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - "5432:5432"
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Connect to PostgreSQL
+        run: |
+          echo "id: ${{ job.services.postgres.id }}"
+          echo "network: ${{ job.services.postgres.network }}"
+          echo "ports: ${{ job.services.postgres.ports }}"
+          ./check.sh
+        env:
+          # The hostname used to communicate with the PostgreSQL service container
+          PGHOST: postgres
+          # The default PostgreSQL port
+          PGPORT: 5432
+          PGPASSWORD: postgres
+          PGUSER: runner
