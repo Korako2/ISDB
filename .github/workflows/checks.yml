@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       changed-files: ${{ steps.changed-files.outputs.changed-files }}
+    permissions:
+      pull-requests: read
     steps:
       - name: Get changed files
         id: changed-files
