@@ -60,9 +60,9 @@ class StaticEntitiesGenerator(
             model = faker.vehicle.modelsByMake(""),
             manufactureYear = largePeriod.start.toJavaInstant(),
             length = random.nextDouble(12.0, 15.0),
-            width = random.nextDouble(1.5, 2.5),
-            height = random.nextDouble(1.5, 4.0),
-            loadCapacity = random.nextDouble(1.0, 3.0),
+            width = random.nextDouble(2.0, 2.5),
+            height = random.nextDouble(3.0, 4.0),
+            loadCapacity = random.nextDouble(1000.0, 3000.0),
             bodyType = BodyType.values().random()
         )
     }
@@ -85,10 +85,10 @@ class StaticEntitiesGenerator(
     fun genCargo( orderId: Long): Cargo {
         return Cargo(
             null,
-            weight = random.nextDouble(1.0, 100.0),
-            width = random.nextDouble(0.4, 2.5),
-            height = random.nextDouble(0.4, 4.0),
-            length = random.nextDouble(0.4, 15.0),
+            weight = random.nextDouble(2.0, 100.0),
+            width = random.nextDouble(0.4, 2.0),
+            height = random.nextDouble(0.4, 3.0),
+            length = random.nextDouble(0.4, 10.0),
             orderId = orderId,
             cargoType = CargoType.values().random(),
         )
