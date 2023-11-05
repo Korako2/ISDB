@@ -2,7 +2,7 @@ DO
 '
     DECLARE
     BEGIN
-        if not exists (select 1 from pg_type where typname = ''driver_status'') then
+        IF NOT EXISTS (select 1 FROM pg_type WHERE typname = ''driver_status'') THEN
             CREATE TYPE driver_status AS ENUM (
                 ''OFF_DUTY'',
                 ''ACCEPTED_ORDER'',
@@ -13,30 +13,30 @@ DO
                 ''UNLOADING'',
                 ''COMPLETED_ORDER''
                 );
+            -- каст нужен был для Spring Data jdbc
             CREATE CAST ( varchar AS driver_status ) WITH INOUT AS IMPLICIT;
-        end if;
+        END IF;
 
-        if not exists (select 1 from pg_type where typname = ''body_type'') then
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = ''body_type'') THEN
             CREATE TYPE body_type AS ENUM (
                 ''OPEN'',
                 ''CLOSED''
                 );
             CREATE CAST ( varchar AS body_type ) WITH INOUT AS IMPLICIT;
-        end if;
+        END IF;
 
-        if not exists (select 1 from pg_type where typname = ''cargo_type'') then
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = ''cargo_type'') THEN
             CREATE TYPE cargo_type AS ENUM (
                 ''BULK'',
                 ''TIPPER'',
                 ''PALLETIZED''
                 );
             CREATE CAST ( varchar AS cargo_type ) WITH INOUT AS IMPLICIT;
-        end if;
+        END IF;
 
-        if not exists (select 1 from pg_type where typname = ''order_status'') then
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = ''order_status'') THEN
             CREATE TYPE order_status AS ENUM (
                 ''ACCEPTED'',
-                ''IN_PROGRESS'',
                 ''ARRIVED_AT_LOADING_LOCATION'',
                 ''LOADING'',
                 ''ARRIVED_AT_UNLOADING_LOCATION'',
@@ -45,19 +45,18 @@ DO
                 ''COMPLETED''
                 );
             CREATE CAST ( varchar AS order_status ) WITH INOUT AS IMPLICIT;
-        end if;
+        END IF;
 
-        if not exists (select 1 from pg_type where typname = ''contact_info_type'') then
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = ''contact_info_type'') THEN
             CREATE TYPE contact_info_type AS ENUM (
                 ''PHONE NUMBER'',
                 ''TELEGRAM'',
                 ''EMAIL''
                 );
             CREATE CAST ( varchar AS contact_info_type ) WITH INOUT AS IMPLICIT;
-        end if;
-    end;
+        END IF;
+    END
 ' LANGUAGE plpgsql;
-
 
 CREATE TABLE IF NOT EXISTS person (
   id serial PRIMARY KEY,
@@ -111,7 +110,7 @@ CREATE TABLE IF NOT EXISTS driver_license (
 
 CREATE TABLE IF NOT EXISTS vehicle (
   id serial PRIMARY KEY,
-  plate_number varchar(9) NOT NULL CHECK (
+  plate_number varchar(9) NOT NULL UNIQUE CHECK (
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
   ),
@@ -179,8 +178,8 @@ CREATE TABLE IF NOT EXISTS address (
 
 CREATE TABLE IF NOT EXISTS storage_point (
   address_id int REFERENCES address(id) ON DELETE CASCADE PRIMARY KEY,
-  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180),
-  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90)
+  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90),
+  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180)
 );
 
 CREATE TABLE IF NOT EXISTS loading_unloading_agreement (
