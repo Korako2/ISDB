@@ -1,63 +1,45 @@
-DO
-'
-    DECLARE
-    BEGIN
-        if not exists (select 1 from pg_type where typname = ''driver_status'') then
-            CREATE TYPE driver_status AS ENUM (
-                ''OFF_DUTY'',
-                ''ACCEPTED_ORDER'',
-                ''EN_ROUTE'',
-                ''ARRIVED_AT_LOADING_LOCATION'',
-                ''LOADING'',
-                ''ARRIVED_AT_UNLOADING_LOCATION'',
-                ''UNLOADING'',
-                ''COMPLETED_ORDER''
-                );
-            CREATE CAST ( varchar AS driver_status ) WITH INOUT AS IMPLICIT;
-        end if;
+DROP TYPE IF EXISTS driver_status CASCADE;
+CREATE TYPE driver_status AS ENUM (
+  'ACCEPTED_ORDER',
+  'OFF_DUTY',
+  'EN_ROUTE',
+  'ARRIVED_AT_LOADING_LOCATION',
+  'LOADING',
+  'ARRIVED_AT_UNLOADING_LOCATION',
+  'UNLOADING',
+  'COMPLETED_ORDER'
+);
 
-        if not exists (select 1 from pg_type where typname = ''body_type'') then
-            CREATE TYPE body_type AS ENUM (
-                ''OPEN'',
-                ''CLOSED''
-                );
-            CREATE CAST ( varchar AS body_type ) WITH INOUT AS IMPLICIT;
-        end if;
+DROP TYPE IF EXISTS body_type CASCADE;
+CREATE TYPE body_type AS ENUM (
+  'OPEN',
+  'CLOSED'
+);
 
-        if not exists (select 1 from pg_type where typname = ''cargo_type'') then
-            CREATE TYPE cargo_type AS ENUM (
-                ''BULK'',
-                ''TIPPER'',
-                ''PALLETIZED''
-                );
-            CREATE CAST ( varchar AS cargo_type ) WITH INOUT AS IMPLICIT;
-        end if;
+DROP TYPE IF EXISTS cargo_type CASCADE;
+CREATE TYPE cargo_type AS ENUM (
+  'BULK',
+  'TIPPER',
+  'PALLETIZED'
+);
 
-        if not exists (select 1 from pg_type where typname = ''order_status'') then
-            CREATE TYPE order_status AS ENUM (
-                ''ACCEPTED'',
-                ''IN_PROGRESS'',
-                ''ARRIVED_AT_LOADING_LOCATION'',
-                ''LOADING'',
-                ''ARRIVED_AT_UNLOADING_LOCATION'',
-                ''ON_THE_WAY'',
-                ''UNLOADING'',
-                ''COMPLETED''
-                );
-            CREATE CAST ( varchar AS order_status ) WITH INOUT AS IMPLICIT;
-        end if;
+DROP TYPE IF EXISTS order_status CASCADE;
+CREATE TYPE order_status AS ENUM (
+  'ACCEPTED',
+  'ARRIVED_AT_LOADING_LOCATION',
+  'LOADING',
+  'ARRIVED_AT_UNLOADING_LOCATION',
+  'ON_THE_WAY',
+  'UNLOADING',
+  'COMPLETED'
+);
 
-        if not exists (select 1 from pg_type where typname = ''contact_info_type'') then
-            CREATE TYPE contact_info_type AS ENUM (
-                ''PHONE NUMBER'',
-                ''TELEGRAM'',
-                ''EMAIL''
-                );
-            CREATE CAST ( varchar AS contact_info_type ) WITH INOUT AS IMPLICIT;
-        end if;
-    end;
-' LANGUAGE plpgsql;
-
+DROP TYPE IF EXISTS contact_info_type CASCADE;
+CREATE TYPE contact_info_type AS ENUM (
+  'PHONE NUMBER',
+  'TELEGRAM',
+  'EMAIL'
+);
 
 CREATE TABLE IF NOT EXISTS person (
   id serial PRIMARY KEY,
@@ -77,14 +59,14 @@ CREATE TABLE IF NOT EXISTS contact_info (
 
 CREATE TABLE IF NOT EXISTS driver (
   id serial PRIMARY KEY,
-  person_id int REFERENCES person(id) ON DELETE CASCADE,
-  passport varchar(10) NOT NULL CHECK (passport ~ '^[0-9]{10}$'),
+  person_id int REFERENCES person(id) ON DELETE CASCADE NOT NULL,
+  passport varchar(10) NOT NULL UNIQUE CHECK (passport ~ '^[0-9]{10}$'),
   bank_card_number text NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS customer (
   id serial PRIMARY KEY,
-  person_id int REFERENCES person (id) ON DELETE CASCADE,
+  person_id int REFERENCES person (id) ON DELETE CASCADE NOT NULL,
   organization varchar(50)
 );
 
@@ -102,7 +84,7 @@ CREATE TABLE IF NOT EXISTS tariff_rate (
 );
 
 CREATE TABLE IF NOT EXISTS driver_license (
-  driver_id int REFERENCES driver(id) ON DELETE CASCADE PRIMARY KEY ,
+  driver_id int REFERENCES driver(id) ON DELETE CASCADE PRIMARY KEY,
   issue_date date NOT NULL,
   expiration_date date NOT NULL,
   license_number int,
@@ -111,7 +93,7 @@ CREATE TABLE IF NOT EXISTS driver_license (
 
 CREATE TABLE IF NOT EXISTS vehicle (
   id serial PRIMARY KEY,
-  plate_number varchar(9) NOT NULL CHECK (
+  plate_number varchar(9) NOT NULL UNIQUE CHECK (
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
   ),
@@ -179,8 +161,8 @@ CREATE TABLE IF NOT EXISTS address (
 
 CREATE TABLE IF NOT EXISTS storage_point (
   address_id int REFERENCES address(id) ON DELETE CASCADE PRIMARY KEY,
-  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180),
-  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90)
+  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90),
+  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180)
 );
 
 CREATE TABLE IF NOT EXISTS loading_unloading_agreement (
