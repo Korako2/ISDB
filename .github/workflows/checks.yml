@@ -1,9 +1,15 @@
 name: Integration tests & linting
-on: push
+
+on:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   prepare:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     outputs:
       changed-files: ${{ steps.changed-files.outputs.changed-files }}
     steps:
