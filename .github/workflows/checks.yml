@@ -26,14 +26,10 @@ jobs:
 
       - name: Connect to PostgreSQL
         run: |
-          echo "id: ${{ job.services.postgres.id }}"
-          echo "network: ${{ job.services.postgres.network }}"
-          echo "ports: ${{ job.services.postgres.ports }}"
           ./check.sh
         env:
-          # The hostname used to communicate with the PostgreSQL service container
           PGHOST: postgres
-          # The default PostgreSQL port
           PGPORT: 5432
           PGPASSWORD: postgres
           PGUSER: runner
+          PGOPTIONS: '--client-min-messages=warning -v ON_ERROR_STOP=1'
