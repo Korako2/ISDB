@@ -2,6 +2,7 @@ package org.ifmo.isbdcurs.logic
 
 import kotlinx.datetime.Instant
 import org.ifmo.isbdcurs.persistence.*
+import org.ifmo.isbdcurs.util.Coordinate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import kotlin.random.Random
@@ -135,6 +136,7 @@ class FillTables {
             )
         }
         orderRepository.saveAll(orders)
+        val vehicleToOrder = vehicleToDriver.map { it.first }.zip(orders)
 
         val fuelCards = drivers.map { staticEntriesGenerator.genFuelCardsForDrivers(it.id!!) }
         fuelCardsForDriversRepository.saveAll(fuelCards)
@@ -176,10 +178,21 @@ class FillTables {
             }
         }
 
-        // asssign order to driver
-
-        driversWithOrders.map { dynamicGen.genDriverStatusesHistory(it.id!!) }.map { statusHistoryList ->
+        val driverStatusHistory = driversWithOrders.map { dynamicGen.genDriverStatusesHistory(it.id!!) }
+        driverStatusHistory.map { statusHistoryList ->
             driverStatusHistoryRepository.saveAll(statusHistoryList)
+        }
+
+        vehicleToOrder.map {(v, o) ->
+            val agreement = agreements.first { it.orderId == o.id }
+            val startPoint = storagePoints.first { it.addressId == agreement.departurePoint }
+            val endPoint = storagePoints.first { it.addressId == agreement.deliveryPoint }
+            val cord1 = Coordinate(startPoint.latitude, startPoint.longitude)
+            val cord2 = Coordinate(endPoint.latitude, endPoint.longitude)
+            val driverId = agreement.driverId
+            val driverHistory = driverStatusHistory.first { it.first().driverId == driverId }
+            val mh = dynamicGen.generateMovementHistory(v.id!!, listOf(), cord1, cord2, driverHistory)
+            vehicleMovementHistoryRepository.saveAll(mh)
         }
     }
 }
