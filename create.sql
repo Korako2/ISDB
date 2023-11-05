@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS contact_info (
 CREATE TABLE IF NOT EXISTS driver (
   id serial PRIMARY KEY,
   person_id int REFERENCES person(id) ON DELETE CASCADE NOT NULL,
-  passport varchar(10) NOT NULL CHECK (passport ~ '^[0-9]{10}$'),
+  passport varchar(10) NOT NULL UNIQUE CHECK (passport ~ '^[0-9]{10}$'),
   bank_card_number text NOT NULL
 );
 
