@@ -1,44 +1,34 @@
 -- функция добавления заказа в систему.
 CREATE OR REPLACE FUNCTION add_order(
     var_customer_id int,
-    address_a_id int,
-    address_b_id int,
-    var_vehicle_id int
-) RETURNS int AS $order_id$
+    distance float,
+    var_vehicle_id int,
+    v_weight float,
+    v_width float,
+    v_height float,
+    v_length float,
+    v_cargo_type cargo_type
+) RETURNS int AS $ord_id$
 DECLARE
-    calculated_distance float;
     calculated_price    float;
-    order_id            int;
+    ord_id            int;
 BEGIN
-    SELECT (
-      a.latitude - b.latitude
-    )
-    FROM storage_point a,
-         storage_point b
-    WHERE a.address_id = address_a_id
-      AND b.address_id = address_b_id
-    INTO calculated_distance;
-
-    SELECT 2 * (calculated_distance * rate_per_km + daily_rate)
-    FROM tariff_rate
-    WHERE driver_id = (SELECT driver_id
-                       FROM vehicle_ownership
-                       WHERE vehicle_ownership.vehicle_id = var_vehicle_id)
-    INTO calculated_price;
-
+    calculated_price = distance * 20;
     INSERT INTO orders (customer_id, distance, price, order_date, vehicle_id)
-    VALUES (var_customer_id, calculated_distance, calculated_price, NOW(), var_vehicle_id)
-    RETURNING order_id INTO order_id;
+    VALUES (var_customer_id, distance, calculated_price, NOW(), var_vehicle_id)
+    RETURNING order_id INTO ord_id;
 
     INSERT INTO order_statuses (order_id, date_time, status)
-    VALUES (order_id, NOW(), 'ACCEPTED');
+    VALUES (ord_id, NOW(), 'ACCEPTED');
 
-    RETURN order_id;
+    INSERT INTO cargo (weight, width, height, length, order_id, cargo_type)
+    VALUES (v_weight, v_width, v_height, v_length, ord_id, v_cargo_type);
+    RETURN ord_id;
 END;
-$order_id$ LANGUAGE plpgsql;
+$ord_id$ LANGUAGE plpgsql;
 
--- Функция добавления заказчика
-CREATE OR REPLACE FUNCTION add_customer(
+-- Функция добавления нового заказчика
+CREATE OR REPLACE FUNCTION add_new_customer(
     v_first_name varchar(20),
     v_last_name varchar(20),
     v_gender char(1),
@@ -48,27 +38,20 @@ CREATE OR REPLACE FUNCTION add_customer(
 ) RETURNS int AS $customer_id$
 DECLARE
     v_person_id int;
-    customer_id int;
+    v_customer_id int;
 BEGIN
-    INSERT INTO person
-    select *
-    from  (
-      VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
-    ) as data(first_name, last_name, middle_name, gender, date_of_birth)
-    WHERE NOT EXISTS (
-      select *
-      from person
-      where data = person
-    )
+    INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
+    VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
     RETURNING person_id INTO v_person_id;
 
     INSERT INTO customer (person_id, organization)
     VALUES (v_person_id, v_organization)
-    RETURNING customer_id INTO customer_id;
+    RETURNING customer_id INTO v_customer_id;
 
-    RETURN customer_id;
+    RETURN v_customer_id;
 END;
 $customer_id$ LANGUAGE plpgsql;
+
 
 
 CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS $check_speed$
@@ -212,8 +195,9 @@ BEGIN
     date_time DESC
   LIMIT 1;
 
+
   IF prev_status IS NOT NULL AND
-     (prev_status, NEW.status) NOT IN (('ACCEPTED', 'IN PROGRESS'), ('IN PROGRESS', 'ARRIVED AT LOADING LOCATION'), ('ARRIVED AT LOADING LOCATION', 'LOADING'), ('LOADING', 'ARRIVED AT UNLOADING LOCATION'), ('ARRIVED AT UNLOADING LOCATION', 'ON THE WAY'), ('ON THE WAY', 'UNLOADING'), ('UNLOADING', 'COMPLETED')) THEN
+     (prev_status, NEW.status) NOT IN (('ACCEPTED', 'ARRIVED AT LOADING LOCATION'), ('ARRIVED AT LOADING LOCATION', 'LOADING'), ('LOADING', 'ON THE WAY'), ('ON THE WAY', 'ARRIVED AT UNLOADING LOCATION'), ('ARRIVED AT UNLOADING LOCATION', 'UNLOADING'), ('UNLOADING', 'COMPLETED')) THEN
     RAISE EXCEPTION 'Неверная последовательность статусов заказа';
   END IF;
 
@@ -259,15 +243,15 @@ BEGIN
     IF NEW.status = 'ACCEPTED ORDER' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'ACCEPTED');
-    ELSIF NEW.status = 'EN ROUTE' THEN
-        INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (current_order_id, NEW.date, 'IN PROGRESS');
     ELSIF NEW.status = 'ARRIVED AT LOADING LOCATION' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'ARRIVED AT LOADING LOCATION');
     ELSIF NEW.status = 'LOADING' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'LOADING');
+    ELSIF NEW.status = 'EN ROUTE' THEN
+        INSERT INTO order_statuses (order_id, date_time, status)
+        VALUES (current_order_id, NEW.date, 'ON THE WAY');
     ELSIF NEW.status = 'ARRIVED AT UNLOADING LOCATION' THEN
         INSERT INTO order_statuses (order_id, date_time, status)
         VALUES (current_order_id, NEW.date, 'ARRIVED AT UNLOADING LOCATION');
@@ -279,5 +263,164 @@ BEGIN
         VALUES (current_order_id, NEW.date, 'COMPLETED');
     END IF;
     RETURN NEW;
+
 END;
 $update_order_status$ LANGUAGE plpgsql;
+
+-- формула гаверсинусов
+--    SELECT 2 * 6371 * ASIN(
+--        SQRT(
+--            POWER(SIN(RADIANS(b.latitude - a.latitude) / 2), 2) +
+--            COS(RADIANS(a.latitude)) * COS(RADIANS(b.latitude)) *
+--            POWER(SIN(RADIANS(b.longitude - a.longitude) / 2), 2)
+--        )
+--    )
+
+--    FROM storage_point a,
+--         storage_point b
+--    WHERE a.address_id = address_a_id
+--      AND b.address_id = address_b_id
+--    INTO calculated_distance;
+
+-- Функция добавления заказчика
+CREATE OR REPLACE FUNCTION add_customer(
+    v_person_id int,
+    v_organization varchar(50) default null
+) RETURNS int AS $customer_id$
+DECLARE
+    v_customer_id int;
+BEGIN
+    -- Проверка, что заказчика с person_id = v_person_id не существует
+    IF EXISTS (SELECT 1 FROM customer WHERE person_id = v_person_id) THEN
+        RAISE EXCEPTION 'Заказчик с person_id = % уже существует', v_person_id;
+    ELSE
+        INSERT INTO customer (person_id, organization)
+        VALUES (v_person_id, v_organization)
+        RETURNING customer_id INTO v_customer_id;
+    END IF;
+
+    RETURN v_customer_id;
+END;
+$customer_id$ LANGUAGE plpgsql;
+
+-- Функция добавления водителя
+CREATE OR REPLACE FUNCTION add_driver(
+    v_first_name varchar(20),
+    v_last_name varchar(20),
+    v_middle_name varchar(20),
+    v_gender char(1),
+    v_date_of_birth date,
+    v_passport varchar(10),
+    v_bank_card_number text
+) RETURNS int AS $driver_id$
+DECLARE
+    v_person_id int;
+    v_driver_id int;
+BEGIN
+    -- Добавляем запись в таблицу person
+    INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
+    VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
+    RETURNING person_id INTO v_person_id;
+
+    -- Добавляем запись в таблицу driver
+    INSERT INTO driver (person_id, passport, bank_card_number)
+    VALUES (v_person_id, v_passport, v_bank_card_number)
+    RETURNING driver_id INTO v_driver_id;
+
+    RETURN v_driver_id;
+END;
+$driver_id$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION add_vehicle(
+    v_plate_number varchar(9),
+    v_model varchar(50),
+    v_manufacture_year date,
+    v_length float,
+    v_width float,
+    v_height float,
+    v_load_capacity float,
+    v_body_type body_type,
+    v_driver_id int,
+    v_ownership_start_date date
+) RETURNS int AS $vehicle_id$
+DECLARE
+    v_vehicle_id int;
+BEGIN
+    -- Добавляем запись в таблицу vehicle
+    INSERT INTO vehicle (plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
+    VALUES (v_plate_number, v_model, v_manufacture_year, v_length, v_width, v_height, v_load_capacity, v_body_type)
+    RETURNING vehicle_id INTO v_vehicle_id;
+
+    -- Устанавливаем связь с водителем в таблице vehicle_ownership
+    INSERT INTO vehicle_ownership (vehicle_id, driver_id, ownership_start_date)
+    VALUES (v_vehicle_id, v_driver_id, v_ownership_start_date);
+
+    RETURN v_vehicle_id;
+END;
+$vehicle_id$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION add_driver_info(
+    v_driver_id int,
+    v_daily_rate int,
+    v_rate_per_km int,
+    v_issue_date date,
+    v_expiration_date date,
+    v_license_number int,
+    v_fuel_cards text[],
+    v_fuel_station_names text[]
+) RETURNS void AS $$
+DECLARE
+    fuel_card text;
+    station_name text;
+BEGIN
+    -- Добавляем тарифную ставку
+    INSERT INTO tariff_rate (driver_id, daily_rate, rate_per_km)
+    VALUES (v_driver_id, v_daily_rate, v_rate_per_km);
+
+    -- Добавляем водительское удостоверение
+    INSERT INTO driver_license (driver_id, issue_date, expiration_date, license_number)
+    VALUES (v_driver_id, v_issue_date, v_expiration_date, v_license_number);
+
+    -- Добавляем топливные карты и названия заправочных станций
+    FOR i IN 1..GREATEST(array_length(v_fuel_cards, 1), array_length(v_fuel_station_names, 1)) LOOP
+        fuel_card := v_fuel_cards[i];
+        station_name := v_fuel_station_names[i];
+
+        INSERT INTO fuel_cards_for_drivers (driver_id, fuel_card_number, fuel_station_name)
+        VALUES (v_driver_id, fuel_card, station_name);
+    END LOOP;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION find_suitable_vehicles(
+    v_length float,
+    v_width float,
+    v_height float,
+    v_cargo_type cargo_type,
+    v_weight float
+) RETURNS TABLE (
+    vehicle_id int
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        v.vehicle_id
+    FROM
+        vehicle v
+    WHERE
+        v.length >= v_length
+        AND v.width >= v_width
+        AND v.height >= v_height
+        AND (
+            (v_cargo_type = 'BULK' AND v.body_type = 'OPEN') OR
+            (v_cargo_type = 'TIPPER' AND v.body_type = 'OPEN') OR
+            (v_cargo_type = 'PALLETIZED' AND v.body_type = 'CLOSED')
+        )
+        AND v.load_capacity >= v_weight;
+
+END;
+$$ LANGUAGE plpgsql;
+
+

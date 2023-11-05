@@ -26,7 +26,6 @@ CREATE TYPE cargo_type AS ENUM (
 DROP TYPE IF EXISTS order_status CASCADE;
 CREATE TYPE order_status AS ENUM (
   'ACCEPTED',
-  'IN PROGRESS',
   'ARRIVED AT LOADING LOCATION',
   'LOADING',
   'ARRIVED AT UNLOADING LOCATION',
@@ -73,7 +72,7 @@ CREATE TABLE IF NOT EXISTS customer (
 
 CREATE TABLE IF NOT EXISTS driver_status_history (
   driver_id int REFERENCES driver (driver_id),
-  date date,
+  date timestamp,
   status driver_status,
   PRIMARY KEY (driver_id, date)
 );
@@ -94,7 +93,7 @@ CREATE TABLE IF NOT EXISTS driver_license (
 
 CREATE TABLE IF NOT EXISTS vehicle (
   vehicle_id serial PRIMARY KEY,
-  plate_number varchar(9) NOT NULL CHECK (
+  plate_number varchar(9) NOT NULL UNIQUE CHECK (
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
     plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
   ),
@@ -162,8 +161,8 @@ CREATE TABLE IF NOT EXISTS address (
 
 CREATE TABLE IF NOT EXISTS storage_point (
   address_id int REFERENCES address(address_id) PRIMARY KEY,
-  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180),
-  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90)
+  latitude float NOT NULL CHECK (latitude >= -90 AND latitude <= 90),
+  longitude float NOT NULL CHECK (longitude >= -180 AND longitude <= 180)
 );
 
 CREATE TABLE IF NOT EXISTS loading_unloading_agreement (
