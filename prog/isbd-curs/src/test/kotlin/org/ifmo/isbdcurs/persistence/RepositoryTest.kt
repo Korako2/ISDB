@@ -29,8 +29,8 @@ class RepositoryTests {
     @BeforeEach
     fun before() {
         repository.deleteAll()
-        vehicleRepository.deleteAll()
         movementHistoryRepository.deleteAll()
+        vehicleRepository.deleteAll()
     }
 
     val vehicle = Vehicle(
@@ -67,7 +67,6 @@ class RepositoryTests {
 
     @Test
     fun `should find one person`() {
-
         repository.save(
             Person(
                 firstName = "Walter",

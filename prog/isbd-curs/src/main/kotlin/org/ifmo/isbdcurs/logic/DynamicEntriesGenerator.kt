@@ -21,6 +21,9 @@ data class TimePeriod(val start: Instant, val end: Instant);
 data class TransferTimePattern(val start: Instant, val increment: Duration, val noiseHoursMax: Double);
 
 fun TransferTimePattern.calculatePointInTime(stepIndex: Int): Instant {
+    if (this.noiseHoursMax == 0.0) {
+        return this.start.plus(this.increment.times(stepIndex))
+    }
     val noiseHoursDelta = random.nextDouble(-this.noiseHoursMax, +this.noiseHoursMax).hours
     val totalIncrement = this.increment.times(stepIndex)
     return this.start.plus(totalIncrement).plus(noiseHoursDelta)
