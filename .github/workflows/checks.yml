@@ -67,7 +67,7 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: runner
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         options: >-
           --health-cmd pg_isready
@@ -75,7 +75,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - "5432:5432"
+          - 5432:5432
 
     steps:
       - name: Check out repository code
@@ -93,4 +93,4 @@ jobs:
         working-directory: ./prog/isbd-curs
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/postgres
-        run: ./gradlew clean test
+        run: ./gradlew --no-daemon clean test
