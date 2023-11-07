@@ -29,6 +29,8 @@ class RepositoryTests {
     @BeforeEach
     fun before() {
         repository.deleteAll()
+        vehicleRepository.deleteAll()
+        movementHistoryRepository.deleteAll()
     }
 
     val vehicle = Vehicle(
@@ -52,14 +54,13 @@ class RepositoryTests {
     fun `should insert composite key entity`() {
         vehicleRepository.save(vehicle);
         val movementHistory = VehicleMovementHistory(
-            vehicleId = 1,
+            vehicleId = vehicle.id!!,
             date = Instant.parse("2020-01-01T00:00:00Z").toJavaInstant(),
             latitude = 1.0,
             longitude = 1.0,
             mileage = 1.0,
         )
         movementHistoryRepository.save(movementHistory)
-        assertThat(movementHistory.vehicleId).isEqualTo(1)
         assertThat(movementHistoryRepository.findAll().first().latitude).isEqualTo(movementHistory.latitude)
         assertThat(movementHistoryRepository.findAll().first().mileage).isEqualTo(movementHistory.mileage)
     }
