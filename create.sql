@@ -6,9 +6,9 @@ DO
             CREATE TYPE driver_status AS ENUM (
                 ''OFF_DUTY'',
                 ''ACCEPTED_ORDER'',
-                ''EN_ROUTE'',
                 ''ARRIVED_AT_LOADING_LOCATION'',
                 ''LOADING'',
+                ''EN_ROUTE'',
                 ''ARRIVED_AT_UNLOADING_LOCATION'',
                 ''UNLOADING'',
                 ''COMPLETED_ORDER''
@@ -39,8 +39,8 @@ DO
                 ''ACCEPTED'',
                 ''ARRIVED_AT_LOADING_LOCATION'',
                 ''LOADING'',
-                ''ARRIVED_AT_UNLOADING_LOCATION'',
                 ''ON_THE_WAY'',
+                ''ARRIVED_AT_UNLOADING_LOCATION'',
                 ''UNLOADING'',
                 ''COMPLETED''
                 );
