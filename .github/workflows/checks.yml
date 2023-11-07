@@ -91,4 +91,6 @@ jobs:
 
       - name: Run build with Gradle Wrapper
         working-directory: ./prog/isbd-curs
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/postgres
         run: ./gradlew clean test
