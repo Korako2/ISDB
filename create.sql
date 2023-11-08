@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS customer (
 );
 
 CREATE TABLE IF NOT EXISTS driver_status_history (
-  driver_id int REFERENCES driver (id),
+  driver_id int REFERENCES driver (id) ON DELETE CASCADE,
   date timestamp,
   status driver_status,
   PRIMARY KEY (driver_id, date)
@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS vehicle_ownership (
 );
 
 CREATE TABLE IF NOT EXISTS vehicle_movement_history (
-  vehicle_id int REFERENCES vehicle (id),
+  vehicle_id int REFERENCES vehicle (id) ON DELETE CASCADE,
   date timestamp,
   latitude float NOT NULL,
   longitude float NOT NULL,
