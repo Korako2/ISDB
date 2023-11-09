@@ -2,59 +2,53 @@ DO
 '
     DECLARE
     BEGIN
-        IF NOT EXISTS (select 1 FROM pg_type WHERE typname = ''driver_status'') THEN
-            CREATE TYPE driver_status AS ENUM (
-                ''OFF_DUTY'',
-                ''ACCEPTED_ORDER'',
-                ''ARRIVED_AT_LOADING_LOCATION'',
-                ''LOADING'',
-                ''EN_ROUTE'',
-                ''ARRIVED_AT_UNLOADING_LOCATION'',
-                ''UNLOADING'',
-                ''COMPLETED_ORDER''
-                );
-            -- каст нужен был для Spring Data jdbc
-            CREATE CAST ( varchar AS driver_status ) WITH INOUT AS IMPLICIT;
-        END IF;
+        CREATE TYPE driver_status AS ENUM (
+            ''OFF_DUTY'',
+            ''ACCEPTED_ORDER'',
+            ''ARRIVED_AT_LOADING_LOCATION'',
+            ''LOADING'',
+            ''EN_ROUTE'',
+            ''ARRIVED_AT_UNLOADING_LOCATION'',
+            ''UNLOADING'',
+            ''COMPLETED_ORDER''
+        );
 
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = ''body_type'') THEN
-            CREATE TYPE body_type AS ENUM (
-                ''OPEN'',
-                ''CLOSED''
-                );
-            CREATE CAST ( varchar AS body_type ) WITH INOUT AS IMPLICIT;
-        END IF;
+        -- каст нужен был для Spring Data jdbc
+        CREATE CAST ( varchar AS driver_status ) WITH INOUT AS IMPLICIT;
 
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = ''cargo_type'') THEN
-            CREATE TYPE cargo_type AS ENUM (
-                ''BULK'',
-                ''TIPPER'',
-                ''PALLETIZED''
-                );
-            CREATE CAST ( varchar AS cargo_type ) WITH INOUT AS IMPLICIT;
-        END IF;
+        CREATE TYPE body_type AS ENUM (
+            ''OPEN'',
+            ''CLOSED''
+        );
+        CREATE CAST ( varchar AS body_type ) WITH INOUT AS IMPLICIT;
 
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = ''order_status'') THEN
-            CREATE TYPE order_status AS ENUM (
-                ''ACCEPTED'',
-                ''ARRIVED_AT_LOADING_LOCATION'',
-                ''LOADING'',
-                ''ON_THE_WAY'',
-                ''ARRIVED_AT_UNLOADING_LOCATION'',
-                ''UNLOADING'',
-                ''COMPLETED''
-                );
-            CREATE CAST ( varchar AS order_status ) WITH INOUT AS IMPLICIT;
-        END IF;
+        CREATE TYPE cargo_type AS ENUM (
+            ''BULK'',
+            ''TIPPER'',
+            ''PALLETIZED''
+        );
+        CREATE CAST ( varchar AS cargo_type ) WITH INOUT AS IMPLICIT;
 
-        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = ''contact_info_type'') THEN
-            CREATE TYPE contact_info_type AS ENUM (
-                ''PHONE NUMBER'',
-                ''TELEGRAM'',
-                ''EMAIL''
-                );
-            CREATE CAST ( varchar AS contact_info_type ) WITH INOUT AS IMPLICIT;
-        END IF;
+        CREATE TYPE order_status AS ENUM (
+            ''ACCEPTED'',
+            ''ARRIVED_AT_LOADING_LOCATION'',
+            ''LOADING'',
+            ''ON_THE_WAY'',
+            ''ARRIVED_AT_UNLOADING_LOCATION'',
+            ''UNLOADING'',
+            ''COMPLETED''
+            );
+        CREATE CAST ( varchar AS order_status ) WITH INOUT AS IMPLICIT;
+
+        CREATE TYPE contact_info_type AS ENUM (
+            ''PHONE NUMBER'',
+            ''TELEGRAM'',
+            ''EMAIL''
+          );
+        CREATE CAST ( varchar AS contact_info_type ) WITH INOUT AS IMPLICIT;
+
+        EXCEPTION WHEN DUPLICATE_OBJECT THEN
+            RAISE NOTICE ''types exist, skipping...'';
     END
 ' LANGUAGE plpgsql;
 
