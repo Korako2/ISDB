@@ -26,3 +26,30 @@ DROP TYPE IF EXISTS
   order_status,
   contact_info_type
   CASCADE;
+
+DROP FUNCTION IF EXISTS
+  add_order,
+  add_new_customer,
+  check_speed,
+  check_vehicle_type,
+  check_fuel_expenses,
+  check_cargo_size,
+  check_country_match,
+  check_order_status_sequence,
+  check_order_status_time,
+  update_order_status,
+  add_customer,
+  add_driver,
+  add_vehicle,
+  add_driver_info,
+  find_suitable_vehicles
+  CASCADE;
+
+DROP TRIGGER IF EXISTS check_speed_trigger ON vehicle_movement_history;
+DROP TRIGGER IF EXISTS check_vehicle_type_trigger ON orders;
+DROP TRIGGER IF EXISTS check_fuel_expenses_trigger ON fuel_expenses;
+DROP TRIGGER IF EXISTS cargo_check_size_trigger ON cargo;
+DROP TRIGGER IF EXISTS country_match_check_trigger ON loading_unloading_agreement;
+DROP TRIGGER IF EXISTS order_status_sequence_check_trigger ON order_statuses CASCADE;
+DROP TRIGGER IF EXISTS order_status_time_check_trigger ON order_statuses CASCADE;
+DROP TRIGGER IF EXISTS update_order_status ON driver_status_history CASCADE;
