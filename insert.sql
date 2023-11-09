@@ -70,7 +70,7 @@ INSERT INTO cargo (weight, width, height, length, order_id, cargo_type)
 VALUES
   (900.0, 1.0, 1.9, 4.0, 1, 'BULK'),
   (800.0, 1.9, 1.7, 3.5, 2, 'TIPPER'),
-  (700.0, 1.8, 1.8, 3.5, 3, 'PALLETIZED');
+  (700.0, 1.8, 1.8, 3.5, 3, 'BULK');
 
 TRUNCATE TABLE loading_unloading_agreement CASCADE;
 INSERT INTO loading_unloading_agreement (order_id, driver_id, departure_point, delivery_point, sender_id, receiver_id, unloading_time, loading_time)

@@ -52,8 +52,6 @@ BEGIN
 END
 ' LANGUAGE plpgsql;
 
-
-
 CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS '
 DECLARE
   prev_record float;
@@ -74,19 +72,19 @@ END;
 -- Подобранный автомобиль должен соответствовать типу груза. Насыпной, навалочный -- открытый. Тарный -- закрытый.
 CREATE OR REPLACE FUNCTION check_vehicle_type() RETURNS TRIGGER AS '
 DECLARE
-    var_cargo_id int;
-      var_cargo_type text;
-      var_body_type text;
+    var_body_type text;
   BEGIN
-    SELECT id INTO var_cargo_id FROM cargo WHERE order_id = NEW.id;
-    SELECT cargo_type INTO var_cargo_type FROM cargo WHERE cargo.id = var_cargo_id;
-    SELECT body_type INTO var_body_type FROM vehicle WHERE vehicle.id = NEW.vehicle_id;
-    IF var_cargo_type = ''BULK'' OR var_cargo_type = ''TIPPER'' THEN
+    SELECT body_type INTO var_body_type
+    FROM vehicle
+    JOIN orders ON vehicle.id = orders.vehicle_id
+    JOIN cargo ON orders.id = NEW.order_id;
+
+    IF NEW.cargo_type = ''BULK'' OR NEW.cargo_type = ''TIPPER'' THEN
       IF var_body_type != ''OPEN'' THEN
         RAISE EXCEPTION ''Vehicle type must be OPEN'';
       END IF;
     END IF;
-    IF var_cargo_type = ''PALLETIZED'' THEN
+    IF NEW.cargo_type = ''PALLETIZED'' THEN
       IF var_body_type != ''CLOSED'' THEN
         RAISE EXCEPTION ''Vehicle type must be CLOSED'';
       END IF;
