@@ -52,8 +52,6 @@ BEGIN
 END
 ' LANGUAGE plpgsql;
 
-
-
 CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS '
 DECLARE
   prev_record float;
@@ -74,19 +72,19 @@ END;
 -- Подобранный автомобиль должен соответствовать типу груза. Насыпной, навалочный -- открытый. Тарный -- закрытый.
 CREATE OR REPLACE FUNCTION check_vehicle_type() RETURNS TRIGGER AS '
 DECLARE
-    var_cargo_id int;
-      var_cargo_type text;
-      var_body_type text;
+    var_body_type text;
   BEGIN
-    SELECT id INTO var_cargo_id FROM cargo WHERE order_id = NEW.id;
-    SELECT cargo_type INTO var_cargo_type FROM cargo WHERE cargo.id = var_cargo_id;
-    SELECT body_type INTO var_body_type FROM vehicle WHERE vehicle.id = NEW.vehicle_id;
-    IF var_cargo_type = ''BULK'' OR var_cargo_type = ''TIPPER'' THEN
+    SELECT body_type INTO var_body_type
+    FROM vehicle
+    JOIN orders ON vehicle.id = orders.vehicle_id
+    JOIN cargo ON orders.id = NEW.order_id;
+
+    IF NEW.cargo_type = ''BULK'' OR NEW.cargo_type = ''TIPPER'' THEN
       IF var_body_type != ''OPEN'' THEN
         RAISE EXCEPTION ''Vehicle type must be OPEN'';
       END IF;
     END IF;
-    IF var_cargo_type = ''PALLETIZED'' THEN
+    IF NEW.cargo_type = ''PALLETIZED'' THEN
       IF var_body_type != ''CLOSED'' THEN
         RAISE EXCEPTION ''Vehicle type must be CLOSED'';
       END IF;
@@ -103,9 +101,13 @@ DECLARE
   current_mileage float;
   var_vehicle_id int;
 BEGIN
-  var_vehicle_id = (SELECT id FROM vehicle WHERE id =
-       (SELECT vehicle_id FROM vehicle_ownership WHERE vehicle_ownership.driver_id =
-           (SELECT fuel_cards_for_drivers.driver_id FROM fuel_cards_for_drivers WHERE fuel_card_number = NEW.FUEL_CARD_NUMBER)));
+  SELECT id INTO var_vehicle_id
+  FROM vehicle
+  JOIN vehicle_ownership vo ON vehicle.id = vo.vehicle_id
+  JOIN fuel_cards_for_drivers fc ON vo.driver_id = fc.driver_id
+  WHERE fc.fuel_card_number = NEW.FUEL_CARD_NUMBER
+  ORDER BY vo.ownership_end_date DESC
+  LIMIT 1;
   -- select record from movement history nearest to prev_pay_date
   prev_pay_date = (SELECT DATE FROM FUEL_EXPENSES WHERE FUEL_CARD_NUMBER = NEW.FUEL_CARD_NUMBER ORDER BY DATE DESC LIMIT 1);
   prev_mileage = (SELECT MILEAGE FROM vehicle_movement_history WHERE VEHICLE_ID = var_vehicle_id AND DATE <= prev_pay_date ORDER BY DATE DESC LIMIT 1);
@@ -420,5 +422,39 @@ BEGIN
         )
         AND v.load_capacity >= v_weight;
 
+END
+' LANGUAGE plpgsql;
+
+-- function which check that driver has only one vehicle in a time period, so time period doesn't intersect for the driver
+CREATE OR REPLACE FUNCTION check_single_ownership_overlap() RETURNS TRIGGER AS '
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM vehicle_ownership
+        WHERE driver_id = NEW.driver_id
+            AND vehicle_id != NEW.vehicle_id
+            AND ((ownership_start_date, ownership_end_date) OVERLAPS (NEW.ownership_start_date, NEW.ownership_end_date))
+    ) THEN
+        RAISE EXCEPTION ''Trying to add new vehicle to a driver but owning date range overlap'';
+    END IF;
+
+    RETURN NEW;
+END
+' LANGUAGE plpgsql;
+
+-- function checks that multiple drivers don't own the same vehicle in a time period
+CREATE OR REPLACE FUNCTION check_multiple_ownership_overlap() RETURNS TRIGGER AS '
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM vehicle_ownership
+        WHERE vehicle_id = NEW.vehicle_id
+            AND driver_id != NEW.driver_id
+            AND ((ownership_start_date, ownership_end_date) OVERLAPS (NEW.ownership_start_date, NEW.ownership_end_date))
+    ) THEN
+        RAISE EXCEPTION ''Trying to add new driver to a vehicle but owning date range overlap'';
+    END IF;
+
+    RETURN NEW;
 END
 ' LANGUAGE plpgsql;
