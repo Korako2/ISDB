@@ -3,11 +3,6 @@ CREATE TRIGGER check_speed_trigger
 BEFORE INSERT OR UPDATE ON vehicle_movement_history
 FOR EACH ROW EXECUTE FUNCTION check_speed();
 
-DROP TRIGGER IF EXISTS check_vehicle_type_trigger ON cargo;
-CREATE TRIGGER check_vehicle_type_trigger
-BEFORE INSERT OR UPDATE ON cargo
-FOR EACH ROW EXECUTE FUNCTION check_vehicle_type();
-
 DROP TRIGGER IF EXISTS check_fuel_expenses_trigger ON fuel_expenses;
 CREATE TRIGGER check_fuel_expenses_trigger
 BEFORE INSERT ON fuel_expenses

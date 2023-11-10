@@ -69,30 +69,6 @@ BEGIN
 END;
 ' LANGUAGE plpgsql;
 
--- Подобранный автомобиль должен соответствовать типу груза. Насыпной, навалочный -- открытый. Тарный -- закрытый.
-CREATE OR REPLACE FUNCTION check_vehicle_type() RETURNS TRIGGER AS '
-DECLARE
-    var_body_type text;
-  BEGIN
-    SELECT body_type INTO var_body_type
-    FROM vehicle
-    JOIN orders ON vehicle.id = orders.vehicle_id
-    JOIN cargo ON orders.id = NEW.order_id;
-
-    IF NEW.cargo_type = ''BULK'' OR NEW.cargo_type = ''TIPPER'' THEN
-      IF var_body_type != ''OPEN'' THEN
-        RAISE EXCEPTION ''Vehicle type must be OPEN'';
-      END IF;
-    END IF;
-    IF NEW.cargo_type = ''PALLETIZED'' THEN
-      IF var_body_type != ''CLOSED'' THEN
-        RAISE EXCEPTION ''Vehicle type must be CLOSED'';
-      END IF;
-    END IF;
-    RETURN NEW;
-END;
-' LANGUAGE plpgsql;
-
 -- расходы должны сопоставляться с пробегом автомобиля
 CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS '
 DECLARE
