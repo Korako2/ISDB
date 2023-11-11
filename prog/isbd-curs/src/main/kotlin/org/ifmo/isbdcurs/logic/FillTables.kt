@@ -74,7 +74,7 @@ class FillTables {
             return transferPatternStartDates.map {
                 TransferTimePattern(
                     it,
-                    increment = 25.hours,
+                    increment = 4.hours,
                     noiseHoursMax = 1.5,
                 )
             }.map {
@@ -156,26 +156,26 @@ class FillTables {
             expenses
         }
 
-        val statusHistories = driverPacks.map { dp ->
-            val driverHistory = dynamicGen.genDriverStatusesHistory(dp.driver.id!!)
-            val orderHistory = dynamicGen.genOrderStatuses(orderPacks.first { it.driverPack == dp }.order.id!!, driverHistory)
+        val statusHistories = orderPacks.map { op ->
+            val dp = op.driverPack
+            val driverHistory = dynamicGen.genDriverStatusesHistory(dp.driver.id!!, dayOffset = op.order.id!! * 2L)
+            val orderHistory = dynamicGen.genOrderStatuses(op.order.id!!, driverHistory)
             Pair(driverHistory, orderHistory)
         }
-        val driverStatusHistory = statusHistories.map { it.first }
         val orderStatusHistory = statusHistories.map { it.second }.flatten()
+        val driverStatusHistory = statusHistories.map { it.first }.flatten()
 
-        val mh = orderPacks.map { op ->
+        orderPacks.map { op ->
             val agreement = agreements.first { it.orderId == op.order.id!! }
             val startPoint = storagePoints.first { it.addressId == agreement.departurePoint }
             val endPoint = storagePoints.first { it.addressId == agreement.deliveryPoint }
             val cord1 = Coordinate(startPoint.latitude, startPoint.longitude)
             val cord2 = Coordinate(endPoint.latitude, endPoint.longitude)
-            val driverId = agreement.driverId
-            val driverHistory = driverStatusHistory.first { it.first().driverId == driverId }
-            val mh = dynamicGen.generateMovementHistory(vehicleId=op.driverPack.vehicle.id!!, op.driverPack.movementHistory, cord1, cord2, driverHistory)
-            op.driverPack.movementHistory = mh
-            mh
-        }.flatten()
+            val orderHistory = statusHistories.first { it.second[0].orderId == op.order.id!! }
+            val driverHistory = orderHistory.first
+            op.driverPack.movementHistory = dynamicGen.generateMovementHistory(vehicleId=op.driverPack.vehicle.id!!, op.driverPack.movementHistory, cord1, cord2, driverHistory)
+        }
+        val mh = driverPacks.map { it.movementHistory }.flatten()
 
         val vehicles = driverPacks.map { it.vehicle }
         val orders = orderPacks.map { it.order }
@@ -186,7 +186,7 @@ class FillTables {
             contactInfos,
             drivers,
             customers,
-            driverStatusHistory.flatten(),
+            driverStatusHistory,
             tariffRates,
             licenses,
             vehicles,

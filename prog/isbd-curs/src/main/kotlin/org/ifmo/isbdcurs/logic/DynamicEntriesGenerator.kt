@@ -11,6 +11,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 val random = Random(42)
 
@@ -22,7 +23,7 @@ fun TransferTimePattern.calculatePointInTime(stepIndex: Int): Instant {
     if (this.noiseHoursMax == 0.0) {
         return this.start.plus(this.increment.times(stepIndex))
     }
-    val noiseHoursDelta = random.nextDouble(-this.noiseHoursMax, +this.noiseHoursMax).hours
+    val noiseHoursDelta = random.nextDouble(-this.noiseHoursMax, +this.noiseHoursMax).hours + random.nextDouble(-20.0, +20.0).minutes
     val totalIncrement = this.increment.times(stepIndex)
     return this.start.plus(totalIncrement).plus(noiseHoursDelta)
 }
@@ -86,8 +87,8 @@ class DynamicEntriesGenerator(
         }
     }
 
-    fun genDriverStatusesHistory(driverId: Long): List<DriverStatusHistory> {
-        val initialStatus = DriverStatusHistory(driverId, actionsPeriodNoised().start.plus(driverId.days).toJavaInstant(), DriverStatus.OFF_DUTY)
+    fun genDriverStatusesHistory(driverId: Long, dayOffset: Long): List<DriverStatusHistory> {
+        val initialStatus = DriverStatusHistory(driverId, actionsPeriodNoised().start.plus(dayOffset.days).toJavaInstant(), DriverStatus.OFF_DUTY)
         return initialStatus.generateSeriesFromFirst(
             transferTimePattern.increment, transferTimePattern.noiseHoursMax
         )
