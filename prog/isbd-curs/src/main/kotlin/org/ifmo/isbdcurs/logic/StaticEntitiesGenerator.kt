@@ -108,7 +108,7 @@ class StaticEntitiesGenerator(
         return Orders(
             null,
             customerId = customerId,
-            distance = random.nextDouble(30.0, 1000.0),
+            distance = random.nextDouble(30.0, 1000.0).toFloat(),
             price = random.nextDouble(1000.0, 100000.0),
             orderDate = actionsPeriodNoised().start.toJavaInstant(),
             vehicleId = vehicleId,
@@ -118,10 +118,10 @@ class StaticEntitiesGenerator(
     fun genCargo(orderId: Long): Cargo {
         return Cargo(
             null,
-            weight = random.nextDouble(2.0, 100.0),
-            width = random.nextDouble(0.4, 2.0),
-            height = random.nextDouble(0.4, 3.0),
-            length = random.nextDouble(0.4, 10.0),
+            weight = random.nextDouble(2.0, 100.0).toFloat(),
+            width = random.nextDouble(0.4, 2.0).toFloat(),
+            height = random.nextDouble(0.4, 3.0).toFloat(),
+            length = random.nextDouble(0.4, 10.0).toFloat(),
             orderId = orderId,
             cargoType = CargoType.values().random(random),
         )
@@ -141,8 +141,8 @@ class StaticEntitiesGenerator(
     fun genStoragePoint(addressId: Long): StoragePoint {
         return StoragePoint(
             addressId,
-            latitude = random.nextDouble(14.0, 17.0),
-            longitude = random.nextDouble(98.0, 103.0),
+            latitude = random.nextDouble(14.0, 17.0).toFloat(),
+            longitude = random.nextDouble(98.0, 103.0).toFloat(),
         )
     }
 

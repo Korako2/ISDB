@@ -140,9 +140,9 @@ data class VehicleMovementHistoryPK(
 data class VehicleMovementHistory(
     @Id val vehicleId: Long,
     @Id val date: Instant,
-    val latitude: Double,
-    val longitude: Double,
-    val mileage: Double,
+    val latitude: Float,
+    val longitude: Float,
+    val mileage: Float,
 )
 
 @Entity
@@ -151,7 +151,7 @@ data class Orders(
     @SequenceGenerator(name = "orders_id_seq", sequenceName = "orders_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
     val customerId: Long,
-    val distance: Double,
+    val distance: Float,
     val price: Double,
     val orderDate: Instant,
     val vehicleId: Long?,
@@ -176,10 +176,10 @@ data class Cargo(
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cargo_id_seq")
     @SequenceGenerator(name = "cargo_id_seq", sequenceName = "cargo_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
-    val weight: Double,
-    val width: Double,
-    val height: Double,
-    val length: Double,
+    val weight: Float,
+    val width: Float,
+    val height: Float,
+    val length: Float,
     val orderId: Long,
     @Enumerated(EnumType.STRING)
     val cargoType: CargoType,
@@ -200,8 +200,8 @@ data class Address(
 @Entity
 data class StoragePoint(
     @Id val addressId: Long,
-    val latitude: Double,
-    val longitude: Double,
+    val latitude: Float,
+    val longitude: Float,
 )
 
 @Serializable
@@ -248,5 +248,5 @@ data class FuelExpensesPK(
 data class FuelExpenses(
     @Id val fuelCardNumber: String,
     @Id val date: Instant,
-    val amount: Double,
+    val amount: Float,
 )

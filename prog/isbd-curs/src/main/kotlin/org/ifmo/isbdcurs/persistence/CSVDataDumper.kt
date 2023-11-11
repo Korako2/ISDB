@@ -42,12 +42,6 @@ class CSVDataDumper(
             csvPrinter.printRecord(sortedProperties.map { p ->
                 val value = p.getter.call(t);
                 value
-//                val isEnum = (p.returnType.classifier as KClass<*>).java.isEnum
-//                if (isEnum || value?.toString()?.any { it.isDigit() } == true) {
-//                    value?.toString()
-//                } else {
-//                    value?.toString()?.camelToSnakeCase();
-//                }
             })
         }
 
