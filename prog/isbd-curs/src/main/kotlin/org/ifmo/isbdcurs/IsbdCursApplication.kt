@@ -22,6 +22,7 @@ fun main(args: Array<String>) {
     val dataDir = args[2]
     val startTime = Clock.System.now()
     val allTables = fillTables.createData(driverCount, customersCount)
+    logger.info("Data created at ${Clock.System.now()}. Took ${Clock.System.now() - startTime}")
     CSVDataDumper(dataDir).saveTables(allTables)
     logger.info("Insertion finished at ${Clock.System.now()}. Took ${Clock.System.now() - startTime}")
 }

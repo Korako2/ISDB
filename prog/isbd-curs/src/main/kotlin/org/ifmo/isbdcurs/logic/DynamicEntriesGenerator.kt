@@ -54,7 +54,10 @@ class DynamicEntriesGenerator(
     }
 
     private fun actionsPeriodNoised(): TimePeriod {
-        val noise = random.nextLong(5, 120).days + random.nextLong(0, 24).hours + random.nextLong(0, 60).minutes
+        val noise = random.nextLong(1, 120).days +
+                random.nextLong(0, 24).hours +
+                random.nextLong(0, 60).minutes +
+                random.nextLong(0, 60).seconds
         return TimePeriod(actionsPeriod.start.plus(noise), actionsPeriod.end.minus(noise));
     }
 

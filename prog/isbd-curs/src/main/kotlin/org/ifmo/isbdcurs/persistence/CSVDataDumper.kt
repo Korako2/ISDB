@@ -6,6 +6,7 @@ import org.ifmo.isbdcurs.logic.AllTables
 import org.ifmo.isbdcurs.util.camelToSnakeCase
 import java.io.BufferedWriter
 import java.io.FileWriter
+import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.*
@@ -40,12 +41,13 @@ class CSVDataDumper(
             }
             csvPrinter.printRecord(sortedProperties.map { p ->
                 val value = p.getter.call(t);
-                val isEnum = (p.returnType.classifier as KClass<*>).java.isEnum
-                if (isEnum || value?.toString()?.any { it.isDigit() } == true) {
-                    value?.toString()
-                } else {
-                    value?.toString()?.camelToSnakeCase();
-                }
+                value
+//                val isEnum = (p.returnType.classifier as KClass<*>).java.isEnum
+//                if (isEnum || value?.toString()?.any { it.isDigit() } == true) {
+//                    value?.toString()
+//                } else {
+//                    value?.toString()?.camelToSnakeCase();
+//                }
             })
         }
 
@@ -63,23 +65,35 @@ class CSVDataDumper(
 
     override fun saveTables(tables: AllTables) {
         println("=== Saving tables")
-        saveTable("persons", tables.persons)
-        saveTable("contactInfos", tables.contactInfos)
-        saveTable("drivers", tables.drivers)
-        saveTable("customers", tables.customers)
-        saveTable("driverStatusHistory", tables.driverStatusHistory)
-        saveTable("tariffRates", tables.tariffRates)
-        saveTable("driverLicenses", tables.driverLicenses)
-        saveTable("vehicles", tables.vehicles)
-        saveTable("vehicleOwnerships", tables.vehicleOwnerships)
-        saveTable("vehicleMovementHistory", tables.vehicleMovementHistory)
-        saveTable("orders", tables.orders)
-        saveTable("orderStatuses", tables.orderStatuses)
-        saveTable("cargos", tables.cargos)
-        saveTable("addresses", tables.addresses)
-        saveTable("storagePoints", tables.storagePoints)
-        saveTable("loadingUnloadingAgreements", tables.loadingUnloadingAgreements)
-        saveTable("fuelCardsForDrivers", tables.fuelCardsForDrivers)
-        saveTable("fuelExpenses", tables.fuelExpenses)
+        val t1 = thread {
+            saveTable("persons", tables.persons)
+            saveTable("contactInfos", tables.contactInfos)
+            saveTable("drivers", tables.drivers)
+            saveTable("customers", tables.customers)
+            saveTable("orders", tables.orders)
+            saveTable("orderStatuses", tables.orderStatuses)
+        }
+        val t2 = thread {
+            saveTable("driverStatusHistory", tables.driverStatusHistory)
+            saveTable("tariffRates", tables.tariffRates)
+            saveTable("driverLicenses", tables.driverLicenses)
+            saveTable("vehicles", tables.vehicles)
+        }
+        val t3 = thread {
+            saveTable("vehicleOwnerships", tables.vehicleOwnerships)
+            saveTable("vehicleMovementHistory", tables.vehicleMovementHistory)
+        }
+        val t4 = thread {
+            saveTable("cargos", tables.cargos)
+            saveTable("storagePoints", tables.storagePoints)
+            saveTable("loadingUnloadingAgreements", tables.loadingUnloadingAgreements)
+            saveTable("fuelCardsForDrivers", tables.fuelCardsForDrivers)
+            saveTable("fuelExpenses", tables.fuelExpenses)
+            saveTable("addresses", tables.addresses)
+        }
+        t1.join()
+        t2.join()
+        t3.join()
+        t4.join()
     }
 }

@@ -165,13 +165,13 @@ class FillTables {
         val orderStatusHistory = statusHistories.map { it.second }.flatten()
         val driverStatusHistory = statusHistories.map { it.first }.flatten()
 
-        orderPacks.map { op ->
-            val agreement = agreements.first { it.orderId == op.order.id!! }
+        orderPacks.mapIndexed { i, op ->
+            val agreement = agreements[i]
             val startPoint = storagePoints.first { it.addressId == agreement.departurePoint }
             val endPoint = storagePoints.first { it.addressId == agreement.deliveryPoint }
             val cord1 = Coordinate(startPoint.latitude, startPoint.longitude)
             val cord2 = Coordinate(endPoint.latitude, endPoint.longitude)
-            val orderHistory = statusHistories.first { it.second[0].orderId == op.order.id!! }
+            val orderHistory = statusHistories[i]
             val driverHistory = orderHistory.first
             op.driverPack.movementHistory = dynamicGen.generateMovementHistory(vehicleId=op.driverPack.vehicle.id!!, op.driverPack.movementHistory, cord1, cord2, driverHistory)
         }
