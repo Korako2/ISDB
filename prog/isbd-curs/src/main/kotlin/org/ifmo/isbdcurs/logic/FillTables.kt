@@ -1,15 +1,50 @@
 package org.ifmo.isbdcurs.logic
 
 import kotlinx.datetime.Instant
-import org.ifmo.isbdcurs.persistence.*
+import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.util.Coordinate
-import org.springframework.beans.factory.annotation.Autowired
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.hours
 
+data class AllTables(
+    val persons: List<Person>,
+    val contactInfos: List<ContactInfo>,
+    val drivers: List<Driver>,
+    val customers: List<Customer>,
+    val driverStatusHistory: List<DriverStatusHistory>,
+    val tariffRates: List<TariffRate>,
+    val driverLicenses: List<DriverLicense>,
+    val vehicles: List<Vehicle>,
+    val vehicleOwnerships: List<VehicleOwnership>,
+    val vehicleMovementHistory: List<VehicleMovementHistory>,
+    val orders: List<Orders>,
+    val orderStatuses: List<OrderStatuses>,
+    val cargos: List<Cargo>,
+    val addresses: List<Address>,
+    val storagePoints: List<StoragePoint>,
+    val loadingUnloadingAgreements: List<LoadingUnloadingAgreement>,
+    val fuelCardsForDrivers: List<FuelCardsForDrivers>,
+    val fuelExpenses: List<FuelExpenses>,
+)
+
+data class OrderPack(
+    var order: Orders,
+    var cargo: Cargo,
+    val driverPack: DriverPack,
+)
+
+data class DriverPack(
+    val driver: Driver,
+    val vehicle: Vehicle,
+    var movementHistory: List<VehicleMovementHistory>
+)
+
 @Service
 class FillTables {
+    val logger: Logger = LoggerFactory.getLogger(FillTables::class.java)
     companion object {
         private val random = Random(42)
 
@@ -39,8 +74,8 @@ class FillTables {
             return transferPatternStartDates.map {
                 TransferTimePattern(
                     it,
-                    increment = 4.hours,
-                    noiseHoursMax = 0.5,
+                    increment = 25.hours,
+                    noiseHoursMax = 1.5,
                 )
             }.map {
                 DynamicEntriesGenerator(
@@ -51,148 +86,120 @@ class FillTables {
         }
     }
 
-    @Autowired
-    lateinit var repository: PersonRepository
-
-    @Autowired
-    lateinit var personRepository: PersonRepository
-
-    @Autowired
-    lateinit var contactInfoRepository: ContactInfoRepository
-
-    @Autowired
-    lateinit var driverRepository: DriverRepository
-
-    @Autowired
-    lateinit var customerRepository: CustomerRepository
-
-    @Autowired
-    lateinit var driverStatusHistoryRepository: DriverStatusHistoryRepository
-
-    @Autowired
-    lateinit var tariffRateRepository: TariffRateRepository
-
-    @Autowired
-    lateinit var driverLicenseRepository: DriverLicenseRepository
-
-    @Autowired
-    lateinit var vehicleRepository: VehicleRepository
-
-    @Autowired
-    lateinit var vehicleOwnershipRepository: VehicleOwnershipRepository
-
-    @Autowired
-    lateinit var vehicleMovementHistoryRepository: VehicleMovementHistoryRepository
-
-    @Autowired
-    lateinit var orderRepository: OrderRepository
-
-    @Autowired
-    lateinit var orderStatusesRepository: OrderStatusesRepository
-
-    @Autowired
-    lateinit var cargoRepository: CargoRepository
-
-    @Autowired
-    lateinit var addressRepository: AddressRepository
-
-    @Autowired
-    lateinit var storagePointRepository: StoragePointRepository
-
-    @Autowired
-    lateinit var loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository
-
-    @Autowired
-    lateinit var fuelCardsForDriversRepository: FuelCardsForDriversRepository
-
-    @Autowired
-    lateinit var fuelExpensesRepository: FuelExpensesRepository
-
-    fun fill() {
-        // static:
-        val driversCount = 50L
-        val customersCount = 50L
-        val addressesCount = 10L
-
+    fun createData(driversCount: Int, customersCount: Int): AllTables {
+        val ordersCount = customersCount * 100
+        val addressesCount = customersCount * 10
         val personsCount = driversCount + customersCount;
-        val persons = (1..personsCount).map { staticEntriesGenerator.genPerson() }
-        personRepository.saveAll(persons)
-        val drivers = (1..driversCount).map { staticEntriesGenerator.genDriver(persons.random().id!!) }
-        driverRepository.saveAll(drivers)
-        val driversWithOrders = drivers.filter { random.nextBoolean() }
-        val ordersCount = driversWithOrders.size
-        val getDriverWithOrder = { driversWithOrders.random().id!! }
 
-        val customers = (1..customersCount).map { staticEntriesGenerator.genCustomer(persons.random().id!!) }
-        customerRepository.saveAll(customers)
-        val vehicles = (1..driversCount).map { staticEntriesGenerator.genVehicle() }
-        vehicleRepository.saveAll(vehicles)
-
-        val vehicleToDriver = vehicles.zip(driversWithOrders.shuffled())
-
-        val orders = (1..ordersCount).zip(vehicleToDriver).map {(o, v) ->
-            staticEntriesGenerator.genOrder(
-                customers.random().id!!, v.first.id!!
-            )
+        val persons = (1L..personsCount).map { i -> staticEntriesGenerator.genPerson().apply { id = i } }
+        val drivers = (1L..driversCount).map { i ->
+            staticEntriesGenerator.genDriver(personId = persons.random(random).id!!).apply { id = i }
         }
-        orderRepository.saveAll(orders)
-        val vehicleToOrder = vehicleToDriver.map { it.first }.zip(orders)
-
         val fuelCards = drivers.map { staticEntriesGenerator.genFuelCardsForDrivers(it.id!!) }
-        fuelCardsForDriversRepository.saveAll(fuelCards)
         val licenses = drivers.map { staticEntriesGenerator.genDriverLicense(it.id!!) }
-        driverLicenseRepository.saveAll(licenses)
         val tariffRates = drivers.map { staticEntriesGenerator.genTariffRate(it.id!!) }
-        tariffRateRepository.saveAll(tariffRates)
         val contactInfos = persons.map { staticEntriesGenerator.genContactInfo(it.id!!) }
-        contactInfoRepository.saveAll(contactInfos)
-        val ownerships = vehicleToDriver.map { (v, d) -> staticEntriesGenerator.genOwnerShip(vehicleId = v.id!!, driverId = d.id!!) }
-        vehicleOwnershipRepository.saveAll(ownerships)
-        val cargos = orders.map { staticEntriesGenerator.genCargo(orderId = it.id!!) }
-        cargoRepository.saveAll(cargos)
-        val addresses = (1..addressesCount).map { staticEntriesGenerator.genAddress() }
-        addressRepository.saveAll(addresses)
+        val addresses = (1L..addressesCount).map { staticEntriesGenerator.genAddress().apply { id = it } }
         val storagePoints = addresses.map { staticEntriesGenerator.genStoragePoint(it.id!!) }
-        storagePointRepository.saveAll(storagePoints)
+        val customers = (1L..customersCount).map { i ->
+            staticEntriesGenerator.genCustomer(persons.random(random).id!!).apply { id = i }
+        }
 
-        val agreements = orders.map {
-            val addressA = addresses.random()
-            staticEntriesGenerator.genLoadingUnloadingAgreement(
-                it.id!!, getDriverWithOrder(),
-                departurePoint = addressA.id!!,
-                deliveryPoint = addresses.minus(addressA).random().id!!,
-                senderId = customers.random().id!!,
-                receiverId = customers.random().id!!,
+        // create drivers
+        val driverPacks = (1..driversCount).map {
+            val driver =
+                staticEntriesGenerator.genDriver(personId = persons.random(random).id!!).apply { id = it.toLong() }
+            val vehicle = staticEntriesGenerator.genVehicle().apply { id = it.toLong() }
+            DriverPack(driver, vehicle, mutableListOf())
+        }
+        // orders
+        val orderPacks = (1L..ordersCount).map { orderId ->
+            val driverPack = driverPacks.random(random)
+            val order = staticEntriesGenerator.genOrder(
+                customerId = customers.random(random).id!!,
+                vehicleId = driverPack.vehicle.id!!,
+            ).apply { id = orderId }
+            val cargo = staticEntriesGenerator.genCargo(orderId = order.id!!).apply { id = order.id }
+            OrderPack(order, cargo, driverPack)
+        }
+
+        val ownerships = driverPacks.map { p ->
+            staticEntriesGenerator.genOwnerShip(
+                vehicleId = p.vehicle.id!!, driverId = p.driver.id!!
             )
         }
-        loadingUnloadingAgreementRepository.saveAll(agreements)
+
+        val agreements = orderPacks.map { p ->
+            var addrAIndex = random.nextInt(addresses.size)
+            val addrBIndex = random.nextInt(addresses.size - 1)
+            if (addrBIndex == addrAIndex)
+                addrAIndex += 1
+            val addressA = addresses[addrAIndex]
+            val addressB = addresses[addrBIndex]
+            staticEntriesGenerator.genLoadingUnloadingAgreement(
+                orderId = p.order.id!!,
+                driverId = p.driverPack.driver.id!!,
+                departurePoint = addressA.id!!,
+                deliveryPoint = addressB.id!!,
+                senderId = customers.random(random).id!!,
+                receiverId = customers.random(random).id!!,
+            )
+        }
 
         // dynamic:
-        val dynamicGen = dynamicGenerators.random()
-        fuelCards.map { fuelCard ->
-            fuelCardsForDriversRepository.findByFuelCardNumber(fuelCard.fuelCardNumber)!!.driverId.let {
-                orderRepository.findByVehicleId(it).lastOrNull()?.distance?.let { distance ->
-                    val expenses = dynamicGen.genFuelExpenses(fuelCard.fuelCardNumber, distance)
-                    fuelExpensesRepository.save(expenses)
-                }
-            }
+        val dynamicGen = dynamicGenerators.random(random)
+
+        val allExpenses = orderPacks.map { p ->
+            val fuelCard = fuelCards.first { it.driverId == p.driverPack.driver.id }
+            val distance = p.order.distance
+            val expenses = dynamicGen.genFuelExpenses(fuelCard.fuelCardNumber, distance)
+            expenses
         }
 
-        val driverStatusHistory = driversWithOrders.map { dynamicGen.genDriverStatusesHistory(it.id!!) }
-        driverStatusHistory.map { statusHistoryList ->
-            driverStatusHistoryRepository.saveAll(statusHistoryList)
+        val statusHistories = driverPacks.map { dp ->
+            val driverHistory = dynamicGen.genDriverStatusesHistory(dp.driver.id!!)
+            val orderHistory = dynamicGen.genOrderStatuses(orderPacks.first { it.driverPack == dp }.order.id!!, driverHistory)
+            Pair(driverHistory, orderHistory)
         }
+        val driverStatusHistory = statusHistories.map { it.first }
+        val orderStatusHistory = statusHistories.map { it.second }.flatten()
 
-        vehicleToOrder.map {(v, o) ->
-            val agreement = agreements.first { it.orderId == o.id }
+        val mh = orderPacks.map { op ->
+            val agreement = agreements.first { it.orderId == op.order.id!! }
             val startPoint = storagePoints.first { it.addressId == agreement.departurePoint }
             val endPoint = storagePoints.first { it.addressId == agreement.deliveryPoint }
             val cord1 = Coordinate(startPoint.latitude, startPoint.longitude)
             val cord2 = Coordinate(endPoint.latitude, endPoint.longitude)
             val driverId = agreement.driverId
             val driverHistory = driverStatusHistory.first { it.first().driverId == driverId }
-            val mh = dynamicGen.generateMovementHistory(v.id!!, listOf(), cord1, cord2, driverHistory)
-            vehicleMovementHistoryRepository.saveAll(mh)
-        }
+            val mh = dynamicGen.generateMovementHistory(vehicleId=op.driverPack.vehicle.id!!, op.driverPack.movementHistory, cord1, cord2, driverHistory)
+            op.driverPack.movementHistory = mh
+            mh
+        }.flatten()
+
+        val vehicles = driverPacks.map { it.vehicle }
+        val orders = orderPacks.map { it.order }
+        val cargos = orderPacks.map { it.cargo }
+
+        return AllTables(
+            persons,
+            contactInfos,
+            drivers,
+            customers,
+            driverStatusHistory.flatten(),
+            tariffRates,
+            licenses,
+            vehicles,
+            ownerships,
+            mh,
+            orders,
+            orderStatusHistory,
+            cargos,
+            addresses,
+            storagePoints,
+            agreements,
+            fuelCards,
+            allExpenses
+        )
     }
 }

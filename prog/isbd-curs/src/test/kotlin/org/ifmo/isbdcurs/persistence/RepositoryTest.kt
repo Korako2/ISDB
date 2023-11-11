@@ -5,10 +5,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toJavaLocalDate
 import org.assertj.core.api.Assertions.assertThat
-import org.ifmo.isbdcurs.models.BodyType
-import org.ifmo.isbdcurs.models.Person
-import org.ifmo.isbdcurs.models.Vehicle
-import org.ifmo.isbdcurs.models.VehicleMovementHistory
+import org.ifmo.isbdcurs.models.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -72,7 +69,7 @@ class RepositoryTests {
                 firstName = "Walter",
                 lastName = "White",
                 middleName = null,
-                gender = 'M',
+                gender = Gender.M,
                 dateOfBirth = LocalDate(1980, 1, 1).toJavaLocalDate(),
             )
         )

@@ -19,21 +19,27 @@ enum class CargoType {
 }
 
 enum class OrderStatus {
-    ACCEPTED, IN_PROGRESS, ARRIVED_AT_LOADING_LOCATION, LOADING, ARRIVED_AT_UNLOADING_LOCATION, ON_THE_WAY, UNLOADING, COMPLETED,
+    ACCEPTED, ARRIVED_AT_LOADING_LOCATION, LOADING, ON_THE_WAY, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED,
 }
 
 enum class ContactInfoType {
     PHONE_NUMBER, TELEGRAM, EMAIL,
 }
 
+enum class Gender {
+    M, F,
+}
+
 @Entity
 data class Person(
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "person_id_seq")
+    @SequenceGenerator(name = "person_id_seq", sequenceName = "person_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
     val firstName: String,
     val lastName: String,
     val middleName: String?,
-    val gender: Char,
+    @Enumerated(EnumType.STRING)
+    val gender: Gender,
     val dateOfBirth: LocalDate,
 )
 
@@ -47,7 +53,8 @@ data class ContactInfo(
 
 @Entity
 data class Driver(
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "driver_gen")
+    @SequenceGenerator(name = "driver_gen", sequenceName = "driver_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
     val personId: Long,
     val passport: String,
@@ -56,7 +63,8 @@ data class Driver(
 
 @Entity
 data class Customer(
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_gen")
+    @SequenceGenerator(name = "customer_gen", sequenceName = "customer_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
     val personId: Long,
     val organization: String?,
@@ -94,7 +102,8 @@ data class DriverLicense(
 @Entity
 @Table(name = "vehicle")
 data class Vehicle(
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vehicle_id_seq")
+    @SequenceGenerator(name = "vehicle_id_seq", sequenceName = "vehicle_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
     val plateNumber: String,
     val model: String,
@@ -138,7 +147,8 @@ data class VehicleMovementHistory(
 
 @Entity
 data class Orders(
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orders_id_seq")
+    @SequenceGenerator(name = "orders_id_seq", sequenceName = "orders_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
     val customerId: Long,
     val distance: Double,
@@ -163,7 +173,8 @@ data class OrderStatuses(
 
 @Entity
 data class Cargo(
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "cargo_id_seq")
+    @SequenceGenerator(name = "cargo_id_seq", sequenceName = "cargo_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
     val weight: Double,
     val width: Double,
@@ -176,7 +187,8 @@ data class Cargo(
 
 @Entity
 data class Address(
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "address_id_seq")
+    @SequenceGenerator(name = "address_id_seq", sequenceName = "address_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
     val country: String,
     val city: String,
@@ -188,8 +200,8 @@ data class Address(
 @Entity
 data class StoragePoint(
     @Id val addressId: Long,
-    val longitude: Double,
     val latitude: Double,
+    val longitude: Double,
 )
 
 @Serializable

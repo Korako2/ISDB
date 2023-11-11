@@ -3,16 +3,14 @@ package org.ifmo.isbdcurs.logic
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toKotlinInstant
-import org.ifmo.isbdcurs.models.DriverStatus
-import org.ifmo.isbdcurs.models.DriverStatusHistory
-import org.ifmo.isbdcurs.models.FuelExpenses
-import org.ifmo.isbdcurs.models.VehicleMovementHistory
+import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.util.Coordinate
 import org.ifmo.isbdcurs.util.distance
 import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 val random = Random(42)
 
@@ -55,7 +53,7 @@ class DynamicEntriesGenerator(
     }
 
     private fun actionsPeriodNoised(): TimePeriod {
-        val noise = random.nextLong(5, 60).days;
+        val noise = random.nextLong(5, 120).days + random.nextLong(0, 24).hours + random.nextLong(0, 60).minutes
         return TimePeriod(actionsPeriod.start.plus(noise), actionsPeriod.end.minus(noise));
     }
 
@@ -75,7 +73,8 @@ class DynamicEntriesGenerator(
         var lastMileage = previousHistory.lastOrNull()?.mileage ?: 0.0
         var lastCoordinate = previousHistory.lastOrNull()?.let { Coordinate(it.latitude, it.longitude) } ?: a
         return previousHistory + driverHistory.zip(coordinates).map { (status, point) ->
-            lastMileage += point.distance(lastCoordinate)
+            if (point != lastCoordinate)
+                lastMileage += point.distance(lastCoordinate)
             lastCoordinate = point
             VehicleMovementHistory(
                 vehicleId,
@@ -88,10 +87,30 @@ class DynamicEntriesGenerator(
     }
 
     fun genDriverStatusesHistory(driverId: Long): List<DriverStatusHistory> {
-        val initialStatus = DriverStatusHistory(driverId, actionsPeriodNoised().start.toJavaInstant(), DriverStatus.OFF_DUTY)
+        val initialStatus = DriverStatusHistory(driverId, actionsPeriodNoised().start.plus(driverId.days).toJavaInstant(), DriverStatus.OFF_DUTY)
         return initialStatus.generateSeriesFromFirst(
             transferTimePattern.increment, transferTimePattern.noiseHoursMax
         )
+    }
+
+    fun genOrderStatuses(orderId: Long, driverHistory: List<DriverStatusHistory>): List<OrderStatuses> {
+        val driverStatusToOrderStatus = mapOf(
+            DriverStatus.ACCEPTED_ORDER to OrderStatus.ACCEPTED,
+            DriverStatus.ARRIVED_AT_LOADING_LOCATION to OrderStatus.ARRIVED_AT_LOADING_LOCATION,
+            DriverStatus.LOADING to OrderStatus.LOADING,
+            DriverStatus.EN_ROUTE to OrderStatus.ON_THE_WAY,
+            DriverStatus.ARRIVED_AT_UNLOADING_LOCATION to OrderStatus.ARRIVED_AT_UNLOADING_LOCATION,
+            DriverStatus.UNLOADING to OrderStatus.UNLOADING,
+            DriverStatus.COMPLETED_ORDER to OrderStatus.COMPLETED,
+        )
+        return driverHistory.filter { d -> driverStatusToOrderStatus.keys.contains(d.status) }
+            .map { d ->
+                OrderStatuses(
+                    orderId=orderId,
+                    d.date,
+                    driverStatusToOrderStatus[d.status]!!
+                )
+            }
     }
 
     fun genFuelExpenses(fuelCardNumber: String, distance: Double): FuelExpenses {
