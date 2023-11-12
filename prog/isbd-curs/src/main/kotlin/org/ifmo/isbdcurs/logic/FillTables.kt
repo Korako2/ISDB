@@ -53,7 +53,7 @@ class FillTables {
             Instant.parse("2040-01-01T00:00:00Z"),
         )
         private val actionsPeriod = TimePeriod(
-            Instant.parse("2023-01-01T00:00:00Z"),
+            Instant.parse("2013-01-01T00:00:00Z"),
             Instant.parse("2023-12-31T00:00:00Z"),
         )
         private val transferPatternStartDates = listOf(
@@ -74,8 +74,8 @@ class FillTables {
             return transferPatternStartDates.map {
                 TransferTimePattern(
                     it,
-                    increment = 3.hours,
-                    noiseHoursMax = 1.5,
+                    increment = 5.hours,
+                    noiseHoursMax = 2.5,
                 )
             }.map {
                 DynamicEntriesGenerator(

@@ -10,6 +10,7 @@ import kotlin.random.Random
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -53,11 +54,12 @@ class DynamicEntriesGenerator(
         return (0 until points).map { i -> Coordinate(a.lat + i * xStep, a.lon + i * yStep) }
     }
 
-    private fun actionsPeriodNoised(): TimePeriod {
+    private fun actionsPeriodNoised(randIndex: Long): TimePeriod {
         val noise = random.nextLong(1, 120).days +
                 random.nextLong(0, 24).hours +
                 random.nextLong(0, 60).minutes +
-                random.nextLong(0, 60).seconds
+                random.nextLong(0, 60).seconds +
+                (randIndex % 999L).milliseconds
         return TimePeriod(actionsPeriod.start.plus(noise), actionsPeriod.end.minus(noise));
     }
 
@@ -92,7 +94,7 @@ class DynamicEntriesGenerator(
     }
 
     fun genDriverStatusesHistory(driverId: Long, dayOffset: Long): List<DriverStatusHistory> {
-        val initialStatus = DriverStatusHistory(driverId, actionsPeriodNoised().start.plus((dayOffset % 1000L).days).toJavaInstant(), DriverStatus.OFF_DUTY)
+        val initialStatus = DriverStatusHistory(driverId, actionsPeriodNoised(dayOffset).start.plus((dayOffset % 9000L).days).toJavaInstant(), DriverStatus.OFF_DUTY)
         return initialStatus.generateSeriesFromFirst(
             transferTimePattern.increment, transferTimePattern.noiseHoursMax
         )
@@ -119,6 +121,6 @@ class DynamicEntriesGenerator(
     }
 
     fun genFuelExpenses(fuelCardNumber: String, distance: Float): FuelExpenses {
-        return FuelExpenses(fuelCardNumber, actionsPeriodNoised().end.toJavaInstant(), distance * 4.0f)
+        return FuelExpenses(fuelCardNumber, actionsPeriodNoised(distance.toLong()).end.toJavaInstant(), distance * 4.0f)
     }
 }

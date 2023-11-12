@@ -1,6 +1,7 @@
 package org.ifmo.isbdcurs.logic
 
 import io.github.serpro69.kfaker.faker
+import io.github.serpro69.kfaker.fakerConfig
 import kotlinx.datetime.*
 import org.ifmo.isbdcurs.models.*
 import kotlin.random.Random
@@ -11,7 +12,7 @@ class StaticEntitiesGenerator(
     private val actionsPeriod: TimePeriod,
     private val random: Random
 ) {
-    private val faker = faker {}
+    private val faker = faker { fakerConfig { randomSeed = 42 } }
 
     private val companyNames: List<String> = (1..100).map { faker.company.name() };
     private val firstNames: List<String> = (1..100).map { faker.name.firstName() };
