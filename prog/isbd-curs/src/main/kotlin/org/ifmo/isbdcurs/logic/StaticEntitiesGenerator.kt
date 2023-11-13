@@ -1,6 +1,7 @@
 package org.ifmo.isbdcurs.logic
 
 import io.github.serpro69.kfaker.faker
+import io.github.serpro69.kfaker.fakerConfig
 import kotlinx.datetime.*
 import org.ifmo.isbdcurs.models.*
 import kotlin.random.Random
@@ -11,7 +12,19 @@ class StaticEntitiesGenerator(
     private val actionsPeriod: TimePeriod,
     private val random: Random
 ) {
-    private val faker = faker {}
+    private val faker = faker { fakerConfig { randomSeed = 42 } }
+
+    private val companyNames: List<String> = (1..100).map { faker.company.name() };
+    private val firstNames: List<String> = (1..100).map { faker.name.firstName() };
+    private val lastNames: List<String> = (1..100).map { faker.name.lastName() };
+    private val emails: List<String> = (1..100).map { faker.internet.email() };
+    private val vehicleModels: List<String> = (1..100).map { faker.vehicle.modelsByMake("") };
+    private val addressCities: List<String> = (1..100).map { faker.address.city() };
+    private val addressStreets: List<String> = (1..100).map { faker.address.streetName() };
+
+    private fun randomNumericStr(length: Int): String {
+        return (1..length).map { ('0'..'9').random(random) }.joinToString("") { it.toString() }
+    }
 
     private fun largePeriodNoised(): TimePeriod {
         val noise = random.nextLong(0, 365).days * 5;
@@ -23,23 +36,33 @@ class StaticEntitiesGenerator(
         return TimePeriod(actionsPeriod.start.plus(noise), actionsPeriod.end.minus(noise));
     }
 
+
     fun genPerson(): Person {
-        val gender = if (random.nextBoolean()) 'M' else 'F'
+        val gender = if (random.nextBoolean()) Gender.M else Gender.F
         val birthDate = LocalDate(largePeriodNoised().start.toLocalDateTime(TimeZone.UTC).year, 1, 1)
-        return Person(null, faker.name.firstName(), faker.name.lastName(), null, gender, birthDate.toJavaLocalDate())
+        return Person(
+            null,
+            firstNames.random(random),
+            lastNames.random(random),
+            null,
+            gender,
+            birthDate.toJavaLocalDate()
+        )
     }
 
     fun genContactInfo(personId: Long): ContactInfo {
-        return ContactInfo(personId, ContactInfoType.EMAIL, faker.internet.email())
+        return ContactInfo(personId, ContactInfoType.EMAIL, emails.random(random))
     }
 
     fun genDriver(personId: Long): Driver {
-        val passport = faker.string.regexify("""\d{10}""")
-        return Driver(null, personId, passport, faker.finance.creditCard("visa"))
+        // use kotlin random to generate passport of length 10
+        val passport = randomNumericStr(10)
+        val creditCard = randomNumericStr(16)
+        return Driver(null, personId, passport, creditCard)
     }
 
     fun genCustomer(personId: Long): Customer {
-        return Customer(null, personId, faker.company.name())
+        return Customer(null, personId, companyNames.random(random))
     }
 
     fun genTariffRate(driverId: Long): TariffRate {
@@ -48,22 +71,33 @@ class StaticEntitiesGenerator(
 
     fun genDriverLicense(driverId: Long): DriverLicense {
         return DriverLicense(
-            driverId, largePeriodNoised().start.toJavaInstant(), largePeriodNoised().end.toJavaInstant(), random.nextInt(100000, 999999)
+            driverId,
+            largePeriodNoised().start.toJavaInstant(),
+            largePeriodNoised().end.toJavaInstant(),
+            random.nextInt(100000, 999999)
         )
     }
 
+    private fun nRandRusLetters(n: Int): String {
+        return (1..n).map { ('А'..'Я').random(random) }.joinToString("")
+    }
+
+    private fun nRandRusDigits(n: Int): String {
+        return (1..n).map { ('0'..'9').random(random) }.joinToString("")
+    }
+
     fun genVehicle(): Vehicle {
-        val plateNumber = faker.string.regexify("""[А-Я]{1}\d{3}[А-Я]{2}\d{2}""")
+        val plateNumber = nRandRusLetters(1) + nRandRusDigits(3) + nRandRusLetters(2) + nRandRusDigits(2);
         return Vehicle(
             null,
             plateNumber,
-            model = faker.vehicle.modelsByMake(""),
+            model = vehicleModels.random(random),
             manufactureYear = largePeriod.start.toJavaInstant(),
             length = random.nextDouble(12.0, 15.0),
             width = random.nextDouble(2.0, 2.5),
             height = random.nextDouble(3.0, 4.0),
             loadCapacity = random.nextDouble(1000.0, 3000.0),
-            bodyType = BodyType.values().random()
+            bodyType = BodyType.values().random(random)
         )
     }
 
@@ -75,22 +109,22 @@ class StaticEntitiesGenerator(
         return Orders(
             null,
             customerId = customerId,
-            distance = random.nextDouble(30.0, 1000.0),
+            distance = random.nextDouble(30.0, 1000.0).toFloat(),
             price = random.nextDouble(1000.0, 100000.0),
             orderDate = actionsPeriodNoised().start.toJavaInstant(),
             vehicleId = vehicleId,
         )
     }
 
-    fun genCargo( orderId: Long): Cargo {
+    fun genCargo(orderId: Long): Cargo {
         return Cargo(
             null,
-            weight = random.nextDouble(2.0, 100.0),
-            width = random.nextDouble(0.4, 2.0),
-            height = random.nextDouble(0.4, 3.0),
-            length = random.nextDouble(0.4, 10.0),
+            weight = random.nextDouble(2.0, 100.0).toFloat(),
+            width = random.nextDouble(0.4, 2.0).toFloat(),
+            height = random.nextDouble(0.4, 3.0).toFloat(),
+            length = random.nextDouble(0.4, 10.0).toFloat(),
             orderId = orderId,
-            cargoType = CargoType.values().random(),
+            cargoType = CargoType.values().random(random),
         )
     }
 
@@ -98,8 +132,8 @@ class StaticEntitiesGenerator(
         return Address(
             null,
             country = "Thailand",
-            city = faker.address.city(),
-            street = faker.address.streetName(),
+            city = addressCities.random(random),
+            street = addressStreets.random(random),
             building = random.nextInt(1, 100),
             corpus = random.nextInt(1, 10),
         )
@@ -108,8 +142,8 @@ class StaticEntitiesGenerator(
     fun genStoragePoint(addressId: Long): StoragePoint {
         return StoragePoint(
             addressId,
-            latitude = random.nextDouble(14.0, 17.0),
-            longitude = random.nextDouble(98.0, 103.0),
+            latitude = random.nextDouble(14.0, 17.0).toFloat(),
+            longitude = random.nextDouble(98.0, 103.0).toFloat(),
         )
     }
 

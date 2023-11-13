@@ -23,9 +23,12 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-logging")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.0")
+
     // hibernate validation
     implementation("org.springframework.boot:spring-boot-starter-validation")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -34,6 +37,12 @@ dependencies {
 
     // generate random data
     implementation("io.github.serpro69:kotlin-faker:1.15.0")
+
+    // hibernate ds proxy
+    implementation("net.ttddyy:datasource-proxy:1.9")
+
+    // apache csv
+    implementation("org.apache.commons:commons-csv:1.10.0")
 
     // datetime
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")

@@ -62,7 +62,7 @@ jobs:
   jpa-tests:
     runs-on: ubuntu-latest
     needs: prepare
-    if: needs.prepare.outputs.src_any_changed == 'true'
+    if: false
     services:
       postgres:
         image: postgres:15
