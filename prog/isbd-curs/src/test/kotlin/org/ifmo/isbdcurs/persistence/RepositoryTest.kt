@@ -53,9 +53,9 @@ class RepositoryTests {
         val movementHistory = VehicleMovementHistory(
             vehicleId = vehicle.id!!,
             date = Instant.parse("2020-01-01T00:00:00Z").toJavaInstant(),
-            latitude = 1.0,
-            longitude = 1.0,
-            mileage = 1.0,
+            latitude = 1.0f,
+            longitude = 1.0f,
+            mileage = 1.0f,
         )
         movementHistoryRepository.save(movementHistory)
         assertThat(movementHistoryRepository.findAll().first().latitude).isEqualTo(movementHistory.latitude)
