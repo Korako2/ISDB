@@ -40,10 +40,10 @@ class CSVDataDumper(
                 constructorParamNames?.indexOf(p.name)
             }
             csvPrinter.printRecord(sortedProperties.map { p ->
-                val value = p.getter.call(t);
+                val value = p.getter.call(t) ?: return@map null
                 value.toString().split(".").let {
                     if (it.size > 1) {
-                        it[0] + "." + it[1].take(2)
+                        it[0] + "." + it[1].take(3)
                     } else {
                         it[0]
                     }
@@ -69,27 +69,27 @@ class CSVDataDumper(
             saveTable("persons", tables.persons)
             saveTable("contactInfos", tables.contactInfos)
             saveTable("drivers", tables.drivers)
-//            saveTable("customers", tables.customers)
-//            saveTable("orders", tables.orders)
-//            saveTable("orderStatuses", tables.orderStatuses)
+            saveTable("customers", tables.customers)
+            saveTable("orders", tables.orders)
+            saveTable("orderStatuses", tables.orderStatuses)
         }
         val t2 = thread {
             saveTable("driverStatusHistory", tables.driverStatusHistory)
-//            saveTable("tariffRates", tables.tariffRates)
-//            saveTable("driverLicenses", tables.driverLicenses)
-//            saveTable("vehicles", tables.vehicles)
+            saveTable("tariffRates", tables.tariffRates)
+            saveTable("driverLicenses", tables.driverLicenses)
+            saveTable("vehicles", tables.vehicles)
         }
         val t3 = thread {
-//            saveTable("vehicleOwnerships", tables.vehicleOwnerships)
+            saveTable("vehicleOwnerships", tables.vehicleOwnerships)
             saveTable("vehicleMovementHistory", tables.vehicleMovementHistory)
         }
         val t4 = thread {
-//            saveTable("cargos", tables.cargos)
-//            saveTable("storagePoints", tables.storagePoints)
-//            saveTable("loadingUnloadingAgreements", tables.loadingUnloadingAgreements)
-//            saveTable("fuelCardsForDrivers", tables.fuelCardsForDrivers)
+            saveTable("cargos", tables.cargos)
+            saveTable("storagePoints", tables.storagePoints)
+            saveTable("loadingUnloadingAgreements", tables.loadingUnloadingAgreements)
+            saveTable("fuelCardsForDrivers", tables.fuelCardsForDrivers)
             saveTable("fuelExpenses", tables.fuelExpenses)
-//            saveTable("addresses", tables.addresses)
+            saveTable("addresses", tables.addresses)
         }
         t1.join()
         t2.join()

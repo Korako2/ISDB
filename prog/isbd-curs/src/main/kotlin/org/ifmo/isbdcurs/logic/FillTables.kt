@@ -74,8 +74,8 @@ class FillTables {
             return transferPatternStartDates.map {
                 TransferTimePattern(
                     it,
-                    increment = 5.hours,
-                    noiseHoursMax = 2.5,
+                    increment = 2.5.hours,
+                    noiseHoursMax = 0.5,
                 )
             }.map {
                 DynamicEntriesGenerator(
@@ -152,16 +152,22 @@ class FillTables {
         // dynamic:
         val dynamicGen = dynamicGenerators.random(random)
 
+        val fuelCardExpensesCounter = mutableMapOf<String, Int>()
         val allExpenses = orderPacks.map { p ->
             val fuelCard = fuelCards.first { it.driverId == p.driverPack.driver.id }
             val distance = p.order.distance
-            val expenses = dynamicGen.genFuelExpenses(fuelCard.fuelCardNumber, distance)
+            val cardNumber = fuelCard.fuelCardNumber
+            fuelCardExpensesCounter[cardNumber] = fuelCardExpensesCounter.getOrDefault(cardNumber, 0) + 1
+            val expenses = dynamicGen.genFuelExpenses(cardNumber, distance, fuelCardExpensesCounter[cardNumber]!!)
             expenses
         }
 
+        val driverOrdersCounter = mutableMapOf<Long, Int>()
         val statusHistories = orderPacks.map { op ->
             val dp = op.driverPack
-            val driverHistory = dynamicGen.genDriverStatusesHistory(dp.driver.id!!, dayOffset = op.order.id!!)
+            val driverId = dp.driver.id!!
+            driverOrdersCounter[driverId] = driverOrdersCounter.getOrDefault(driverId, 0) + 1
+            val driverHistory = dynamicGen.genDriverStatusesHistory(driverId, orderForDriver = driverOrdersCounter[driverId]!!)
             val orderHistory = dynamicGen.genOrderStatuses(op.order.id!!, driverHistory)
             Pair(driverHistory, orderHistory)
         }
