@@ -42,7 +42,8 @@ DROP FUNCTION IF EXISTS
   add_driver,
   add_vehicle,
   add_driver_info,
-  find_suitable_vehicles
+  find_car_to_fit_size,
+  find_suitable_vehicle,
   CASCADE;
 
 DROP TRIGGER IF EXISTS check_speed_trigger ON vehicle_movement_history;
