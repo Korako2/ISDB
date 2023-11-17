@@ -422,37 +422,48 @@ DECLARE
     closest_vehicle_id INT := -1;
     closest_distance FLOAT := 999999;
     current_distance FLOAT;
+    vehicle_has_owner BOOLEAN; -- Переменная для проверки наличия владельца у автомобиля
 BEGIN
     OPEN suitable_vehicles;
     LOOP
         FETCH suitable_vehicles INTO current_vehicle;
         EXIT WHEN NOT FOUND;
 
-        -- Выбор самых последних координат для текущего автомобиля
-        SELECT
-            2 * 6371 * ASIN(
-                SQRT(
-                    POWER(SIN(RADIANS(vmh.latitude - cargo_latitude) / 2), 2) +
-                    COS(RADIANS(cargo_latitude)) * COS(RADIANS(vmh.latitude)) *
-                    POWER(SIN(RADIANS(vmh.longitude - cargo_longitude) / 2), 2)
-                )
-            ) INTO current_distance
-        FROM (
-            SELECT
-                vmh.*,
-                ROW_NUMBER() OVER (PARTITION BY vmh.vehicle_id ORDER BY vmh.date DESC) AS rn
-            FROM
-                vehicle_movement_history vmh
-            WHERE
-                vmh.vehicle_id = current_vehicle.vehicle_id
-        ) vmh
-        WHERE
-            vmh.rn = 1;
+        -- Проверка наличия владельца у автомобиля
+        SELECT EXISTS (
+            SELECT 1
+            FROM vehicle_ownership
+            WHERE vehicle_id = current_vehicle.vehicle_id
+              AND ownership_end_date IS NULL
+        ) INTO vehicle_has_owner;
 
-        -- Если текущее расстояние меньше самого близкого, обновляем значения
-        IF current_distance < closest_distance THEN
-            closest_vehicle_id := current_vehicle.vehicle_id;
-            closest_distance := current_distance;
+        IF vehicle_has_owner THEN
+            -- Выбор самых последних координат для текущего автомобиля
+            SELECT
+                2 * 6371 * ASIN(
+                    SQRT(
+                        POWER(SIN(RADIANS(vmh.latitude - cargo_latitude) / 2), 2) +
+                        COS(RADIANS(cargo_latitude)) * COS(RADIANS(vmh.latitude)) *
+                        POWER(SIN(RADIANS(vmh.longitude - cargo_longitude) / 2), 2)
+                    )
+                ) INTO current_distance
+            FROM (
+                SELECT
+                    vmh.*,
+                    ROW_NUMBER() OVER (PARTITION BY vmh.vehicle_id ORDER BY vmh.date DESC) AS rn
+                FROM
+                    vehicle_movement_history vmh
+                WHERE
+                    vmh.vehicle_id = current_vehicle.vehicle_id
+            ) vmh
+            WHERE
+                vmh.rn = 1;
+
+            -- Если текущее расстояние меньше самого близкого, обновляем значения
+            IF current_distance < closest_distance THEN
+                closest_vehicle_id := current_vehicle.vehicle_id;
+                closest_distance := current_distance;
+            END IF;
         END IF;
     END LOOP;
 
@@ -461,6 +472,7 @@ BEGIN
     RETURN QUERY SELECT closest_vehicle_id, closest_distance;
 END;
 $$ LANGUAGE plpgsql;
+
 
 -- function checks that multiple drivers don't own the same vehicle in a time period
 CREATE OR REPLACE FUNCTION check_multiple_ownership_overlap() RETURNS TRIGGER AS '
