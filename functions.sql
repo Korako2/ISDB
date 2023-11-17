@@ -491,5 +491,21 @@ BEGIN
 END
 ' LANGUAGE plpgsql;
 
+-- function which check that driver has only one vehicle in a time period, so time period doesn't intersect for the driver
+CREATE OR REPLACE FUNCTION check_single_ownership_overlap() RETURNS TRIGGER AS '
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM vehicle_ownership
+        WHERE driver_id = NEW.driver_id
+            AND vehicle_id != NEW.vehicle_id
+            AND ((ownership_start_date, ownership_end_date) OVERLAPS (NEW.ownership_start_date, NEW.ownership_end_date))
+    ) THEN
+        RAISE EXCEPTION ''Trying to add new vehicle to a driver but owning date range overlap'';
+    END IF;
+
+    RETURN NEW;
+END
+' LANGUAGE plpgsql;
 
 
