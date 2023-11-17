@@ -46,20 +46,19 @@ PERFORM add_driver_info(v_driver_id,
   v_fuel_station_names => ARRAY['Gazprom', 'Lukoil']
 );
 
-SELECT vehicle_id FROM find_suitable_vehicles(
+SELECT closest_vehicle_id FROM find_suitable_vehicle(
   v_length => cargo_length,
   v_width => 1,
   v_height => 1,
   v_cargo_type => 'BULK',
-  v_weight => 100
-) ORDER BY random() LIMIT 1 INTO v_vehicle_id;
+  v_weight => 100,
+  cargo_latitude := 47.5,
+  cargo_longitude := 23.54
+) INTO v_vehicle_id;
 
-IF v_vehicle_id IS NULL THEN
-  RAISE EXCEPTION 'No suitable vehicles found ;(';
-END IF;
 
-SELECT plate_number, body_type INTO ve_plate_number, ve_body_type FROM vehicle WHERE id = v_vehicle_id;
-RAISE NOTICE 'Suitable vehicle "%" of type "%" found: %', ve_plate_number, ve_body_type, v_vehicle_id;
+---SELECT plate_number, body_type INTO ve_plate_number, ve_body_type FROM vehicle WHERE id = v_vehicle_id;
+---RAISE NOTICE 'Suitable vehicle "%" of type "%" found: %', ve_plate_number, ve_body_type, v_vehicle_id;
 
 SELECT add_order(
   var_customer_id => v_customer_id,
