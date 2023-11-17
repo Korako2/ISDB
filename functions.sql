@@ -372,7 +372,7 @@ BEGIN
 END
 ' LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION find_suitable_vehicles(
+CREATE OR REPLACE FUNCTION find_car_to_fit_size(
     v_length float,
     v_width float,
     v_height float,
@@ -401,7 +401,7 @@ BEGIN
 END
 ' LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION find_suitable_driver(
+CREATE OR REPLACE FUNCTION find_suitable_vehicle(
     v_length FLOAT,
     v_width FLOAT,
     v_height FLOAT,
@@ -417,7 +417,7 @@ RETURNS TABLE (
 DECLARE
     suitable_vehicles CURSOR FOR
         SELECT *
-        FROM find_suitable_vehicles(v_length, v_width, v_height, v_cargo_type, v_weight);
+        FROM find_car_to_fit_size(v_length, v_width, v_height, v_cargo_type, v_weight);
     current_vehicle RECORD;
     closest_vehicle_id INT := -1;
     closest_distance FLOAT := 999999;
