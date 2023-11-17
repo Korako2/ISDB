@@ -401,22 +401,66 @@ BEGIN
 END
 ' LANGUAGE plpgsql;
 
--- function which check that driver has only one vehicle in a time period, so time period doesn't intersect for the driver
-CREATE OR REPLACE FUNCTION check_single_ownership_overlap() RETURNS TRIGGER AS '
+CREATE OR REPLACE FUNCTION find_suitable_driver(
+    v_length FLOAT,
+    v_width FLOAT,
+    v_height FLOAT,
+    v_cargo_type VARCHAR,
+    v_weight FLOAT,
+    cargo_latitude FLOAT,
+    cargo_longitude FLOAT
+)
+RETURNS TABLE (
+    closest_vehicle_id INT,
+    distance FLOAT
+) AS $$
+DECLARE
+    suitable_vehicles CURSOR FOR
+        SELECT *
+        FROM find_suitable_vehicles(v_length, v_width, v_height, v_cargo_type, v_weight);
+    current_vehicle RECORD;
+    closest_vehicle_id INT := -1;
+    closest_distance FLOAT := 999999;
+    current_distance FLOAT;
 BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM vehicle_ownership
-        WHERE driver_id = NEW.driver_id
-            AND vehicle_id != NEW.vehicle_id
-            AND ((ownership_start_date, ownership_end_date) OVERLAPS (NEW.ownership_start_date, NEW.ownership_end_date))
-    ) THEN
-        RAISE EXCEPTION ''Trying to add new vehicle to a driver but owning date range overlap'';
-    END IF;
+    OPEN suitable_vehicles;
+    LOOP
+        FETCH suitable_vehicles INTO current_vehicle;
+        EXIT WHEN NOT FOUND;
 
-    RETURN NEW;
-END
-' LANGUAGE plpgsql;
+        -- Выбор самых последних координат для текущего автомобиля
+        SELECT
+            2 * 6371 * ASIN(
+                SQRT(
+                    POWER(SIN(RADIANS(vmh.latitude - cargo_latitude) / 2), 2) +
+                    COS(RADIANS(cargo_latitude)) * COS(RADIANS(vmh.latitude)) *
+                    POWER(SIN(RADIANS(vmh.longitude - cargo_longitude) / 2), 2)
+                )
+            ) INTO current_distance
+        FROM (
+            SELECT
+                vmh.*,
+                ROW_NUMBER() OVER (PARTITION BY vmh.vehicle_id ORDER BY vmh.date DESC) AS rn
+            FROM
+                vehicle_movement_history vmh
+            WHERE
+                vmh.vehicle_id = current_vehicle.vehicle_id
+        ) vmh
+        WHERE
+            vmh.rn = 1;
+
+        -- Если текущее расстояние меньше самого близкого, обновляем значения
+        IF current_distance < closest_distance THEN
+            closest_vehicle_id := current_vehicle.vehicle_id;
+            closest_distance := current_distance;
+        END IF;
+    END LOOP;
+
+    CLOSE suitable_vehicles;
+    -- Возвращаем ID самого близкого автомобиля и расстояние до него
+    RETURN QUERY SELECT closest_vehicle_id, closest_distance;
+END;
+$$ LANGUAGE plpgsql;
 
 -- function checks that multiple drivers don't own the same vehicle in a time period
 CREATE OR REPLACE FUNCTION check_multiple_ownership_overlap() RETURNS TRIGGER AS '
@@ -434,3 +478,6 @@ BEGIN
     RETURN NEW;
 END
 ' LANGUAGE plpgsql;
+
+
+
