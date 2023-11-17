@@ -413,7 +413,7 @@ CREATE OR REPLACE FUNCTION find_suitable_vehicle(
 RETURNS TABLE (
     closest_vehicle_id INT,
     distance FLOAT
-) AS $$
+) AS '
 DECLARE
     suitable_vehicles CURSOR FOR
         SELECT *
@@ -471,7 +471,7 @@ BEGIN
     -- Возвращаем ID самого близкого автомобиля и расстояние до него
     RETURN QUERY SELECT closest_vehicle_id, closest_distance;
 END;
-$$ LANGUAGE plpgsql;
+'LANGUAGE plpgsql;
 
 
 -- function checks that multiple drivers don't own the same vehicle in a time period
