@@ -44,6 +44,8 @@ DROP FUNCTION IF EXISTS
   add_driver_info,
   find_car_to_fit_size,
   find_suitable_vehicle,
+  check_multiple_ownership_overlap,
+  check_single_ownership_overlap
   CASCADE;
 
 DROP TRIGGER IF EXISTS check_speed_trigger ON vehicle_movement_history;
