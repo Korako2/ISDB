@@ -57,8 +57,8 @@ SELECT closest_vehicle_id FROM find_suitable_vehicle(
 ) INTO v_vehicle_id;
 
 
----SELECT plate_number, body_type INTO ve_plate_number, ve_body_type FROM vehicle WHERE id = v_vehicle_id;
----RAISE NOTICE 'Suitable vehicle "%" of type "%" found: %', ve_plate_number, ve_body_type, v_vehicle_id;
+SELECT plate_number, body_type INTO ve_plate_number, ve_body_type FROM vehicle WHERE id = v_vehicle_id;
+RAISE NOTICE 'Suitable vehicle "%" of type "%" found: %', ve_plate_number, ve_body_type, v_vehicle_id;
 
 SELECT add_order(
   var_customer_id => v_customer_id,
