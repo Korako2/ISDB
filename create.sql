@@ -4,13 +4,15 @@ DECLARE
 BEGIN
 CREATE TYPE driver_status AS ENUM (
     ''OFF_DUTY'',
+    ''READY_FOR_NEW_ORDER'',
     ''ACCEPTED_ORDER'',
     ''ARRIVED_AT_LOADING_LOCATION'',
     ''LOADING'',
     ''EN_ROUTE'',
     ''ARRIVED_AT_UNLOADING_LOCATION'',
     ''UNLOADING'',
-    ''COMPLETED_ORDER''
+    ''COMPLETED_ORDER'',
+    ''WEEKEND''
     );
 
 -- каст нужен был для Spring Data jdbc
