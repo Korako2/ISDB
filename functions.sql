@@ -372,7 +372,7 @@ BEGIN
 END
 ' LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION find_suitable_vehicles(
+CREATE OR REPLACE FUNCTION find_car_to_fit_size(
     v_length float,
     v_width float,
     v_height float,
@@ -400,6 +400,78 @@ BEGIN
 
 END
 ' LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION find_suitable_vehicle(
+    v_length FLOAT,
+    v_width FLOAT,
+    v_height FLOAT,
+    v_cargo_type VARCHAR,
+    v_weight FLOAT,
+    cargo_latitude FLOAT,
+    cargo_longitude FLOAT
+)
+RETURNS TABLE (
+    closest_vehicle_id INT,
+    distance FLOAT
+) AS '
+DECLARE
+    suitable_vehicles CURSOR FOR
+        SELECT *
+        FROM find_car_to_fit_size(v_length, v_width, v_height, v_cargo_type, v_weight);
+    current_vehicle RECORD;
+    closest_vehicle_id INT := -1;
+    closest_distance FLOAT := 999999;
+    current_distance FLOAT;
+    vehicle_has_owner BOOLEAN; -- Переменная для проверки наличия владельца у автомобиля
+BEGIN
+    OPEN suitable_vehicles;
+    LOOP
+        FETCH suitable_vehicles INTO current_vehicle;
+        EXIT WHEN NOT FOUND;
+
+        -- Проверка наличия владельца у автомобиля
+        SELECT EXISTS (
+            SELECT 1
+            FROM vehicle_ownership
+            WHERE vehicle_id = current_vehicle.vehicle_id
+              AND ownership_end_date IS NULL
+        ) INTO vehicle_has_owner;
+
+        IF vehicle_has_owner THEN
+            -- Выбор самых последних координат для текущего автомобиля
+            SELECT
+                2 * 6371 * ASIN(
+                    SQRT(
+                        POWER(SIN(RADIANS(vmh.latitude - cargo_latitude) / 2), 2) +
+                        COS(RADIANS(cargo_latitude)) * COS(RADIANS(vmh.latitude)) *
+                        POWER(SIN(RADIANS(vmh.longitude - cargo_longitude) / 2), 2)
+                    )
+                ) INTO current_distance
+            FROM (
+                SELECT
+                    vmh.*,
+                    ROW_NUMBER() OVER (PARTITION BY vmh.vehicle_id ORDER BY vmh.date DESC) AS rn
+                FROM
+                    vehicle_movement_history vmh
+                WHERE
+                    vmh.vehicle_id = current_vehicle.vehicle_id
+            ) vmh
+            WHERE
+                vmh.rn = 1;
+
+            -- Если текущее расстояние меньше самого близкого, обновляем значения
+            IF current_distance < closest_distance THEN
+                closest_vehicle_id := current_vehicle.vehicle_id;
+                closest_distance := current_distance;
+            END IF;
+        END IF;
+    END LOOP;
+
+    CLOSE suitable_vehicles;
+    -- Возвращаем ID самого близкого автомобиля и расстояние до него
+    RETURN QUERY SELECT closest_vehicle_id, closest_distance;
+END;
+'LANGUAGE plpgsql;
 
 -- function which check that driver has only one vehicle in a time period, so time period doesn't intersect for the driver
 CREATE OR REPLACE FUNCTION check_single_ownership_overlap() RETURNS TRIGGER AS '
@@ -434,3 +506,7 @@ BEGIN
     RETURN NEW;
 END
 ' LANGUAGE plpgsql;
+
+
+
+
