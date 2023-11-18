@@ -52,8 +52,8 @@ SELECT closest_vehicle_id FROM find_suitable_vehicle(
   v_height => 1,
   v_cargo_type => 'BULK',
   v_weight => 100,
-  cargo_latitude := 47.5,
-  cargo_longitude := 23.54
+  cargo_latitude => 47.5,
+  cargo_longitude => 23.54
 ) INTO v_vehicle_id;
 
 
