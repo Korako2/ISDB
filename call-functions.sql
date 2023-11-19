@@ -1,5 +1,4 @@
--- demo:
--- select * from person join customer on person.id = customer.person_id ORDER BY person_id DESC LIMIT 1;
+-- demo: select * from person join customer on person.id = customer.person_id ORDER BY person_id DESC LIMIT 1;
 
 DO
 $do$

@@ -1,4 +1,4 @@
-data_path="./prog/isbd-curs/csv_data"
+data_path="${1:-./prog/isbd-curs/csv_data}"
 psql -f ./drop.sql
 psql -f ./create.sql
 psql -c "\copy person                       from $data_path/persons.csv WITH (FORMAT csv);"
