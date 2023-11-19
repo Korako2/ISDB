@@ -5,6 +5,13 @@ on:
     branches:
       - main
 
+env:
+  PGHOST: postgres
+  PGPORT: 5432
+  PGPASSWORD: postgres
+  PGUSER: runner
+  PGOPTIONS: '--client-min-messages=warning'
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -35,15 +42,15 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: runner
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ${{ env.PGUSER }}
+          POSTGRES_PASSWORD: ${{ env.PGPASSWORD }}
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          - "5432:5432"
+          - "${{ env.PGPORT }}:5432"
 
     steps:
       - name: Check out repository code
@@ -52,15 +59,9 @@ jobs:
       - name: Check scripts
         run: |
           ./check.sh
-        env:
-          PGHOST: postgres
-          PGPORT: 5432
-          PGPASSWORD: postgres
-          PGUSER: runner
-          PGOPTIONS: '--client-min-messages=warning'
 
       - name: Check with data fill
         run: |
           tar -xzf data/isbd-csv-data-10-100.tar
           ./fill-tables.sh ./csv_data
-          ./call-functions.sh
+          cat functions.sql triggers.sql indices.sql call-functions.sql | psql -1 -v ON_ERROR_STOP=1 -q -f -
