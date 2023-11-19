@@ -19,3 +19,5 @@ psql -c "\copy storage_point                from $data_path/storagePoints.csv WI
 psql -c "\copy loading_unloading_agreement  from $data_path/loadingUnloadingAgreements.csv WITH (FORMAT csv);"
 psql -c "\copy fuel_cards_for_drivers       from $data_path/fuelCardsForDrivers.csv WITH (FORMAT csv);"
 psql -c "\copy fuel_expenses                from $data_path/fuelExpenses.csv WITH (FORMAT csv);"
+
+psql -f ./set-sequences.sql
