@@ -64,4 +64,4 @@ jobs:
         run: |
           tar -xf data/isbd-csv-data-10-100.tar
           ./fill-tables.sh ./csv_data
-          cat functions.sql triggers.sql indices.sql call-functions.sql | psql -1 -v ON_ERROR_STOP=1 -q -f -
+          cat functions.sql triggers.sql call-functions.sql | psql -1 -v ON_ERROR_STOP=1 -q -f -
