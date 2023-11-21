@@ -463,7 +463,7 @@ RETURNS TABLE (
             EXIT WHEN NOT FOUND;
 
             -- Проверка наличия владельца у автомобиля
-            SELECT vehicle_id
+            SELECT driver_id
             FROM vehicle_ownership
             WHERE vehicle_id = current_vehicle.vehicle_id
               AND ownership_end_date IS NULL
