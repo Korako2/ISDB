@@ -28,7 +28,7 @@ DROP TYPE IF EXISTS
     CASCADE;
 
 DROP FUNCTION IF EXISTS
-    add_order,
+  add_order,
   add_new_customer,
   check_speed,
   check_vehicle_type,
