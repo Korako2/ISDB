@@ -1,4 +1,3 @@
--- функция добавления заказа в систему.
 CREATE OR REPLACE FUNCTION add_order(
     var_customer_id int,
     distance float,
@@ -28,7 +27,6 @@ CREATE OR REPLACE FUNCTION add_order(
     END
 ' LANGUAGE plpgsql;
 
--- Функция добавления нового заказчика
 CREATE OR REPLACE FUNCTION add_new_customer(
     v_first_name varchar(20),
     v_last_name varchar(20),
@@ -80,7 +78,6 @@ CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS
     END;
 ' LANGUAGE plpgsql;
 
--- расходы должны сопоставляться с пробегом автомобиля
 CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS
 '
     DECLARE
@@ -97,7 +94,6 @@ CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS
         WHERE fc.fuel_card_number = NEW.FUEL_CARD_NUMBER
         ORDER BY vo.ownership_end_date DESC
         LIMIT 1;
-        -- select record from movement history nearest to prev_pay_date
         prev_pay_date = (SELECT DATE
                          FROM FUEL_EXPENSES
                          WHERE FUEL_CARD_NUMBER = NEW.FUEL_CARD_NUMBER
@@ -129,7 +125,6 @@ CREATE OR REPLACE FUNCTION check_cargo_size() RETURNS TRIGGER AS
         var_width  float;
         var_height float;
     BEGIN
-        -- Получаем размеры автомобиля из таблицы заказов
         SELECT v.length,
                v.width,
                v.height
@@ -156,14 +151,12 @@ CREATE OR REPLACE FUNCTION check_country_match() RETURNS TRIGGER AS
         departure_country text;
         delivery_country  text;
     BEGIN
-        -- Получаем страну отправления
         SELECT a.country
         INTO
             departure_country
         FROM address a
         WHERE a.id = NEW.departure_point;
 
-        -- Получаем страну получения
         SELECT a.country
         INTO
             delivery_country
@@ -192,7 +185,6 @@ CREATE OR REPLACE FUNCTION check_order_status_sequence() RETURNS TRIGGER AS
         ORDER BY date_time DESC
         LIMIT 1;
 
-
         IF prev_status IS NOT NULL AND
            (prev_status, NEW.status) NOT IN
            ((''ACCEPTED'', ''ARRIVED_AT_LOADING_LOCATION''), (''ARRIVED_AT_LOADING_LOCATION'', ''LOADING''),
@@ -210,14 +202,12 @@ CREATE OR REPLACE FUNCTION check_order_status_time() RETURNS TRIGGER AS
     DECLARE
         prev_time timestamp;
     BEGIN
-        -- Получаем время предыдущей записи для данного заказа
         SELECT MAX(date_time)
         INTO
             prev_time
         FROM order_statuses
         WHERE order_id = NEW.order_id;
 
-        -- Проверяем, что новое время больше предыдущего
         IF prev_time IS NOT NULL AND NEW.date_time <= prev_time THEN
             RAISE EXCEPTION ''Время статуса заказа должно быть больше времени предыдущей записи'';
         END IF;
@@ -226,7 +216,6 @@ CREATE OR REPLACE FUNCTION check_order_status_time() RETURNS TRIGGER AS
     END;
 ' LANGUAGE plpgsql;
 
--- Статусы заказа должны синхронизироваться со статусом водителя
 CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS
 '
     DECLARE
@@ -269,22 +258,6 @@ CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS
     END;
 ' LANGUAGE plpgsql;
 
--- формула гаверсинусов
---    SELECT 2 * 6371 * ASIN(
---        SQRT(
---            POWER(SIN(RADIANS(b.latitude - a.latitude) / 2), 2) +
---            COS(RADIANS(a.latitude)) * COS(RADIANS(b.latitude)) *
---            POWER(SIN(RADIANS(b.longitude - a.longitude) / 2), 2)
---        )
---    )
-
---    FROM storage_point a,
---         storage_point b
---    WHERE a.address_id = address_a_id
---      AND b.address_id = address_b_id
---    INTO calculated_distance;
-
--- Функция добавления заказчика
 CREATE OR REPLACE FUNCTION add_customer(
     v_person_id int,
     v_organization varchar(50) default null
@@ -308,7 +281,6 @@ CREATE OR REPLACE FUNCTION add_customer(
     END;
 ' LANGUAGE plpgsql;
 
--- Функция добавления водителя
 CREATE OR REPLACE FUNCTION add_driver(
     v_first_name varchar(20),
     v_last_name varchar(20),
@@ -323,12 +295,10 @@ CREATE OR REPLACE FUNCTION add_driver(
         v_person_id int;
         v_driver_id int;
     BEGIN
-        -- Добавляем запись в таблицу person
         INSERT INTO person (first_name, last_name, middle_name, gender, date_of_birth)
         VALUES (v_first_name, v_last_name, v_middle_name, v_gender, v_date_of_birth)
         RETURNING id INTO v_person_id;
 
-        -- Добавляем запись в таблицу driver
         INSERT INTO driver (person_id, passport, bank_card_number)
         VALUES (v_person_id, v_passport, v_bank_card_number)
         RETURNING id INTO v_driver_id;
@@ -353,12 +323,10 @@ CREATE OR REPLACE FUNCTION add_vehicle(
     DECLARE
         v_vehicle_id int;
     BEGIN
-        -- Добавляем запись в таблицу vehicle
         INSERT INTO vehicle (plate_number, model, manufacture_year, length, width, height, load_capacity, body_type)
         VALUES (v_plate_number, v_model, v_manufacture_year, v_length, v_width, v_height, v_load_capacity, v_body_type)
         RETURNING id INTO v_vehicle_id;
 
-        -- Устанавливаем связь с водителем в таблице vehicle_ownership
         INSERT INTO vehicle_ownership (vehicle_id, driver_id, ownership_start_date)
         VALUES (v_vehicle_id, v_driver_id, v_ownership_start_date);
 
@@ -381,11 +349,9 @@ CREATE OR REPLACE FUNCTION add_driver_info(
         fuel_card    text;
         station_name text;
     BEGIN
-        -- Добавляем тарифную ставку
         INSERT INTO tariff_rate (driver_id, daily_rate, rate_per_km)
         VALUES (v_driver_id, v_daily_rate, v_rate_per_km);
 
-        -- Добавляем водительское удостоверение
         INSERT INTO driver_license (driver_id, issue_date, expiration_date, license_number)
         VALUES (v_driver_id, v_issue_date, v_expiration_date, v_license_number);
 
@@ -454,14 +420,13 @@ DECLARE
     closest_vehicle_id INT := -1;
     closest_distance FLOAT := 999999;
     current_distance FLOAT;
-    vehicle_has_owner BOOLEAN; -- Переменная для проверки наличия владельца у автомобиля
+    vehicle_has_owner BOOLEAN;
 BEGIN
     OPEN suitable_vehicles;
     LOOP
         FETCH suitable_vehicles INTO current_vehicle;
         EXIT WHEN NOT FOUND;
 
-        -- Проверка наличия владельца у автомобиля
         SELECT EXISTS (
             SELECT 1
             FROM vehicle_ownership
@@ -470,7 +435,6 @@ BEGIN
         ) INTO vehicle_has_owner;
 
         IF vehicle_has_owner THEN
-            -- Выбор самых последних координат для текущего автомобиля
             SELECT
                 2 * 6371 * ASIN(
                     SQRT(
@@ -491,7 +455,6 @@ BEGIN
             WHERE
                 vmh.rn = 1;
 
-            -- Если текущее расстояние меньше самого близкого, обновляем значения
             IF current_distance < closest_distance THEN
                 closest_vehicle_id := current_vehicle.vehicle_id;
                 closest_distance := current_distance;
@@ -500,7 +463,6 @@ BEGIN
     END LOOP;
 
     CLOSE suitable_vehicles;
-    -- Возвращаем ID самого близкого автомобиля и расстояние до него
     RETURN QUERY SELECT closest_vehicle_id, closest_distance;
 END;
 'LANGUAGE plpgsql;
