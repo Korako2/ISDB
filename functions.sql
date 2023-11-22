@@ -459,13 +459,12 @@ BEGIN
                 closest_vehicle_id := current_vehicle.vehicle_id;
                 closest_distance := current_distance;
             END IF;
-        END IF;
-    END LOOP;
-
+        END LOOP;
     CLOSE suitable_vehicles;
     RETURN QUERY SELECT closest_vehicle_id, closest_distance;
 END;
 'LANGUAGE plpgsql;
+
 
 -- function which check that driver has only one vehicle in a time period, so time period doesn't intersect for the driver
 CREATE OR REPLACE FUNCTION check_single_ownership_overlap() RETURNS TRIGGER AS

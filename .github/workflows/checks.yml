@@ -63,6 +63,6 @@ jobs:
       - name: Check with data fill
         run: |
           tar -xf data/isbd-csv-data-10-100.tar
-          ./fill-tables.sh ./csv_data
+          ./fill-tables.sh ./csv_data_10_100
           cat functions.sql triggers.sql call-functions.sql | psql -1 -v ON_ERROR_STOP=1 -q -f -
           psql -c 'select * from vehicle_id_seq;'
