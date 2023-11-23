@@ -74,7 +74,9 @@ CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS
         speed = (NEW.MILEAGE - prev_record) / (extract(EPOCH FROM NEW.DATE - prev_date) / 60.0);
 
         IF speed > 170 THEN
-            RAISE EXCEPTION ''Speed cannot be more than 170 km/h'';
+            RAISE EXCEPTION USING
+              errcode=''T22A0'',
+              message=''Speed cannot be more than 170 km/h'';
         END IF;
         RETURN NEW;
     END;
@@ -116,7 +118,9 @@ CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS
                            ORDER BY DATE DESC
                            LIMIT 1);
         IF (current_mileage - prev_mileage) * 6 < NEW.AMOUNT THEN
-            RAISE EXCEPTION ''Fuel expenses are too high'';
+            RAISE EXCEPTION USING
+              errcode=''T22A0'',
+              message=''Fuel expenses are too high'';
         END IF;
         RETURN NEW;
     END
@@ -143,7 +147,9 @@ CREATE OR REPLACE FUNCTION check_cargo_size() RETURNS TRIGGER AS
         IF NEW.length > var_length OR
            NEW.width > var_width OR
            NEW.height > var_height THEN
-            RAISE EXCEPTION ''Размеры груза больше размеров автомобиля'';
+            RAISE EXCEPTION USING
+              errcode=''T22A0'',
+              message=''Размеры груза больше размеров автомобиля'';
         END IF;
 
         RETURN NEW;
@@ -171,7 +177,9 @@ CREATE OR REPLACE FUNCTION check_country_match() RETURNS TRIGGER AS
         WHERE a.id = NEW.delivery_point;
 
         IF departure_country <> delivery_country THEN
-            RAISE EXCEPTION ''Страна отправления и страна получения не совпадают'';
+            RAISE EXCEPTION USING
+              errcode=''T22A0'',
+              message=''Страна отправления и страна получения не совпадают'';
         END IF;
 
         RETURN NEW;
@@ -198,7 +206,9 @@ CREATE OR REPLACE FUNCTION check_order_status_sequence() RETURNS TRIGGER AS
            ((''ACCEPTED'', ''ARRIVED_AT_LOADING_LOCATION''), (''ARRIVED_AT_LOADING_LOCATION'', ''LOADING''),
             (''LOADING'', ''ON_THE_WAY''), (''ON_THE_WAY'', ''ARRIVED_AT_UNLOADING_LOCATION''),
             (''ARRIVED_AT_UNLOADING_LOCATION'', ''UNLOADING''), (''UNLOADING'', ''COMPLETED'')) THEN
-            RAISE EXCEPTION ''Неверная последовательность статусов заказа'';
+            RAISE EXCEPTION USING
+              errcode=''T22A0'',
+              message=''Неверная последовательность статусов заказа'';
         END IF;
 
         RETURN NEW;
@@ -219,7 +229,9 @@ CREATE OR REPLACE FUNCTION check_order_status_time() RETURNS TRIGGER AS
 
         -- Проверяем, что новое время больше предыдущего
         IF prev_time IS NOT NULL AND NEW.date_time <= prev_time THEN
-            RAISE EXCEPTION ''Время статуса заказа должно быть больше времени предыдущей записи'';
+            RAISE EXCEPTION USING
+              errcode=''T22A0'',
+              message=''Время статуса заказа должно быть больше времени предыдущей записи'';
         END IF;
 
         RETURN NEW;
@@ -524,7 +536,9 @@ CREATE OR REPLACE FUNCTION check_single_ownership_overlap() RETURNS TRIGGER AS
                      AND vehicle_id != NEW.vehicle_id
                      AND ((ownership_start_date, ownership_end_date) OVERLAPS
                           (NEW.ownership_start_date, NEW.ownership_end_date))) THEN
-            RAISE EXCEPTION ''Trying to add new vehicle to a driver but owning date range overlap'';
+            RAISE EXCEPTION USING
+              errcode=''T22A0'',
+              message=''Trying to add new vehicle to a driver but owning date range overlap'';
         END IF;
 
         RETURN NEW;
@@ -541,7 +555,9 @@ CREATE OR REPLACE FUNCTION check_multiple_ownership_overlap() RETURNS TRIGGER AS
                      AND driver_id != NEW.driver_id
                      AND ((ownership_start_date, ownership_end_date) OVERLAPS
                           (NEW.ownership_start_date, NEW.ownership_end_date))) THEN
-            RAISE EXCEPTION ''Trying to add new driver to a vehicle but owning date range overlap'';
+            RAISE EXCEPTION USING
+              errcode=''T22A0'',
+              message=''Trying to add new driver to a vehicle but owning date range overlap'';
         END IF;
 
         RETURN NEW;
