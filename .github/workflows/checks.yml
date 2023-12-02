@@ -57,10 +57,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check scripts
+        working-directory: ./backend/sql
         run: |
           ./check.sh
 
       - name: Check with data fill
+        working-directory: ./backend/sql
         run: |
           tar -xf data/isbd-csv-data-10-100.tar
           ./fill-tables.sh ./csv_data_10_100
