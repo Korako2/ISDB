@@ -2,18 +2,17 @@
 
 # How to generate data
 ```sh
-cd prog/isbd-curs
 gradle bootJar
-java -Xmx13192m -jar build/libs/isbd-curs-0.0.1-SNAPSHOT.jar 1000 10000 csv_data
+java -Xmx13192m -jar build/libs/isbd-curs-0.0.1-SNAPSHOT.jar 1000 10000 sql/csv_data
 ```
 `1000` -- drivers count
 `10000` -- customers count
 
-Find output csv files in `csv_data` folder
+Find output csv files in `sql/csv_data` folder
 
 # How to fill db with data
-1. cd into project root*
-`cd ../..`
+1. cd into sql folder
+`cd sql`
 
 ## Prepare
 ### Local
