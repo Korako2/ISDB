@@ -1,7 +1,9 @@
 package org.ifmo.isbdcurs.persistence
 
 import org.ifmo.isbdcurs.models.*
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.query.Param
 
 interface PersonRepository : CrudRepository<Person, Long>
 
@@ -9,7 +11,10 @@ interface ContactInfoRepository : CrudRepository<ContactInfo, Long>
 
 interface DriverRepository : CrudRepository<Driver, Long>
 
-interface CustomerRepository : CrudRepository<Customer, Long>
+interface CustomerRepository : CrudRepository<Customer, Long> {
+    @Query("SELECT add_new_customer(:#{#c.firstName}, :#{#c.lastName}, :#{#c.gender}, :#{#c.dateOfBirth}, :#{#c.middleName}), :#{#c.organization}", nativeQuery = true)
+    fun addNewCustomer(@Param("c") addCustomerRequest: AddCustomerRequest): Long
+}
 
 interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Long>
 
