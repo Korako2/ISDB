@@ -1,11 +1,14 @@
 package org.ifmo.isbdcurs.models
 
+import java.sql.Date
+
 data class AddCustomerRequest(
     val firstName : String,
     val lastName : String,
-    val middleName : String,
     val gender : String,
-    val dateOfBirth : String,
+    val dateOfBirth : Date,
+    val middleName : String,
+    val organization : String?,
 )
 
 data class AddDriverRequest(

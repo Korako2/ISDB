@@ -1,7 +1,9 @@
 package org.ifmo.isbdcurs.controllers
 
 import jakarta.validation.Valid
+import org.ifmo.isbdcurs.models.AddCustomerRequest
 import org.ifmo.isbdcurs.models.Order
+import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.OrderService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
@@ -12,12 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 
 @Controller
-class OrderController @Autowired constructor(private val orderService: OrderService) {
-    val logger = org.slf4j.LoggerFactory.getLogger(OrderController::class.java)
+class BusinessController @Autowired constructor(private val orderService: OrderService, private val customerService: CustomerService) {
+    val logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
 
     @GetMapping("/index")
     fun showOrdersList(model: Model): String {
-        logger.info("showOrdersList")
         model.addAttribute("orders", orderService.getAll())
         return "index"
     }
@@ -31,6 +32,17 @@ class OrderController @Autowired constructor(private val orderService: OrderServ
             return "add-order"
         }
         orderService.create(order)
+        return "redirect:/index"
+    }
+
+    @PostMapping("/add_customer")
+    fun addCustomer(@Valid addCustomerRequest: AddCustomerRequest, result: BindingResult, model: Model) : String {
+        if (result.hasErrors()) {
+            return "add-customer"
+        }
+        // TODO: может нам понадобится сохранять Id созданного заказчика?
+        // TODO: обработка ошибок и вывод клиенту
+        customerService.addCustomer(addCustomerRequest)
         return "redirect:/index"
     }
 }
