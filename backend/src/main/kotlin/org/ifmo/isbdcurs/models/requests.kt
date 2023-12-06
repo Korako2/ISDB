@@ -41,3 +41,4 @@ data class AddOrderRequest(
     val height : Int,
     val length : Int,
     val cargoType : String,
+)
