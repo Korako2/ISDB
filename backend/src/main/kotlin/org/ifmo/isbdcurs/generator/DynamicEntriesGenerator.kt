@@ -1,4 +1,4 @@
-package org.ifmo.isbdcurs.logic
+package org.ifmo.isbdcurs.generator
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant

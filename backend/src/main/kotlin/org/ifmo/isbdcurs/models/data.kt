@@ -146,7 +146,7 @@ data class VehicleMovementHistory(
 )
 
 @Entity
-data class Orders(
+data class Order(
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orders_id_seq")
     @SequenceGenerator(name = "orders_id_seq", sequenceName = "orders_id_seq", allocationSize = 1)
     @Id var id: Long? = null,

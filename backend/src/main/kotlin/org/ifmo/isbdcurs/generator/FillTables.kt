@@ -1,4 +1,4 @@
-package org.ifmo.isbdcurs.logic
+package org.ifmo.isbdcurs.generator
 
 import kotlinx.datetime.Instant
 import org.ifmo.isbdcurs.models.*
@@ -20,7 +20,7 @@ data class AllTables(
     val vehicles: List<Vehicle>,
     val vehicleOwnerships: List<VehicleOwnership>,
     val vehicleMovementHistory: List<VehicleMovementHistory>,
-    val orders: List<Orders>,
+    val orders: List<Order>,
     val orderStatuses: List<OrderStatuses>,
     val cargos: List<Cargo>,
     val addresses: List<Address>,
@@ -31,7 +31,7 @@ data class AllTables(
 )
 
 data class OrderPack(
-    var order: Orders,
+    var order: Order,
     var cargo: Cargo,
     val driverPack: DriverPack,
 )

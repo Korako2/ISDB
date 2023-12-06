@@ -1,5 +1,11 @@
 # ISDB
 
+# How to run Web server
+1. start postgresql on port `15432` either by yourself or using docker-compose: `docker-compose up`
+2. Start Spring application
+3. Go to [http://localhost:8080/index](http://localhost:8080/index)
+
+
 # How to generate data
 ```sh
 gradle bootJar
