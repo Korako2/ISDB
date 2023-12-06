@@ -1,7 +1,6 @@
-package org.ifmo.isbdcurs.logic
+package org.ifmo.isbdcurs.generator
 
 import io.github.serpro69.kfaker.faker
-import io.github.serpro69.kfaker.fakerConfig
 import kotlinx.datetime.*
 import org.ifmo.isbdcurs.models.*
 import kotlin.random.Random
@@ -105,8 +104,8 @@ class StaticEntitiesGenerator(
         return VehicleOwnership(vehicleId, driverId, largePeriodNoised().start.toJavaInstant(), null)
     }
 
-    fun genOrder(customerId: Long, vehicleId: Long): Orders {
-        return Orders(
+    fun genOrder(customerId: Long, vehicleId: Long): Order {
+        return Order(
             null,
             customerId = customerId,
             distance = random.nextDouble(30.0, 1000.0).toFloat(),

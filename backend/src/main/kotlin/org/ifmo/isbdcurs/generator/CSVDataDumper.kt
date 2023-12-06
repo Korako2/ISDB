@@ -1,17 +1,11 @@
-package org.ifmo.isbdcurs.persistence
+package org.ifmo.isbdcurs.generator
 
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
-import org.ifmo.isbdcurs.logic.AllTables
-import org.ifmo.isbdcurs.util.camelToSnakeCase
 import java.io.BufferedWriter
 import java.io.FileWriter
 import kotlin.concurrent.thread
-import kotlin.reflect.KClass
-import kotlin.reflect.KProperty1
 import kotlin.reflect.full.*
-import kotlin.reflect.javaType
-import kotlin.reflect.jvm.javaField
 
 
 class CSVDataDumper(

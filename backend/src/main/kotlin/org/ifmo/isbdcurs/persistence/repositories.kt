@@ -27,9 +27,7 @@ interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHisto
     fun findByVehicleId(vehicleId: Long): List<VehicleMovementHistory>
 }
 
-interface OrderRepository : CrudRepository<Orders, Long> {
-    fun findByVehicleId(vehicleId: Long): List<Orders>
-}
+interface OrderRepository : CrudRepository<Order, Long> {}
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK>
 

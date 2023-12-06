@@ -1,7 +1,7 @@
-package org.ifmo.isbdcurs.persistence
+package org.ifmo.isbdcurs.generator
 
 import kotlinx.datetime.Clock
-import org.ifmo.isbdcurs.logic.AllTables
+import org.ifmo.isbdcurs.persistence.RepositoriesStore
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.CrudRepository

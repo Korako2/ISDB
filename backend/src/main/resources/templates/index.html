@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo Curs 4</title>
+</head>
+<body>
+<div th:switch="${orders}" class="container my-5">
+    <h2 th:case="null">No orders yet!</h2>
+    <div th:case="*">
+        <h2>Orders:</h2>
+        <ul>
+            <li th:each="order : ${orders}">
+                <span th:text="${order.id}"></span>
+                <span th:text="${order.customerId}"></span>
+                <span th:text="${order.distance}"></span>
+                <span th:text="${order.price}"></span>
+                <span th:text="${order.orderDate}"></span>
+                <span th:text="${order.vehicleId}"></span>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

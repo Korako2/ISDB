@@ -4,9 +4,9 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaInstant
+import org.ifmo.isbdcurs.generator.generateSeriesFromFirst
 import org.ifmo.isbdcurs.models.DriverStatus
 import org.ifmo.isbdcurs.models.DriverStatusHistory
-import org.ifmo.isbdcurs.util.Coordinate
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.hours

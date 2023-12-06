@@ -1,1 +1,1 @@
-rootProject.name = "isbd-curs"
+rootProject.name = "backend"
