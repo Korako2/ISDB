@@ -279,3 +279,5 @@ data class FuelExpenses(
     @Id val date: Instant,
     val amount: Float,
 )
+
+data class User(val username: String, val password: String)

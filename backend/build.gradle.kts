@@ -53,6 +53,7 @@ dependencies {
 
     // datetime
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+    implementation(kotlin("script-runtime"))
 }
 
 tasks.withType<KotlinCompile> {
