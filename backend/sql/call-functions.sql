@@ -35,14 +35,14 @@ SELECT add_driver(
 
 RAISE NOTICE 'Driver added with id: %', v_driver_id;
 
-PERFORM add_driver_info(v_driver_id,
+CALL add_driver_info(v_driver_id,
   v_daily_rate => 1000,
   v_rate_per_km => 10,
   v_issue_date => '2020-01-01',
   v_expiration_date => '2040-01-01',
   v_license_number => 1234567890,
-  v_fuel_cards => ARRAY['1234567890123456', '1234567890123457'],
-  v_fuel_station_names => ARRAY['Gazprom', 'Lukoil']
+  v_fuel_card => '1234567890123456',
+  v_fuel_station_name => 'Gazprom'
 );
 
 SELECT closest_vehicle_id FROM find_suitable_vehicle(

@@ -1,0 +1,45 @@
+###
+GET http://localhost:8080/index
+
+###
+POST http://localhost:8080/add_customer
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "middleName": "Smith",
+  "gender": "M",
+  "dateOfBirth": "2023-12-06"
+}
+
+###
+POST http://localhost:8080/add_driver
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "middleName": "Smith",
+  "gender": "M",
+  "dateOfBirth": "2023-12-06",
+  "passport": "0234567890",
+  "bankCardNumber": "1234567890123456"
+}
+
+###
+POST http://localhost:8080/add_driver_info
+Content-Type: application/json
+
+{
+  "driverId": 11,
+  "dailyRate": 100,
+  "ratePerKm": 10,
+  "issueDate": "2003-12-06",
+  "expirationDate": "2028-12-06",
+  "licenseNumber": 1234567890123456,
+  "fuelCard": "123456789012345",
+  "fuelStationName": "1234567890123456"
+}
+
+###
