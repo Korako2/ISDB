@@ -161,6 +161,20 @@ data class VehicleMovementHistory(
 )
 
 @Entity
+@NamedStoredProcedureQueries(
+    NamedStoredProcedureQuery(name = "addOrder", procedureName = "add_order",
+        parameters = arrayOf(
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_customer_id", type = Long::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_distance", type = Float::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_vehicle_id", type = Long::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_weight", type = Float::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_width", type = Float::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_height", type = Float::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_length", type = Float::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_cargo_type", type = String::class),
+        )
+    )
+)
 data class Order(
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orders_id_seq")
     @SequenceGenerator(name = "orders_id_seq", sequenceName = "orders_id_seq", allocationSize = 1)

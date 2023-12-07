@@ -35,7 +35,7 @@ SELECT add_driver(
 
 RAISE NOTICE 'Driver added with id: %', v_driver_id;
 
-PERFORM add_driver_info(v_driver_id,
+CALL add_driver_info(v_driver_id,
   v_daily_rate => 1000,
   v_rate_per_km => 10,
   v_issue_date => '2020-01-01',

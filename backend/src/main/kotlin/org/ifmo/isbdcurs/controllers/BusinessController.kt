@@ -1,10 +1,7 @@
 package org.ifmo.isbdcurs.controllers
 
 import jakarta.validation.Valid
-import org.ifmo.isbdcurs.models.AddCustomerRequest
-import org.ifmo.isbdcurs.models.AddDriverInfoRequest
-import org.ifmo.isbdcurs.models.AddDriverRequest
-import org.ifmo.isbdcurs.models.Order
+import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
 import org.ifmo.isbdcurs.services.OrderService
@@ -35,11 +32,11 @@ class BusinessController @Autowired constructor(
     fun getById(@PathVariable id: Long) = orderService.getById(id)
 
     @PostMapping("/addorder")
-    fun create(@Valid order: Order, result: BindingResult, model: Model): String {
+    fun addOrder(@Valid @RequestBody addOrderRequest: AddOrderRequest, result: BindingResult, model: Model): String {
         if (result.hasErrors()) {
             return "add-order"
         }
-        orderService.create(order)
+        orderService.addOrder(addOrderRequest)
         return "redirect:/index"
     }
 
@@ -55,11 +52,11 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_driver")
-    fun addDriver(@Valid addDriverRequest: AddDriverRequest, result: BindingResult, model: Model): String {
+    fun addDriver(@Valid @RequestBody addDriverRequest: AddDriverRequest, result: BindingResult, model: Model): String {
         if (result.hasErrors()) {
             return "add-driver"
         }
-//        driverService.addDriver(addDriverRequest)
+        driverService.addDriver(addDriverRequest)
         return "redirect:/index"
     }
 

@@ -22,6 +22,10 @@ interface DriverRepository : CrudRepository<Driver, Long> {
         @Param("v_fuel_card") fuelCard: String,
         @Param("v_fuel_station_name") fuelStationName: String,
     )
+
+    @Query("SELECT add_driver(:#{#v.firstName}, :#{#v.lastName}, :#{#v.middleName}, :#{#v.gender}, :#{#v.dateOfBirth}, :#{#v.passport}, :#{#v.bankCardNumber})", nativeQuery = true)
+    fun addDriver(@Param("v") addDriverRequest: AddDriverRequest): Long
+
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
@@ -45,7 +49,19 @@ interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHisto
     fun findByVehicleId(vehicleId: Long): List<VehicleMovementHistory>
 }
 
-interface OrderRepository : CrudRepository<Order, Long> {}
+interface OrderRepository : CrudRepository<Order, Long> {
+    @Query("SELECT add_order(:#{#v_customer_id}, :#{#v_distance}, :#{#v_vehicle_id}, :#{#v_weight}, :#{#v_width}, :#{#v_height}, :#{#v_length}, :#{#v_cargo_type})", nativeQuery = true)
+    fun addOrder(
+        @Param("v_customer_id") customerId: Int,
+        @Param("v_distance") distance: Int,
+        @Param("v_vehicle_id") vehicleId: Int,
+        @Param("v_weight") weight: Int,
+        @Param("v_width") width: Int,
+        @Param("v_height") height: Int,
+        @Param("v_length") length: Int,
+        @Param("v_cargo_type") cargoType: String,
+    ) : Long
+}
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK>
 

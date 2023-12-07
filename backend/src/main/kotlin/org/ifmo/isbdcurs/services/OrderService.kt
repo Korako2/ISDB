@@ -1,5 +1,6 @@
 package org.ifmo.isbdcurs.services
 
+import org.ifmo.isbdcurs.models.AddOrderRequest
 import org.ifmo.isbdcurs.models.Order
 import org.ifmo.isbdcurs.persistence.OrderRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,4 +25,19 @@ class OrderService @Autowired constructor(private val orderRepo: OrderRepository
     fun update(id: Long, order: Order) = orderRepo.save(order.copy(id = id))
 
     fun delete(id: Long) = orderRepo.deleteById(id)
+
+    fun addOrder(addOrderRequest: AddOrderRequest) : Long {
+        val orderId = orderRepo.addOrder(
+            addOrderRequest.customerId.toInt(),
+            addOrderRequest.distance,
+            addOrderRequest.vehicleId.toInt(),
+            addOrderRequest.weight,
+            addOrderRequest.width,
+            addOrderRequest.height,
+            addOrderRequest.length,
+            addOrderRequest.cargoType,
+        )
+        println("===================== orderId = $orderId")
+        return orderId
+    }
 }
