@@ -5,6 +5,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlinx.serialization.Serializable
+import java.util.*
 
 enum class DriverStatus {
     OFF_DUTY, ACCEPTED_ORDER, ARRIVED_AT_LOADING_LOCATION, LOADING, EN_ROUTE, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED_ORDER, WEEKEND, READY_FOR_NEW_ORDER
@@ -52,6 +53,20 @@ data class ContactInfo(
 )
 
 @Entity
+@NamedStoredProcedureQueries(
+    NamedStoredProcedureQuery(name = "addDriverInfo", procedureName = "add_driver_info",
+        parameters = arrayOf(
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_driver_id", type = Int::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_daily_rate", type = Int::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_rate_per_km", type = Int::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_issue_date", type = Date::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_expiration_date", type = Date::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_license_number", type = Int::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_fuel_card", type = String::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_fuel_station_name", type = String::class),
+        )
+    )
+)
 data class Driver(
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "driver_gen")
     @SequenceGenerator(name = "driver_gen", sequenceName = "driver_id_seq", allocationSize = 1)
