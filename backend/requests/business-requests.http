@@ -43,3 +43,16 @@ Content-Type: application/json
 }
 
 ###
+POST http://localhost:8080/add_order
+Content-Type: application/json
+
+{
+  "distance": 100,
+  "weight": 99,
+  "width": 1,
+  "height": 1,
+  "length": 1,
+  "cargoType": "BULK",
+  "latitude": 47.5,
+  "longitude": 23.54
+}

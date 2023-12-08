@@ -33,12 +33,12 @@ data class AddDriverInfoRequest(
 )
 
 data class AddOrderRequest(
-    val customerId : Long,
     val distance : Int,
-    val vehicleId : Long,
     val weight : Int,
     val width : Int,
     val height : Int,
     val length : Int,
     val cargoType : String,
+    val latitude : Double,
+    val longitude : Double,
 )

@@ -8,9 +8,13 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
-class OrderService @Autowired constructor(private val orderRepo: OrderRepository) {
-    fun getAll() : List<Order> {
-       // mock data
+class OrderService @Autowired constructor(
+    private val orderRepo: OrderRepository,
+    private val vehicleService: VehicleService
+) {
+
+    fun getAll(): List<Order> {
+        // mock data
         val orders = mutableListOf<Order>()
         orders.add(Order(1, 1, 1.0f, 1.0, Instant.now(), 1))
         orders.add(Order(2, 2, 2.0f, 2.0, Instant.now(), 2))
@@ -26,11 +30,15 @@ class OrderService @Autowired constructor(private val orderRepo: OrderRepository
 
     fun delete(id: Long) = orderRepo.deleteById(id)
 
-    fun addOrder(addOrderRequest: AddOrderRequest) : Long {
+    fun addOrder(addOrderRequest: AddOrderRequest): Long {
+        val vehicleId = vehicleService.findSuitableVehicle(addOrderRequest)
+        // TODO: get current customer id from session
+        val customerId = 1L
+
         val orderId = orderRepo.addOrder(
-            addOrderRequest.customerId.toInt(),
+            customerId.toInt(),
             addOrderRequest.distance,
-            addOrderRequest.vehicleId.toInt(),
+            vehicleId.toInt(),
             addOrderRequest.weight,
             addOrderRequest.width,
             addOrderRequest.height,

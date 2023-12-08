@@ -39,7 +39,22 @@ interface TariffRateRepository : CrudRepository<TariffRate, Long>
 
 interface DriverLicenseRepository : CrudRepository<DriverLicense, Long>
 
-interface VehicleRepository : CrudRepository<Vehicle, Long>
+interface VehicleRepository : CrudRepository<Vehicle, Long> {
+    @Query(value = """
+        SELECT closest_vehicle_id 
+        FROM find_suitable_vehicle(
+          v_length => :#{#request.length},
+          v_width => :#{#request.width},
+          v_height => :#{#request.height},
+          v_cargo_type => :#{#request.cargoType},
+          v_weight => :#{#request.weight},
+          cargo_latitude => :#{#request.latitude},
+          cargo_longitude => :#{#request.longitude}
+        ) 
+    """, nativeQuery = true)
+    fun findSuitableVehicle(@Param("request") request: AddOrderRequest): Long
+}
+
 
 interface VehicleOwnershipRepository : CrudRepository<VehicleOwnership, VehicleOwnershipPK> {
     fun findByDriverId(driverId: Long): List<VehicleOwnership>
