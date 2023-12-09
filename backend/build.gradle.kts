@@ -20,6 +20,7 @@ repositories {
     mavenCentral()
 }
 
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-logging")
@@ -54,6 +55,9 @@ dependencies {
     // datetime
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
     implementation(kotlin("script-runtime"))
+
+    implementation("javax.mail:javax.mail-api:1.6.2")
+
 }
 
 tasks.withType<KotlinCompile> {
