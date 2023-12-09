@@ -31,7 +31,7 @@ class BusinessController @Autowired constructor(
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Long) = orderService.getById(id)
 
-    @PostMapping("/addorder")
+    @PostMapping("/add_order")
     fun addOrder(@Valid @RequestBody addOrderRequest: AddOrderRequest, result: BindingResult, model: Model): String {
         if (result.hasErrors()) {
             return "add-order"

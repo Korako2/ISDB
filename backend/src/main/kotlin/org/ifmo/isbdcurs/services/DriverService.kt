@@ -3,6 +3,7 @@ package org.ifmo.isbdcurs.services
 import jakarta.transaction.Transactional
 import org.ifmo.isbdcurs.models.AddDriverInfoRequest
 import org.ifmo.isbdcurs.models.AddDriverRequest
+import org.ifmo.isbdcurs.models.AddOrderRequest
 import org.ifmo.isbdcurs.persistence.DriverRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

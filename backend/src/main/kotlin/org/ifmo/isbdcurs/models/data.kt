@@ -54,7 +54,8 @@ data class ContactInfo(
 
 @Entity
 @NamedStoredProcedureQueries(
-    NamedStoredProcedureQuery(name = "addDriverInfo", procedureName = "add_driver_info",
+    NamedStoredProcedureQuery(
+        name = "addDriverInfo", procedureName = "add_driver_info",
         parameters = arrayOf(
             StoredProcedureParameter(mode = ParameterMode.IN, name = "v_driver_id", type = Int::class),
             StoredProcedureParameter(mode = ParameterMode.IN, name = "v_daily_rate", type = Int::class),
@@ -162,7 +163,8 @@ data class VehicleMovementHistory(
 
 @Entity
 @NamedStoredProcedureQueries(
-    NamedStoredProcedureQuery(name = "addOrder", procedureName = "add_order",
+    NamedStoredProcedureQuery(
+        name = "addOrder", procedureName = "add_order",
         parameters = arrayOf(
             StoredProcedureParameter(mode = ParameterMode.IN, name = "v_customer_id", type = Long::class),
             StoredProcedureParameter(mode = ParameterMode.IN, name = "v_distance", type = Float::class),
