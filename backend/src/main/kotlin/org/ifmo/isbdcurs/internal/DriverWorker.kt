@@ -4,6 +4,7 @@ import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.*
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 
 
 data class DriverState(
@@ -12,20 +13,20 @@ data class DriverState(
     val vehicle: Vehicle,
     var currentPosition: Coordinates,
     var currentDriverStatus: DriverStatus,
+    var mileage: Float,
 )
 
 @Service
 class DriverWorker constructor(
     val driverRepository: DriverRepository,
     val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
-    val vehicleRepository: VehicleRepository,
     val driverStatusHistoryRepository: DriverStatusHistoryRepository,
     val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
     val storagePointRepository: StoragePointRepository
 ) {
-    private val driverToState = mutableMapOf<Long, DriverState>()
+    // TODO: use ConcurrentHashMap
+    private val driverToState = ConcurrentHashMap<Long, DriverState>()
     private val kmPerHour: Int = 60
-    private var currentDriverStatus: DriverStatus = DriverStatus.OFF_DUTY
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
 
     private fun calculateTimeToNextCoordinate(currentPosition: Coordinates, coordinates: Coordinates): Double {
@@ -43,63 +44,75 @@ class DriverWorker constructor(
         return getAddressById(addressId)
     }
 
-    private fun getDeliveryPoint(orderId: Long, driverId: Long): Coordinates {
-        val addressId = loadingUnloadingAgreementRepository.findByOrderIdAndDriverId(orderId = orderId, driverId = driverId)!!.deliveryPoint
-        return getAddressById(addressId)
-    }
-
-    private fun move(driverState: DriverState, destination: Coordinates): Long {
+    private fun move(driverState: DriverState, destination: Coordinates) {
         val currentPosition = driverState.currentPosition
         val timeToNextCoordinate = calculateTimeToNextCoordinate(currentPosition, destination)
-        Thread.sleep((timeToNextCoordinate * 1000).toLong())
+        val sleepTimeMs = (timeToNextCoordinate * 1000).toLong()
+        logger.debug("Driver {} is moving to {} with speed {} km/h, will arrive in {} seconds", driverState.driverId, destination, kmPerHour, timeToNextCoordinate)
+        Thread.sleep(sleepTimeMs)
         driverState.currentPosition = destination
-        return currentPosition.calcDistanceKm(destination).toLong()
-    }
-
-    private fun moveToDeparturePoint(driverState: DriverState) {
-        move(driverState, getDeparturePoint(driverState.orderId, driverState.driverId))
-    }
-
-    private fun stepAndUpdateStatus(driverState: DriverState, destination: Coordinates) {
-        val distance = move(driverState, destination)
-
-        val driverId = driverState.driverId
-        val currentPosition = driverState.currentPosition
-        val vehicle = driverRepository.getVehicleByDriverId(driverId)
-        if (currentDriverStatus == DriverStatus.READY_FOR_NEW_ORDER) {
-            logger.debug("Driver is finished and ready for new order")
-            return
-        }
-        val nextStatus = DriverStatus.values()[currentDriverStatus.ordinal + 1]
-        logger.debug("Driver status changed from {} to {}", currentDriverStatus, nextStatus)
-        currentDriverStatus = nextStatus
+        driverState.mileage += currentPosition.calcDistanceKm(destination).toFloat()
 
         val newMovementHistory = VehicleMovementHistory(
             date = Instant.now(),
-            vehicleId = vehicle.id!!,
+            vehicleId = driverState.vehicle.id!!,
             latitude = currentPosition.latitude.toFloat(),
             longitude = currentPosition.longitude.toFloat(),
-            mileage = 0.0f  // TODO: calculate mileage
+            mileage = driverState.mileage
         )
+        vehicleMovementHistoryRepository.save(newMovementHistory)
+    }
+
+    private fun moveToDeparturePoint(driverState: DriverState) {
+        val destination = getDeparturePoint(driverState.orderId, driverState.driverId)
+        move(driverState, destination)
+        logger.debug("Driver is at departure point {}", destination)
+    }
+
+    private fun setDriverStatus(driverState: DriverState, newStatus: DriverStatus) {
+        logger.debug("Driver {} changed status from {} to {}", driverState.driverId, driverState.currentDriverStatus, newStatus)
+        driverState.currentDriverStatus = newStatus
+        val driverId = driverState.driverId
         val newDriverStatus = DriverStatusHistory(
             driverId = driverId,
             date = Instant.now(),
-            status = currentDriverStatus
+            status = driverState.currentDriverStatus
         )
-        vehicleMovementHistoryRepository.save(newMovementHistory)
         driverStatusHistoryRepository.save(newDriverStatus)
     }
 
+    private fun setDriverStatusAfterDelay(driverState: DriverState, newStatus: DriverStatus, delaySec: Long) {
+        Thread.sleep(delaySec * 1000)
+        setDriverStatus(driverState, newStatus)
+    }
+
+    private fun moveToDeliveryPoint(driverState: DriverState, destination: Coordinates) {
+        logger.debug("Driver {} is moving to {}", driverState.driverId, destination)
+        move(driverState, destination)
+        logger.debug("Driver state after move: {}", driverState)
+    }
+
     fun startWork(driverId: Long, orderId: Long) {
+        logger.debug("Driver {} started work on order {}", driverId, orderId)
+
         val vehicle = driverRepository.getVehicleByDriverId(driverId)
         val departureCord = getDeparturePoint(orderId, driverId)
-        val
-        val defaultDriverState = DriverState(driverId=driverId, orderId=orderId, vehicle=vehicle, currentDriverStatus = DriverStatus.OFF_DUTY, currentPosition = departureCord)
+        val mileage = vehicleMovementHistoryRepository.findByVehicleId(vehicle.id!!).lastOrNull()?.mileage ?: 0.0f
+        val defaultDriverState = DriverState(driverId=driverId, orderId=orderId, vehicle=vehicle, currentDriverStatus = DriverStatus.OFF_DUTY, currentPosition = departureCord, mileage = mileage)
         val ds: DriverState = this.driverToState.getOrDefault(driverId, defaultDriverState)
 
+        setDriverStatus(ds, DriverStatus.OFF_DUTY)
+        setDriverStatus(ds, DriverStatus.ACCEPTED_ORDER)
         moveToDeparturePoint(ds)
+        setDriverStatus(ds, DriverStatus.ARRIVED_AT_LOADING_LOCATION)
+        setDriverStatusAfterDelay(ds, DriverStatus.LOADING, 4)
+        setDriverStatusAfterDelay(ds, DriverStatus.EN_ROUTE, 3)
 
-        val driver = driverRepository.getDriverById(driverId)
-        // slowly move to order address
+        moveToDeliveryPoint(ds, departureCord)
+        setDriverStatus(ds, DriverStatus.ARRIVED_AT_UNLOADING_LOCATION)
+        setDriverStatusAfterDelay(ds, DriverStatus.UNLOADING, 4)
+        setDriverStatusAfterDelay(ds, DriverStatus.COMPLETED_ORDER, 5)
+        setDriverStatusAfterDelay(ds, DriverStatus.READY_FOR_NEW_ORDER, 10)
+        logger.debug("Driver {} finished work on order {}", driverId, orderId)
     }
 }

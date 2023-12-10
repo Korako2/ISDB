@@ -1,15 +1,23 @@
 package org.ifmo.isbdcurs.services
 
+import org.ifmo.isbdcurs.internal.DriverWorker
 import org.ifmo.isbdcurs.models.*
-import org.ifmo.isbdcurs.persistence.OrderRepository
+import org.ifmo.isbdcurs.persistence.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.LocalTime
+import java.util.*
 
 @Service
 class OrderService @Autowired constructor(
     private val orderRepo: OrderRepository,
-    private val vehicleService: VehicleService
+    private val vehicleService: VehicleService,
+    private val driverWorker: DriverWorker,
+    private val vehicleOwnershipRepository: VehicleOwnershipRepository,
+    private val driverRepository: DriverRepository,
+    private val personRepository: PersonRepository,
+    private val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository
 ) {
 
     fun getAll(): List<Order> {
@@ -34,6 +42,26 @@ class OrderService @Autowired constructor(
         val vehicleCoordinates = vehicleService.getVehicleCoordinates(vehicleId)
         val orderCoordinates = Coordinates(addOrderRequest.latitude, addOrderRequest.longitude)
 
+        val driverId = vehicleOwnershipRepository.findByVehicleId(vehicleId).driverId
+        val personId = driverRepository.findPersonIdById(driverId)
+        val driverFullName =
+            personRepository.findById(personId).get().firstName + " " + personRepository.findById(personId)
+                .get().lastName
+
+        // create agreement
+        val loadingUnloadingAgreement = LoadingUnloadingAgreement(
+            orderId = 0,
+            driverId = driverId,
+            unloadingTime = LocalTime.ofSecondOfDay(addOrderRequest.unloadingTimeSec),
+            loadingTime = LocalTime.ofSecondOfDay(addOrderRequest.loadingTimeSec),
+            departurePoint = addOrderRequest.departurePointId,
+            deliveryPoint = addOrderRequest.deliveryPointId,
+            senderId = addOrderRequest.senderId,
+            receiverId = addOrderRequest.receiverId,
+        )
+
+        loadingUnloadingAgreementRepository.save(loadingUnloadingAgreement)
+
         val driveToAddressDistance = vehicleCoordinates.calcDistanceKm(orderCoordinates)
         // TODO: get current customer id from session
         val customerId = 1L
@@ -50,10 +78,14 @@ class OrderService @Autowired constructor(
         )
         println("===================== orderId = $orderId")
         val addOrderResult = AddOrderResult(
-            orderId,
-            vehicleCoordinates.latitude,
-            vehicleCoordinates.longitude,
+            orderId = orderId,
+            averageDeliveryDate = Date.from(Instant.now().plusSeconds((driveToAddressDistance / 60).toLong())),
+            driverFullName = driverFullName,
         )
-        return
+
+        run {
+            driverWorker.startWork(driverId = driverId, orderId = orderId)
+        }
+        return addOrderResult
     }
 }

@@ -41,4 +41,10 @@ data class AddOrderRequest(
     val cargoType : String,
     val latitude : Double,
     val longitude : Double,
+    val departurePointId : Long,
+    val deliveryPointId : Long,
+    val senderId : Long,
+    val receiverId : Long,
+    val unloadingTimeSec : Long = 5,
+    val loadingTimeSec : Long = 5,
 )
