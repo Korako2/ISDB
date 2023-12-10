@@ -13,4 +13,3 @@ class VehicleService @Autowired constructor(
    fun findSuitableVehicle(addOrderRequest: AddOrderRequest) : Long {
        return vehicleRepository.findSuitableVehicle(addOrderRequest)
    }
-}

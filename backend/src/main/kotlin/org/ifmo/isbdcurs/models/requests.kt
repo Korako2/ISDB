@@ -58,4 +58,3 @@ data class AddStoragePointRequest(
     val corpus: Int?,
     val latitude : Double,
     val longitude : Double,
-)
