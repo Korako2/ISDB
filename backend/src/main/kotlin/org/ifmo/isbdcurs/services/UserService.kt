@@ -6,7 +6,7 @@ import org.springframework.validation.BindingResult
 
 @Service
 class UserService {
-    private var users = listOf(
+    private var users = mutableListOf(
         User("user1", "password1", "email1@gmail.com", "88005553535", false),
         User("user2", "password2", "email2@gmail.com", "89506096906", true),
     )
@@ -31,7 +31,7 @@ class UserService {
     }
 
     fun addUser(user: User) {
-        users.toMutableList().add(user)
+        users.add(user)
     }
 
 }
