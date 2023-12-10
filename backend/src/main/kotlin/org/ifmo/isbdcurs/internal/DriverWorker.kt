@@ -17,12 +17,14 @@ data class DriverState(
 )
 
 @Service
-class DriverWorker constructor(
+class DriverWorker(
     val driverRepository: DriverRepository,
     val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
     val driverStatusHistoryRepository: DriverStatusHistoryRepository,
     val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
-    val storagePointRepository: StoragePointRepository
+    val storagePointRepository: StoragePointRepository,
+    private val vehicleOwnershipRepository: VehicleOwnershipRepository,
+    private val vehicleRepository: VehicleRepository
 ) {
     // TODO: use ConcurrentHashMap
     private val driverToState = ConcurrentHashMap<Long, DriverState>()
@@ -95,9 +97,10 @@ class DriverWorker constructor(
     fun startWork(driverId: Long, orderId: Long) {
         logger.debug("Driver {} started work on order {}", driverId, orderId)
 
-        val vehicle = driverRepository.getVehicleByDriverId(driverId)
+        val vehicleId = vehicleOwnershipRepository.findByDriverId(driverId).last().vehicleId
+        val vehicle = vehicleRepository.findById(vehicleId).get()
         val departureCord = getDeparturePoint(orderId, driverId)
-        val mileage = vehicleMovementHistoryRepository.findByVehicleId(vehicle.id!!).lastOrNull()?.mileage ?: 0.0f
+        val mileage = vehicleMovementHistoryRepository.findByVehicleIdOrderByDateDesc(vehicle.id!!).firstOrNull()?.mileage ?: 0.0f
         val defaultDriverState = DriverState(driverId=driverId, orderId=orderId, vehicle=vehicle, currentDriverStatus = DriverStatus.OFF_DUTY, currentPosition = departureCord, mileage = mileage)
         val ds: DriverState = this.driverToState.getOrDefault(driverId, defaultDriverState)
 

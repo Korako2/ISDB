@@ -32,8 +32,6 @@ interface DriverRepository : CrudRepository<Driver, Long> {
             "JOIN vehicle_ownership vo ON vehicle.id = vo.vehicle_id " +
             "WHERE driver_id = :driverId", nativeQuery = true)
     fun getVehicleByDriverId(driverId: Long): Vehicle
-
-    fun findPersonIdById(driverId: Long): Long
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
@@ -41,7 +39,9 @@ interface CustomerRepository : CrudRepository<Customer, Long> {
     fun addNewCustomer(@Param("c") addCustomerRequest: AddCustomerRequest): Long
 }
 
-interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Long>
+interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Long> {
+    fun findByDriverIdOrderByDateDesc(driverId: Long): List<DriverStatusHistory>
+}
 
 interface TariffRateRepository : CrudRepository<TariffRate, Long>
 
@@ -73,7 +73,7 @@ interface VehicleOwnershipRepository : CrudRepository<VehicleOwnership, VehicleO
 }
 
 interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHistory, VehicleMovementHistoryPK> {
-    fun findByVehicleId(vehicleId: Long): List<VehicleMovementHistory>
+    fun findByVehicleIdOrderByDateDesc(vehicleId: Long): List<VehicleMovementHistory>
 }
 
 interface OrderRepository : CrudRepository<Order, Long> {

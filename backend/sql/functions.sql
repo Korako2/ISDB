@@ -244,12 +244,13 @@ CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS
     DECLARE
         current_order_id int;
     BEGIN
-        current_order_id = (SELECT id
-                            FROM orders
-                            WHERE vehicle_id = (SELECT vehicle_id
-                                                FROM vehicle_ownership
-                                                WHERE vehicle_ownership.driver_id = NEW.driver_id
-                                                  AND ownership_end_date IS NULL));
+        SELECT id INTO current_order_id
+        FROM orders
+        JOIN vehicle_ownership vo ON orders.vehicle_id = vo.vehicle_id
+        WHERE vo.driver_id = NEW.driver_id AND ownership_end_date IS NULL
+        ORDER BY orders.order_date DESC
+        LIMIT 1;
+
         IF current_order_id IS NULL THEN
             RAISE EXCEPTION ''Заказ не существует или авто не назначен'';
         END IF;

@@ -13,8 +13,4 @@ class VehicleService @Autowired constructor(
    fun findSuitableVehicle(addOrderRequest: AddOrderRequest) : Long {
        return vehicleRepository.findSuitableVehicle(addOrderRequest)
    }
-
-    fun getVehicleCoordinates(vehicleId: Long) : Coordinates {
-         return vehicleRepository.getVehicleCoordinates(vehicleId)
-    }
 }
