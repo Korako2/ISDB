@@ -77,7 +77,7 @@ interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHisto
 }
 
 interface OrderRepository : CrudRepository<Order, Long> {
-    @Query("SELECT add_order(:#{#v_customer_id}, :#{#v_distance}, :#{#v_vehicle_id}, :#{#v_weight}, :#{#v_width}, :#{#v_height}, :#{#v_length}, :#{#v_cargo_type})", nativeQuery = true)
+    @Query("SELECT add_order(:#{#v_customer_id}, :#{#v_distance}, :#{#v_vehicle_id}, :#{#v_weight}, :#{#v_width}, :#{#v_height}, :#{#v_length}, :#{#v_cargo_type}, :#{#v_date})", nativeQuery = true)
     fun addOrder(
         @Param("v_customer_id") customerId: Int,
         @Param("v_distance") distance: Int,
@@ -87,6 +87,7 @@ interface OrderRepository : CrudRepository<Order, Long> {
         @Param("v_height") height: Int,
         @Param("v_length") length: Int,
         @Param("v_cargo_type") cargoType: String,
+        @Param("v_date") date: java.util.Date,
     ) : Long
 }
 

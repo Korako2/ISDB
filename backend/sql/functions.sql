@@ -7,7 +7,8 @@ CREATE OR REPLACE FUNCTION add_order(
     v_width float,
     v_height float,
     v_length float,
-    v_cargo_type cargo_type
+    v_cargo_type cargo_type,
+    v_date date
 ) RETURNS int AS
 '
     DECLARE
@@ -20,7 +21,7 @@ CREATE OR REPLACE FUNCTION add_order(
         RETURNING id INTO ord_id;
 
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (ord_id, NOW(), ''ACCEPTED'');
+        VALUES (ord_id, v_date, ''WAITING'');
 
         INSERT INTO cargo (weight, width, height, length, order_id, cargo_type)
         VALUES (v_weight, v_width, v_height, v_length, ord_id, v_cargo_type);
@@ -203,12 +204,10 @@ CREATE OR REPLACE FUNCTION check_order_status_sequence() RETURNS TRIGGER AS
 
         IF prev_status IS NOT NULL AND
            (prev_status, NEW.status) NOT IN
-           ((''ACCEPTED'', ''ARRIVED_AT_LOADING_LOCATION''), (''ARRIVED_AT_LOADING_LOCATION'', ''LOADING''),
+           ((''WAITING'', ''ACCEPTED''), (''ACCEPTED'', ''ARRIVED_AT_LOADING_LOCATION''), (''ARRIVED_AT_LOADING_LOCATION'', ''LOADING''),
             (''LOADING'', ''ON_THE_WAY''), (''ON_THE_WAY'', ''ARRIVED_AT_UNLOADING_LOCATION''),
             (''ARRIVED_AT_UNLOADING_LOCATION'', ''UNLOADING''), (''UNLOADING'', ''COMPLETED'')) THEN
-            RAISE EXCEPTION USING
-              errcode=''T22A0'',
-              message=''Неверная последовательность статусов заказа'';
+            RAISE EXCEPTION ''Неверная последовательность статусов заказа: %, prev/curr: (%/%)'', NEW.order_id, prev_status, NEW.status USING ERRCODE=''T22A0'';
         END IF;
 
         RETURN NEW;
@@ -216,7 +215,7 @@ CREATE OR REPLACE FUNCTION check_order_status_sequence() RETURNS TRIGGER AS
 ' LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION check_order_status_time() RETURNS TRIGGER AS
-'
+$$
     DECLARE
         prev_time timestamp;
     BEGIN
@@ -229,58 +228,57 @@ CREATE OR REPLACE FUNCTION check_order_status_time() RETURNS TRIGGER AS
 
         -- Проверяем, что новое время больше предыдущего
         IF prev_time IS NOT NULL AND NEW.date_time <= prev_time THEN
-            RAISE EXCEPTION USING
-              errcode=''T22A0'',
-              message=''Время статуса заказа должно быть больше времени предыдущей записи'';
+            RAISE EXCEPTION 'Время статуса заказа должно быть больше времени предыдущей записи. prev/new: (%/%)', prev_time, NEW.date_time USING ERRCODE='T22A0';
         END IF;
 
         RETURN NEW;
     END;
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- Статусы заказа должны синхронизироваться со статусом водителя
 CREATE OR REPLACE FUNCTION update_order_status() RETURNS TRIGGER AS
-'
+$$
     DECLARE
         current_order_id int;
     BEGIN
-        SELECT id INTO current_order_id
-        FROM orders
-        JOIN vehicle_ownership vo ON orders.vehicle_id = vo.vehicle_id
-        WHERE vo.driver_id = NEW.driver_id AND ownership_end_date IS NULL
-        ORDER BY orders.order_date DESC
+        SELECT order_id INTO current_order_id
+        FROM loading_unloading_agreement
+        WHERE loading_unloading_agreement.driver_id = NEW.driver_id
+        ORDER BY loading_unloading_agreement.order_id DESC
         LIMIT 1;
 
+        RAISE NOTICE 'current order id: %', current_order_id;
+
         IF current_order_id IS NULL THEN
-            RAISE EXCEPTION ''Заказ не существует или авто не назначен'';
+            RAISE EXCEPTION 'Заказ не существует или авто не назначен';
         END IF;
 
-        IF NEW.status = ''ACCEPTED_ORDER'' THEN
+        IF NEW.status = 'ACCEPTED_ORDER' THEN
             INSERT INTO order_statuses (order_id, date_time, status)
-            VALUES (current_order_id, NEW.date, ''ACCEPTED'');
-        ELSIF NEW.status = ''ARRIVED_AT_LOADING_LOCATION'' THEN
+            VALUES (current_order_id, NEW.date, 'ACCEPTED');
+        ELSIF NEW.status = 'ARRIVED_AT_LOADING_LOCATION' THEN
             INSERT INTO order_statuses (order_id, date_time, status)
-            VALUES (current_order_id, NEW.date, ''ARRIVED_AT_LOADING_LOCATION'');
-        ELSIF NEW.status = ''LOADING'' THEN
+            VALUES (current_order_id, NEW.date, 'ARRIVED_AT_LOADING_LOCATION');
+        ELSIF NEW.status = 'LOADING' THEN
             INSERT INTO order_statuses (order_id, date_time, status)
-            VALUES (current_order_id, NEW.date, ''LOADING'');
-        ELSIF NEW.status = ''EN_ROUTE'' THEN
+            VALUES (current_order_id, NEW.date, 'LOADING');
+        ELSIF NEW.status = 'EN_ROUTE' THEN
             INSERT INTO order_statuses (order_id, date_time, status)
-            VALUES (current_order_id, NEW.date, ''ON_THE_WAY'');
-        ELSIF NEW.status = ''ARRIVED_AT_UNLOADING_LOCATION'' THEN
+            VALUES (current_order_id, NEW.date, 'ON_THE_WAY');
+        ELSIF NEW.status = 'ARRIVED_AT_UNLOADING_LOCATION' THEN
             INSERT INTO order_statuses (order_id, date_time, status)
-            VALUES (current_order_id, NEW.date, ''ARRIVED_AT_UNLOADING_LOCATION'');
-        ELSIF NEW.status = ''UNLOADING'' THEN
+            VALUES (current_order_id, NEW.date, 'ARRIVED_AT_UNLOADING_LOCATION');
+        ELSIF NEW.status = 'UNLOADING' THEN
             INSERT INTO order_statuses (order_id, date_time, status)
-            VALUES (current_order_id, NEW.date, ''UNLOADING'');
-        ELSIF NEW.status = ''COMPLETED_ORDER'' THEN
+            VALUES (current_order_id, NEW.date, 'UNLOADING');
+        ELSIF NEW.status = 'COMPLETED_ORDER' THEN
             INSERT INTO order_statuses (order_id, date_time, status)
-            VALUES (current_order_id, NEW.date, ''COMPLETED'');
+            VALUES (current_order_id, NEW.date, 'COMPLETED');
         END IF;
         RETURN NEW;
 
     END;
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- формула гаверсинусов
 --    SELECT 2 * 6371 * ASIN(

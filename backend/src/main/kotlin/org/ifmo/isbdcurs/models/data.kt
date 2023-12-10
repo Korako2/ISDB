@@ -20,7 +20,7 @@ enum class CargoType {
 }
 
 enum class OrderStatus {
-    ACCEPTED, ARRIVED_AT_LOADING_LOCATION, LOADING, ON_THE_WAY, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED,
+    WAITING, ACCEPTED, ARRIVED_AT_LOADING_LOCATION, LOADING, ON_THE_WAY, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED,
 }
 
 enum class ContactInfoType {
@@ -174,6 +174,7 @@ data class VehicleMovementHistory(
             StoredProcedureParameter(mode = ParameterMode.IN, name = "v_height", type = Float::class),
             StoredProcedureParameter(mode = ParameterMode.IN, name = "v_length", type = Float::class),
             StoredProcedureParameter(mode = ParameterMode.IN, name = "v_cargo_type", type = String::class),
+            StoredProcedureParameter(mode = ParameterMode.IN, name = "v_date", type = Date::class),
         )
     )
 )

@@ -3,6 +3,7 @@ package org.ifmo.isbdcurs.internal
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.*
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
@@ -18,7 +19,6 @@ data class DriverState(
 
 @Service
 class DriverWorker(
-    val driverRepository: DriverRepository,
     val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
     val driverStatusHistoryRepository: DriverStatusHistoryRepository,
     val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
@@ -30,6 +30,7 @@ class DriverWorker(
     private val driverToState = ConcurrentHashMap<Long, DriverState>()
     private val kmPerHour: Int = 60
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
+    private val disableDelay = true
 
     private fun calculateTimeToNextCoordinate(currentPosition: Coordinates, coordinates: Coordinates): Double {
         val distance = currentPosition.calcDistanceKm(coordinates)
@@ -46,12 +47,17 @@ class DriverWorker(
         return getAddressById(addressId)
     }
 
+    private fun sleepSecs(secs: Long) {
+        if (disableDelay) return
+        Thread.sleep(secs * 1000)
+    }
+
     private fun move(driverState: DriverState, destination: Coordinates) {
         val currentPosition = driverState.currentPosition
         val timeToNextCoordinate = calculateTimeToNextCoordinate(currentPosition, destination)
-        val sleepTimeMs = (timeToNextCoordinate * 1000).toLong()
+        val sleepTime = timeToNextCoordinate.toLong()
         logger.debug("Driver {} is moving to {} with speed {} km/h, will arrive in {} seconds", driverState.driverId, destination, kmPerHour, timeToNextCoordinate)
-        Thread.sleep(sleepTimeMs)
+        sleepSecs(sleepTime)
         driverState.currentPosition = destination
         driverState.mileage += currentPosition.calcDistanceKm(destination).toFloat()
 
@@ -84,7 +90,7 @@ class DriverWorker(
     }
 
     private fun setDriverStatusAfterDelay(driverState: DriverState, newStatus: DriverStatus, delaySec: Long) {
-        Thread.sleep(delaySec * 1000)
+        sleepSecs(delaySec)
         setDriverStatus(driverState, newStatus)
     }
 
@@ -94,6 +100,7 @@ class DriverWorker(
         logger.debug("Driver state after move: {}", driverState)
     }
 
+    @Transactional
     fun startWork(driverId: Long, orderId: Long) {
         logger.debug("Driver {} started work on order {}", driverId, orderId)
 
@@ -101,7 +108,8 @@ class DriverWorker(
         val vehicle = vehicleRepository.findById(vehicleId).get()
         val departureCord = getDeparturePoint(orderId, driverId)
         val mileage = vehicleMovementHistoryRepository.findByVehicleIdOrderByDateDesc(vehicle.id!!).firstOrNull()?.mileage ?: 0.0f
-        val defaultDriverState = DriverState(driverId=driverId, orderId=orderId, vehicle=vehicle, currentDriverStatus = DriverStatus.OFF_DUTY, currentPosition = departureCord, mileage = mileage)
+        val driverStatus = driverStatusHistoryRepository.findByDriverIdOrderByDateDesc(driverId).firstOrNull()?.status ?: DriverStatus.READY_FOR_NEW_ORDER
+        val defaultDriverState = DriverState(driverId=driverId, orderId=orderId, vehicle=vehicle, currentDriverStatus = driverStatus, currentPosition = departureCord, mileage = mileage)
         val ds: DriverState = this.driverToState.getOrDefault(driverId, defaultDriverState)
 
         setDriverStatus(ds, DriverStatus.OFF_DUTY)

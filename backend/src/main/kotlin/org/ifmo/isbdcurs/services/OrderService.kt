@@ -5,10 +5,12 @@ import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalTime
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
+import kotlin.math.log
 
 @Service
 class OrderService @Autowired constructor(
@@ -20,6 +22,7 @@ class OrderService @Autowired constructor(
     private val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
     private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
 ) {
+    private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
 
     fun getAll(): List<Order> {
         // mock data
@@ -38,14 +41,20 @@ class OrderService @Autowired constructor(
 
     fun delete(id: Long) = orderRepo.deleteById(id)
 
+    @Transactional
     fun addOrder(addOrderRequest: AddOrderRequest): AddOrderResult {
         val vehicleId = vehicleService.findSuitableVehicle(addOrderRequest)
+        if (vehicleId == -1L) {
+            throw Exception("No suitable vehicle found")
+        }
+
         val vehicleCoordinates =
             vehicleMovementHistoryRepository.findByVehicleIdOrderByDateDesc(vehicleId).firstOrNull()?.let {
                 Coordinates(it.latitude.toDouble(), it.longitude.toDouble())
             } ?: Coordinates(0.0, 0.0)
         val orderCoordinates = Coordinates(addOrderRequest.latitude, addOrderRequest.longitude)
 
+        logger.debug("Found nearest vehicle with id = $vehicleId")
         val driverId = vehicleOwnershipRepository.findByVehicleId(vehicleId).driverId
         val person = personRepository.findById(driverId).getOrElse { throw Exception("Driver not found") }
         val driverFullName = person.firstName + " " + person.lastName
@@ -63,7 +72,10 @@ class OrderService @Autowired constructor(
             addOrderRequest.height,
             addOrderRequest.length,
             addOrderRequest.cargoType,
+            Date.from(Instant.now()),
         )
+
+        logger.debug("New Order id = $orderId")
 
         val unloadingSeconds = addOrderRequest.unloadingTime * 60 * 60
         val loadingSeconds = addOrderRequest.loadingTime * 60 * 60
