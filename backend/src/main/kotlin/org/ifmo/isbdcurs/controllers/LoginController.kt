@@ -18,11 +18,16 @@ class LoginController(private val userService: UserService) {
     fun showLoginForm(): String {
         return "login"
     }
+    @GetMapping("/admin-page")
+    fun showAdminPage(): String {
+        return "admin-page"
+    }
 
     @PostMapping("/login")
     fun login(@RequestParam username: String, @RequestParam password: String, model: Model): String {
         if (userService.isValidUser(username, password)) {
             model.addAttribute("loggedInUser", username)
+            if (userService.isAdmin(username)) return "redirect:/admin-page"
             return "redirect:/index"
         }
         return "redirect:/login?error"
@@ -37,7 +42,7 @@ class LoginController(private val userService: UserService) {
     @PostMapping("/register")
     fun register(@Valid user: User, result: BindingResult, model: Model): String {
         if (userService.isUniqueUserData(user, result) && !result.hasErrors()) {
-            userService.addUser(user);
+            userService.addUser(user)
             model.addAttribute("loggedInUser", user.username)
             return "redirect:/index"
         }

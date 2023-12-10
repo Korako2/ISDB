@@ -34,4 +34,9 @@ class UserService {
         users.add(user)
     }
 
+    fun isAdmin(username: String): Boolean {
+        val user = getUserByUsername(username)
+        return user?.isAdmin ?: false
+    }
+
 }
