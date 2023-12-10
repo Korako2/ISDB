@@ -1,7 +1,6 @@
 package org.ifmo.isbdcurs.services
 
-import org.ifmo.isbdcurs.models.AddOrderRequest
-import org.ifmo.isbdcurs.models.Order
+import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.OrderRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -30,8 +29,12 @@ class OrderService @Autowired constructor(
 
     fun delete(id: Long) = orderRepo.deleteById(id)
 
-    fun addOrder(addOrderRequest: AddOrderRequest): Long {
+    fun addOrder(addOrderRequest: AddOrderRequest): AddOrderResult {
         val vehicleId = vehicleService.findSuitableVehicle(addOrderRequest)
+        val vehicleCoordinates = vehicleService.getVehicleCoordinates(vehicleId)
+        val orderCoordinates = Coordinates(addOrderRequest.latitude, addOrderRequest.longitude)
+
+        val driveToAddressDistance = vehicleCoordinates.calcDistanceKm(orderCoordinates)
         // TODO: get current customer id from session
         val customerId = 1L
 
@@ -46,6 +49,11 @@ class OrderService @Autowired constructor(
             addOrderRequest.cargoType,
         )
         println("===================== orderId = $orderId")
-        return orderId
+        val addOrderResult = AddOrderResult(
+            orderId,
+            vehicleCoordinates.latitude,
+            vehicleCoordinates.longitude,
+        )
+        return
     }
 }

@@ -554,6 +554,21 @@ CREATE OR REPLACE FUNCTION check_multiple_ownership_overlap() RETURNS TRIGGER AS
     END
 ' LANGUAGE plpgsql;
 
-
-
-
+-- function returns the last coordinates of the vehicle
+CREATE OR REPLACE FUNCTION get_vehicle_coordinates(
+    v_vehicle_id int
+)
+RETURNS TABLE (
+    latitude float,
+    longitude float
+) AS
+'
+    BEGIN
+        RETURN QUERY
+            SELECT latitude, longitude
+            FROM vehicle_movement_history
+            WHERE vehicle_id = v_vehicle_id
+            ORDER BY date DESC
+            LIMIT 1;
+    END
+' LANGUAGE plpgsql;

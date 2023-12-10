@@ -26,6 +26,12 @@ interface DriverRepository : CrudRepository<Driver, Long> {
     @Query("SELECT add_driver(:#{#v.firstName}, :#{#v.lastName}, :#{#v.middleName}, :#{#v.gender}, :#{#v.dateOfBirth}, :#{#v.passport}, :#{#v.bankCardNumber})", nativeQuery = true)
     fun addDriver(@Param("v") addDriverRequest: AddDriverRequest): Long
 
+    fun getDriverById(driverId: Long): Driver
+
+    @Query("SELECT * FROM vehicle " +
+            "JOIN vehicle_ownership vo ON vehicle.id = vo.vehicle_id " +
+            "WHERE driver_id = :driverId", nativeQuery = true)
+    fun getVehicleByDriverId(driverId: Long): Vehicle
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
@@ -53,6 +59,9 @@ interface VehicleRepository : CrudRepository<Vehicle, Long> {
         ) 
     """, nativeQuery = true)
     fun findSuitableVehicle(@Param("request") request: AddOrderRequest): Long
+
+//    @Query("SELECT * FROM get_vehicle_coordinates(:vehicleId)", nativeQuery = true)
+//    fun getVehicleCoordinates(vehicleId: Long): Coordinates
 }
 
 
@@ -86,7 +95,9 @@ interface AddressRepository : CrudRepository<Address, Long>
 
 interface StoragePointRepository : CrudRepository<StoragePoint, Long>
 
-interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, LoadingUnloadingAgreementPK>
+interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, LoadingUnloadingAgreementPK> {
+    fun findByOrderIdAndDriverId(orderId: Long, driverId: Long): LoadingUnloadingAgreement?
+}
 
 interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, FuelCardsForDriversPK> {
     fun findByFuelCardNumber(fuelCardNumber: String): FuelCardsForDrivers?
