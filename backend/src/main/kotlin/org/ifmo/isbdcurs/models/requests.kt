@@ -42,6 +42,23 @@ data class AddOrderRequest(
     val cargoType : String,
     val latitude : Double,
     val longitude : Double,
+    val departurePointId : Long,
+    val deliveryPointId : Long,
+    val senderId : Long,
+    val receiverId : Long,
+    val unloadingTime : Long = 3,
+    val loadingTime : Long = 3,
+)
+
+data class AddStoragePointRequest(
+    val name : String,
+    val country: String,
+    val city: String,
+    val street: String,
+    val building: Int,
+    val corpus: Int?,
+    val latitude : Double,
+    val longitude : Double,
 )
 
 data class UserDto(

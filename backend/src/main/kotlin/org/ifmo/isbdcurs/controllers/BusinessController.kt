@@ -5,6 +5,7 @@ import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
 import org.ifmo.isbdcurs.services.OrderService
+import org.ifmo.isbdcurs.services.StoragePointService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -19,6 +20,7 @@ class BusinessController @Autowired constructor(
     private val orderService: OrderService,
     private val customerService: CustomerService,
     private val driverService: DriverService,
+    private val storagePointService: StoragePointService,
 ) {
     val logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
 
@@ -67,6 +69,15 @@ class BusinessController @Autowired constructor(
             return "add-driver-info"
         }
         driverService.addDriverInfo(addDriverInfoRequest)
+        return "redirect:/index"
+    }
+
+    @PostMapping("/add_storagepoint")
+    fun addAddress(@Valid @RequestBody addAddressRequest: AddStoragePointRequest, result: BindingResult, model: Model): String {
+        if (result.hasErrors()) {
+            return "add-address"
+        }
+        storagePointService.addStoragePoint(addAddressRequest)
         return "redirect:/index"
     }
 }

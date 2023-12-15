@@ -32,6 +32,7 @@ CREATE TYPE cargo_type AS ENUM (
 CREATE CAST ( varchar AS cargo_type ) WITH INOUT AS IMPLICIT;
 
 CREATE TYPE order_status AS ENUM (
+    ''WAITING'',
     ''ACCEPTED'',
     ''ARRIVED_AT_LOADING_LOCATION'',
     ''LOADING'',
