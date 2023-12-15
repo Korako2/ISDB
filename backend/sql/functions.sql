@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION add_order(
     v_height float,
     v_length float,
     v_cargo_type cargo_type,
-    v_date date
+    v_date timestamp
 ) RETURNS int AS
 '
     DECLARE

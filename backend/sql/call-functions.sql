@@ -68,7 +68,7 @@ SELECT add_order(
   v_height => 1,
   v_length => cargo_length,
   v_cargo_type => 'BULK',
-  v_date => NOW()
+  v_date => NOW()::timestamp
   ) INTO v_order_id;
 
 RAISE NOTICE 'New order_id: %', v_order_id;
