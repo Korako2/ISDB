@@ -28,5 +28,9 @@ class DriverService @Autowired constructor(
             addDriverInfoRequest.fuelStationName,
         )
     }
+
+    fun startWork(driverId: Long, orderId: Long) {
+        // slowly move to order address
+    }
 }
 

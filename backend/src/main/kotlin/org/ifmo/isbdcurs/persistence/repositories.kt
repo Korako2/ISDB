@@ -26,6 +26,12 @@ interface DriverRepository : CrudRepository<Driver, Long> {
     @Query("SELECT add_driver(:#{#v.firstName}, :#{#v.lastName}, :#{#v.middleName}, :#{#v.gender}, :#{#v.dateOfBirth}, :#{#v.passport}, :#{#v.bankCardNumber})", nativeQuery = true)
     fun addDriver(@Param("v") addDriverRequest: AddDriverRequest): Long
 
+    fun getDriverById(driverId: Long): Driver
+
+    @Query("SELECT * FROM vehicle " +
+            "JOIN vehicle_ownership vo ON vehicle.id = vo.vehicle_id " +
+            "WHERE driver_id = :driverId", nativeQuery = true)
+    fun getVehicleByDriverId(driverId: Long): Vehicle
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
@@ -33,7 +39,9 @@ interface CustomerRepository : CrudRepository<Customer, Long> {
     fun addNewCustomer(@Param("c") addCustomerRequest: AddCustomerRequest): Long
 }
 
-interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Long>
+interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Long> {
+    fun findByDriverIdOrderByDateDesc(driverId: Long): List<DriverStatusHistory>
+}
 
 interface TariffRateRepository : CrudRepository<TariffRate, Long>
 
@@ -53,19 +61,23 @@ interface VehicleRepository : CrudRepository<Vehicle, Long> {
         ) 
     """, nativeQuery = true)
     fun findSuitableVehicle(@Param("request") request: AddOrderRequest): Long
+
+//    @Query("SELECT * FROM get_vehicle_coordinates(:vehicleId)", nativeQuery = true)
+//    fun getVehicleCoordinates(vehicleId: Long): Coordinates
 }
 
 
 interface VehicleOwnershipRepository : CrudRepository<VehicleOwnership, VehicleOwnershipPK> {
     fun findByDriverId(driverId: Long): List<VehicleOwnership>
+    fun findByVehicleId(vehicleId: Long): VehicleOwnership
 }
 
 interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHistory, VehicleMovementHistoryPK> {
-    fun findByVehicleId(vehicleId: Long): List<VehicleMovementHistory>
+    fun findByVehicleIdOrderByDateDesc(vehicleId: Long): List<VehicleMovementHistory>
 }
 
 interface OrderRepository : CrudRepository<Order, Long> {
-    @Query("SELECT add_order(:#{#v_customer_id}, :#{#v_distance}, :#{#v_vehicle_id}, :#{#v_weight}, :#{#v_width}, :#{#v_height}, :#{#v_length}, :#{#v_cargo_type})", nativeQuery = true)
+    @Query("SELECT add_order(:#{#v_customer_id}, :#{#v_distance}, :#{#v_vehicle_id}, :#{#v_weight}, :#{#v_width}, :#{#v_height}, :#{#v_length}, :#{#v_cargo_type}, :#{#v_date})", nativeQuery = true)
     fun addOrder(
         @Param("v_customer_id") customerId: Int,
         @Param("v_distance") distance: Int,
@@ -75,6 +87,7 @@ interface OrderRepository : CrudRepository<Order, Long> {
         @Param("v_height") height: Int,
         @Param("v_length") length: Int,
         @Param("v_cargo_type") cargoType: String,
+        @Param("v_date") date: java.util.Date,
     ) : Long
 }
 
@@ -86,7 +99,9 @@ interface AddressRepository : CrudRepository<Address, Long>
 
 interface StoragePointRepository : CrudRepository<StoragePoint, Long>
 
-interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, LoadingUnloadingAgreementPK>
+interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, LoadingUnloadingAgreementPK> {
+    fun findByOrderIdAndDriverId(orderId: Long, driverId: Long): LoadingUnloadingAgreement?
+}
 
 interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, FuelCardsForDriversPK> {
     fun findByFuelCardNumber(fuelCardNumber: String): FuelCardsForDrivers?
