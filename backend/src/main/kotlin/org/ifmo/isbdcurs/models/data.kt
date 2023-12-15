@@ -283,19 +283,3 @@ data class FuelExpenses(
     @Id val date: Instant,
     val amount: Float,
 )
-
-data class User(
-    @NotEmpty(message = "Логин не может быть пустым")
-    @Size(min = 6, max = 20, message = "Длина логина не менее 6 и не более 20 символов")
-    val username: String,
-    @NotEmpty(message = "Пароль не может быть пустым")
-    @Size(min = 6, max = 40, message = "Длина пароля не менее 6 и не более 40 символов")
-    var password: String,
-    @NotEmpty(message = "Email не может быть пустым")
-    @Email(message = "Неверный формат email")
-    var email: String,
-    @NotEmpty(message = "Номер телефона не может быть пустым")
-    @Pattern(regexp = "^[0-9]{11}$", message = "Неверный формат номера телефона")
-    var phone: String,
-    var isAdmin: Boolean
-)

@@ -115,8 +115,8 @@ CREATE TABLE IF NOT EXISTS vehicle
 (
     id               serial PRIMARY KEY,
     plate_number     varchar(9)  NOT NULL UNIQUE CHECK (
-                plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
-                plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
+        plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{2}$' OR
+        plate_number ~ '^[А-Я]{1}\d{3}[А-Я]{2}\d{3}$'
         ),
     model            varchar(50) NOT NULL,
     manufacture_year date        NOT NULL,
@@ -205,7 +205,7 @@ CREATE TABLE IF NOT EXISTS loading_unloading_agreement
     loading_time    time NOT NULL,
     CHECK (departure_point <> delivery_point),
     CHECK (
-                unloading_time >= '00:01'::time
+        unloading_time >= '00:01'::time
             AND unloading_time < '24:00'::time
             AND loading_time >= '00:01'::time
             AND loading_time < '24:00'::time
@@ -227,4 +227,14 @@ CREATE TABLE IF NOT EXISTS fuel_expenses
     date             timestamp,
     amount           double precision NOT NULL,
     PRIMARY KEY (fuel_card_number, date)
+);
+
+create table users
+(
+    id       serial PRIMARY KEY,
+    email    varchar(100),
+    password varchar(40),
+    phone    varchar(11),
+    username varchar(20),
+    is_admin boolean NOT NULL
 );
