@@ -92,7 +92,35 @@ interface OrderRepository : JpaRepository<Order, Long> {
         @Param("v_cargo_type") cargoType: String,
         @Param("v_date") date: java.util.Date,
     ) : Long
-    fun findByCustomerId(customerId: Long, pageable: Pageable): Page<Order>
+
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.ExtendedOrder(o.id, customer_p.lastName, driver_p.lastName, l.departurePoint, l.deliveryPoint, s.status)
+        FROM Order o
+            JOIN Customer c ON o.customerId = c.id
+            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            JOIN Driver d ON l.driverId = d.id
+            JOIN OrderStatuses s ON s.orderId = o.id
+            JOIN Person customer_p ON c.personId = customer_p.id
+            JOIN Person driver_p ON d.personId = driver_p.id
+        WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
+    """)
+    fun getExtendedResults(): List<ExtendedOrder>
+
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.ExtendedOrder(o.id, customer_p.lastName, driver_p.lastName, l.departurePoint, l.deliveryPoint, s.status)
+        FROM Order o
+            JOIN Customer c ON o.customerId = c.id
+            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            JOIN Driver d ON l.driverId = d.id
+            JOIN OrderStatuses s ON s.orderId = o.id
+            JOIN Person customer_p ON c.personId = customer_p.id
+            JOIN Person driver_p ON d.personId = driver_p.id
+        WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
+        AND c.id = :customerId
+    """)
+    fun getExtendedResultsByCustomerId(customerId: Long): List<ExtendedOrder>
 }
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK>

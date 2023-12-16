@@ -24,19 +24,30 @@ class OrderService @Autowired constructor(
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
 
-    fun getAll(): List<Order> {
-        return orderRepo.findAll().toList()
+    private fun ExtendedOrder.toOrderResponse(): OrderResponse {
+        return OrderResponse(
+            id = this.id,
+            customerName = this.customerName,
+            driverName = this.driverName,
+            departurePoint = this.departurePoint,
+            deliveryPoint = this.deliveryPoint,
+            status = this.status,
+        )
     }
 
-    fun getOrdersPage(page: Int, size: Int): List<Order> {
-        return orderRepo.findAll(PageRequest.of(page, size)).toList()
+    fun getAll(): List<OrderResponse> {
+        val extendedOrder = orderRepo.getExtendedResults()
+        return extendedOrder.map { it.toOrderResponse() }
     }
 
-    fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<Order> {
-        return orderRepo.findByCustomerId(customerId, PageRequest.of(page, pageSize)).toList()
+    fun getOrdersPaged(page: Int, size: Int): List<OrderResponse> {
+        return orderRepo.getExtendedResults().subList(page * size, page * size + size).map { it.toOrderResponse() }
     }
 
-    fun getById(id: Long) = orderRepo.findById(id)
+    fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<OrderResponse> {
+        return orderRepo.getExtendedResultsByCustomerId(customerId).subList(page * pageSize, page * pageSize + pageSize)
+            .map { it.toOrderResponse() }
+    }
 
     fun create(order: Order) = orderRepo.save(order)
 
