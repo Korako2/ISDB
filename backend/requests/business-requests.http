@@ -92,3 +92,6 @@ Content-Type: application/json
     "latitude": 47.9,
     "longitude": 23.84
 }
+
+###
+GET http://localhost:8080/orders?pageNumber=0&pageSize=2
