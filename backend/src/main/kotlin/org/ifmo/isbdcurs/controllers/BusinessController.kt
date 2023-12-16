@@ -27,7 +27,7 @@ class BusinessController @Autowired constructor(
 
     @GetMapping("/index")
     fun showOrdersList(model: Model): String {
-        model.addAttribute("orders", orderService.getAll())
+        model.addAttribute("orders", orderService.getOrdersPaged(0, 10))
         return "index"
     }
 
