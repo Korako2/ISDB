@@ -34,19 +34,19 @@ class BusinessController @Autowired constructor(
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Long) = orderService.getById(id)
 
-    @GetMapping("/orders")
-    fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
-        model.addAttribute("orders", orderService.getOrdersPage(pageNumber, pageSize))
-        return "index"
-    }
+//    @GetMapping("/orders")
+//    fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
+//        model.addAttribute("orders", orderService.getOrdersPage(pageNumber, pageSize))
+//        return "index"
+//    }
 
     // @GetMapping("/orders")
-    fun showCustomerOrders(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int , ): String {
-        // TODO: get customer Id from session
-        val customerId = -1L;
-        model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))
-        return "index"
-    }
+//    fun showCustomerOrders(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int , ): String {
+//        // TODO: get customer Id from session
+//        val customerId = -1L;
+//        model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))
+//        return "index"
+//    }
 
     @PostMapping("/add_order")
     fun addOrder(@Valid @RequestBody addOrderRequest: AddOrderRequest, result: BindingResult, model: Model): String {

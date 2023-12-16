@@ -24,8 +24,8 @@ class OrderService @Autowired constructor(
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
 
-    fun getAll(): List<Order> {
-        return orderRepo.findAll().toList()
+    fun getAll(): List<ExtendedOrder> {
+        return orderRepo.getOrderResults(2L)
     }
 
     fun getOrdersPage(page: Int, size: Int): List<Order> {

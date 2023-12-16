@@ -7,3 +7,12 @@ data class AddOrderResult(
     val driverFullName: String,
     val averageDeliveryDate: Date,
 )
+
+data class OrderResultDto (
+    val id: Long,
+    val customerName: String,
+    val driverName: String,
+    val departurePoint: Int,
+    val deliveryPoint: Int,
+    val status: String,
+)
