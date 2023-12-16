@@ -3,13 +3,15 @@ package org.ifmo.isbdcurs.services
 import org.ifmo.isbdcurs.models.User
 import org.ifmo.isbdcurs.models.UserDto
 import org.ifmo.isbdcurs.persistence.UserRepository
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.validation.BindingResult
 
 @Service
-class UserService (val userRepository: UserRepository) {
+class UserService (val userRepository: UserRepository, val passwordEncoder: PasswordEncoder) {
     fun isPasswordCorrect(username: String, password: String): Boolean {
-        return userRepository.findByUsername(username)?.password == password
+        val user = userRepository.findByUsername(username) ?: return false
+        return passwordEncoder.matches(password, user.password)
     }
 
     fun isUniqueUserData(user: UserDto, result: BindingResult): Boolean {
@@ -29,9 +31,10 @@ class UserService (val userRepository: UserRepository) {
     }
 
     fun addUser(userDto: UserDto) {
+        val password = passwordEncoder.encode(userDto.password)
         val user = User(
             username = userDto.username,
-            password = userDto.password,
+            password = password,
             email = userDto.email,
             phone = userDto.phone,
             isAdmin = isAdmin(userDto.username)
