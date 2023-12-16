@@ -1,6 +1,9 @@
 package org.ifmo.isbdcurs.persistence
 
 import org.ifmo.isbdcurs.models.*
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Page
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.query.Procedure
 import org.springframework.data.repository.CrudRepository
@@ -76,7 +79,7 @@ interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHisto
     fun findByVehicleIdOrderByDateDesc(vehicleId: Long): List<VehicleMovementHistory>
 }
 
-interface OrderRepository : CrudRepository<Order, Long> {
+interface OrderRepository : JpaRepository<Order, Long> {
     @Query("SELECT add_order(:#{#v_customer_id}, :#{#v_distance}, :#{#v_vehicle_id}, :#{#v_weight}, :#{#v_width}, :#{#v_height}, :#{#v_length}, :#{#v_cargo_type}, :#{#v_date})", nativeQuery = true)
     fun addOrder(
         @Param("v_customer_id") customerId: Int,
@@ -89,6 +92,7 @@ interface OrderRepository : CrudRepository<Order, Long> {
         @Param("v_cargo_type") cargoType: String,
         @Param("v_date") date: java.util.Date,
     ) : Long
+    fun findByCustomerId(customerId: Long, pageable: Pageable): Page<Order>
 }
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK>

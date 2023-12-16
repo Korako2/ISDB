@@ -4,13 +4,13 @@ import org.ifmo.isbdcurs.internal.DriverWorker
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.LocalTime
 import java.util.*
 import kotlin.jvm.optionals.getOrElse
-import kotlin.math.log
 
 @Service
 class OrderService @Autowired constructor(
@@ -25,12 +25,15 @@ class OrderService @Autowired constructor(
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
 
     fun getAll(): List<Order> {
-        // mock data
-        val orders = mutableListOf<Order>()
-        orders.add(Order(1, 1, 1.0f, 1.0, Instant.now(), 1))
-        orders.add(Order(2, 2, 2.0f, 2.0, Instant.now(), 2))
-        orders.add(Order(3, 3, 3.0f, 3.0, Instant.now(), 3))
-        return orders
+        return orderRepo.findAll().toList()
+    }
+
+    fun getOrdersPage(page: Int, size: Int): List<Order> {
+        return orderRepo.findAll(PageRequest.of(page, size)).toList()
+    }
+
+    fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<Order> {
+        return orderRepo.findByCustomerId(customerId, PageRequest.of(page, pageSize)).toList()
     }
 
     fun getById(id: Long) = orderRepo.findById(id)
