@@ -78,9 +78,25 @@ data class UserDto(
 
 data class OrderData(
     @NotEmpty(message = "Поле не может быть пустым")
-    val departure: String,
+    val departureCountry: String,
     @NotEmpty(message = "Поле не может быть пустым")
-    val destination: String,
+    val departureCity: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    val departureStreet: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @DecimalMin(value = "1", message = "Номер дома должен быть больше 0")
+    @DecimalMax(value = "1000", message = "Номер дома должен быть меньше 1000")
+    val departureHouse: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    val destinationCountry: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    val destinationCity: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    val destinationStreet: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @DecimalMin(value = "1", message = "Номер дома должен быть больше 0")
+    @DecimalMax(value = "1000", message = "Номер дома должен быть меньше 1000")
+    val destinationHouse: String,
     @DecimalMin(value = "0.1", message = "Длина должна быть не менее 0.1")
     @DecimalMax(value = "15", message = "Длина должна быть не более 15")
     val length: Double,
