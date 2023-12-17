@@ -92,4 +92,10 @@ class BusinessController @Autowired constructor(
         storagePointService.addStoragePoint(addAddressRequest)
         return "redirect:/index"
     }
+
+    @GetMapping("/admin-page")
+    fun showAdminPage(model: Model): String {
+        model.addAttribute("orders", orderService.getOrdersPaged(0, 10))
+        return "admin-page"
+    }
 }

@@ -18,7 +18,7 @@ class LoginController(private val userService: UserService) {
     fun showLoginForm(): String {
         return "login"
     }
-    @GetMapping("/admin-page")
+//    @GetMapping("/admin-page")
     fun showAdminPage(): String {
         return "admin-page"
     }
