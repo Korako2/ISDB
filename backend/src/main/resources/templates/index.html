@@ -25,7 +25,7 @@
         <div class="col-md-6">
             <div class="order-form">
                 <h2 class="text-center mt-4">Форма оформления заказа</h2>
-                <form action="/add_order" method="post" enctype="multipart/form-data">
+                <form action="/add_order" method="post" enctype="multipart/form-data" th:object="${orderDataRequest}">
                     <div class = "row">
                         <div class="col-md-6">
                             <div class="departure-container">
@@ -37,8 +37,9 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="departureCity">Город:</label>
-                                    <input type="text" class="form-control" id="departureCity" name="departureCity" required>
+                                    <label for="departureCity">Город отправления:</label>
+                                    <input type="text" class="form-control" id="departureCity" name="departureCity" th:field="*{departureCity}" required>
+                                    <div th:if="${#fields.hasErrors('departureCity')}" th:errors="*{departureCity}" class="error-message"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="departureStreet">Улица:</label>

@@ -33,6 +33,7 @@ class BusinessController @Autowired constructor(
     @GetMapping("/orders")
     fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
         model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
+        model.addAttribute("orderDataRequest", OrderDataRequest("", "", "", 0.0, "", "", "", 0.0,0.0,  0.0, 0.0, 0.0, "00:00", "00:00", "BULK"))
         return "index"
     }
 

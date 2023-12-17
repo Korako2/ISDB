@@ -87,7 +87,7 @@ data class OrderDataRequest(
     @NotEmpty(message = "Поле не может быть пустым")
     @DecimalMin(value = "1", message = "Номер дома должен быть больше 0")
     @DecimalMax(value = "1000", message = "Номер дома должен быть меньше 1000")
-    val departureHouse: String,
+    val departureHouse: Double,
     @NotEmpty(message = "Поле не может быть пустым")
     val destinationCountry: String,
     @NotEmpty(message = "Поле не может быть пустым")
@@ -97,7 +97,7 @@ data class OrderDataRequest(
     @NotEmpty(message = "Поле не может быть пустым")
     @DecimalMin(value = "1", message = "Номер дома должен быть больше 0")
     @DecimalMax(value = "1000", message = "Номер дома должен быть меньше 1000")
-    val destinationHouse: String,
+    val destinationHouse: Double,
     @DecimalMin(value = "0.1", message = "Длина должна быть не менее 0.1")
     @DecimalMax(value = "15", message = "Длина должна быть не более 15")
     val length: Double,
