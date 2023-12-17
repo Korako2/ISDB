@@ -20,20 +20,20 @@ class SecurityConfig {
         return BCryptPasswordEncoder()
     }
 
-    @Bean
-    fun userDetailsService(passwordEncoder: PasswordEncoder, userRepo: UserRepository): InMemoryUserDetailsManager {
-        val customUser = User(
-            username = "admin",
-            password = passwordEncoder.encode("admin"),
-            email = "admin@admin.ru",
-            isAdmin = true,
-            phone = "12345678901"
-        )
-        if (!userRepo.existsByEmail(customUser.email)) {
-            userRepo.save(customUser)
-        }
-        return InMemoryUserDetailsManager(customUser)
-    }
+//    @Bean
+//    fun userDetailsService(passwordEncoder: PasswordEncoder, userRepo: UserRepository): InMemoryUserDetailsManager {
+//        val customUser = User(
+//            username = "admin",
+//            password = passwordEncoder.encode("admin"),
+//            email = "admin@admin.ru",
+//            isAdmin = true,
+//            phone = "12345678901"
+//        )
+//        if (!userRepo.existsByEmail(customUser.email)) {
+//            userRepo.save(customUser)
+//        }
+//        return InMemoryUserDetailsManager(customUser)
+//    }
 
     @Bean
     @Throws(Exception::class)
