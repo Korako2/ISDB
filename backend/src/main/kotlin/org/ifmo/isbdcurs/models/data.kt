@@ -285,3 +285,12 @@ data class FuelExpenses(
     @Id val date: Instant,
     val amount: Float,
 )
+
+data class ExtendedOrder (
+    val id: Long,
+    val customerName: String,
+    val driverName: String,
+    val departurePoint: Long,
+    val deliveryPoint: Long,
+    val status: OrderStatus,
+)

@@ -27,21 +27,18 @@ class BusinessController @Autowired constructor(
 
     @GetMapping("/index")
     fun showOrdersList(model: Model): String {
-        model.addAttribute("orders", orderService.getAll())
+        model.addAttribute("orders", orderService.getOrdersPaged(0, 10))
         return "index"
     }
 
-    @GetMapping("/{id}")
-    fun getById(@PathVariable id: Long) = orderService.getById(id)
-
     @GetMapping("/orders")
     fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
-        model.addAttribute("orders", orderService.getOrdersPage(pageNumber, pageSize))
+        model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
         return "index"
     }
 
     // @GetMapping("/orders")
-    fun showCustomerOrders(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int , ): String {
+    fun showCustomerOrders(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
         // TODO: get customer Id from session
         val customerId = -1L;
         model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))
