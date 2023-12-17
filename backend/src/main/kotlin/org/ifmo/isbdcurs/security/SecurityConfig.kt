@@ -1,49 +1,68 @@
 package org.ifmo.isbdcurs.security
 
-import org.ifmo.isbdcurs.models.User
 import org.ifmo.isbdcurs.persistence.UserRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.provisioning.InMemoryUserDetailsManager
-import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
+
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(private val userRepository: UserRepository) {
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
 
-//    @Bean
-//    fun userDetailsService(passwordEncoder: PasswordEncoder, userRepo: UserRepository): InMemoryUserDetailsManager {
-//        val customUser = User(
-//            username = "admin",
-//            password = passwordEncoder.encode("admin"),
-//            email = "admin@admin.ru",
-//            isAdmin = true,
-//            phone = "12345678901"
-//        )
-//        if (!userRepo.existsByEmail(customUser.email)) {
-//            userRepo.save(customUser)
-//        }
-//        return InMemoryUserDetailsManager(customUser)
-//    }
+    @Bean fun userDetailsService(): UserDetailsService {
+        return UserDetailsService { username -> userRepository.findByUsername(username) ?: throw UsernameNotFoundException(username) }
+    }
+
+    @Bean
+    fun authenticationProvider(): AuthenticationProvider {
+        val provider = DaoAuthenticationProvider()
+        provider.setUserDetailsService(userDetailsService())
+        provider.setPasswordEncoder(BCryptPasswordEncoder())
+        return provider
+    }
+
+    @Bean
+    fun authenticationManager(
+        config: AuthenticationConfiguration
+    ): AuthenticationManager {
+        return config.authenticationManager
+    }
 
     @Bean
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        return http.authorizeHttpRequests {
-            it.requestMatchers(AntPathRequestMatcher.antMatcher("/admin-page")).hasRole("ADMIN")
-            it.anyRequest().authenticated()
-        }.formLogin {
-            it.loginPage("/login")
-            it.permitAll()
-        }.build()
+        http {
+            authorizeRequests {
+                authorize("/admin-page", hasRole("ADMIN"))
+                authorize(anyRequest, authenticated)
+            }
+            formLogin {
+                loginPage = "/login"
+                loginProcessingUrl = "/login"
+                failureUrl = "/login?error"
+                defaultSuccessUrl("/index", true)
+            }
+            logout {
+                logoutUrl = "/logout"
+                logoutSuccessUrl = "/login"
+            }
+        }
+        return http.build()
     }
 }
