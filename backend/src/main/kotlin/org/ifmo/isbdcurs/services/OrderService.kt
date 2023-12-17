@@ -35,18 +35,16 @@ class OrderService @Autowired constructor(
         )
     }
 
-    fun getAll(): List<OrderResponse> {
-        val extendedOrder = orderRepo.getExtendedResults()
-        return extendedOrder.map { it.toOrderResponse() }
-    }
-
     fun getOrdersPaged(page: Int, size: Int): List<OrderResponse> {
-        return orderRepo.getExtendedResults().subList(page * size, page * size + size).map { it.toOrderResponse() }
+        val minOrderId = page * size
+        val maxOrderId = page * size + size
+        return orderRepo.getExtendedResults(minOrderId, maxOrderId).map { it.toOrderResponse() }
     }
 
     fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<OrderResponse> {
-        return orderRepo.getExtendedResultsByCustomerId(customerId).subList(page * pageSize, page * pageSize + pageSize)
-            .map { it.toOrderResponse() }
+        val minOrderId = page * pageSize
+        val maxOrderId = page * pageSize + pageSize
+        return orderRepo.getExtendedResultsByCustomerId(customerId, minOrderId, maxOrderId).map { it.toOrderResponse() }
     }
 
     fun create(order: Order) = orderRepo.save(order)
