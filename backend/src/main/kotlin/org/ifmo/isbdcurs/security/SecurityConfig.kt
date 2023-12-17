@@ -9,13 +9,17 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
-import org.springframework.web.servlet.config.annotation.EnableWebMvc
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig {
+    @Bean
+    fun passwordEncoder(): PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
+
     @Bean
     fun userDetailsService(passwordEncoder: PasswordEncoder, userRepo: UserRepository): InMemoryUserDetailsManager {
         val customUser = User(
@@ -25,7 +29,9 @@ class SecurityConfig {
             isAdmin = true,
             phone = "12345678901"
         )
-        userRepo.save(customUser)
+        if (!userRepo.existsByEmail(customUser.email)) {
+            userRepo.save(customUser)
+        }
         return InMemoryUserDetailsManager(customUser)
     }
 
