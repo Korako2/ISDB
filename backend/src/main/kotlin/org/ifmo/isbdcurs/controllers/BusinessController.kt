@@ -46,12 +46,8 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_order")
-    fun addOrder(@Valid @RequestBody addOrderRequest: AddOrderRequest, result: BindingResult, model: Model): String {
-        if (result.hasErrors()) {
-            return "add-order"
-        }
-        orderService.addOrder(addOrderRequest)
-        return "redirect:/index"
+    fun addOrder(@Valid orderData: OrderData, result: BindingResult): String {
+        return "index"
     }
 
     @PostMapping("/add_customer")
@@ -92,4 +88,6 @@ class BusinessController @Autowired constructor(
         storagePointService.addStoragePoint(addAddressRequest)
         return "redirect:/index"
     }
+
+
 }
