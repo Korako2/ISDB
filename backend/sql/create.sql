@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS fuel_expenses
     PRIMARY KEY (fuel_card_number, date)
 );
 
-create table users
+CREATE TABLE IF NOT EXISTS users
 (
     id       serial PRIMARY KEY,
     email    varchar(100),
