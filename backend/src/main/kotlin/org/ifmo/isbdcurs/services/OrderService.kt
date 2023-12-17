@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.validation.BindingResult
 import java.time.Instant
 import java.time.LocalTime
 import java.util.*
@@ -23,7 +24,8 @@ class OrderService @Autowired constructor(
     private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
-
+    private val availableCountries = arrayOf("Россия")
+    val MAX_CITY_OR_STREET_LENGTH = 50
     private fun ExtendedOrder.toOrderResponse(): OrderResponse {
         return OrderResponse(
             id = this.id,
@@ -117,4 +119,63 @@ class OrderService @Autowired constructor(
         }
         return addOrderResult
     }
+
+    fun isValidData(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
+        return isValidAddresses(orderDataRequest, result) && isValidTime(orderDataRequest, result)
+    }
+
+    private fun isValidCountry(country: String): Boolean = country in availableCountries
+
+    private fun rejectInvalidValue(result: BindingResult, field: String, errorCode: String, errorMessage: String) {
+        result.rejectValue(field, errorCode, errorMessage)
+    }
+    private fun isValidAddressField(field: String, value: String, result: BindingResult): Boolean {
+        if (value.length > MAX_CITY_OR_STREET_LENGTH) {
+            val errorField = "error.$field"
+            val errorMessage = "Название $field не должно превышать $MAX_CITY_OR_STREET_LENGTH символов"
+            rejectInvalidValue(result, field, errorField, errorMessage)
+            return false
+        }
+        return true
+    }
+
+    private fun isValidAddresses(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
+        if (!isValidCountry(orderDataRequest.departureCountry)) {
+            rejectInvalidValue(result, "departureCountry", "error.departureCountry", "Страна не поддерживается")
+            return false
+        }
+
+        if (!isValidCountry(orderDataRequest.destinationCountry)) {
+            rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страна не поддерживается")
+            return false
+        }
+
+        if (orderDataRequest.departureCountry != orderDataRequest.destinationCountry) {
+            rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страны отправления и назначения должны совпадать")
+            return false
+        }
+
+        val isValidDepartureCity = isValidAddressField("departureCity", orderDataRequest.departureCity, result)
+        val isValidDestinationCity = isValidAddressField("destinationCity", orderDataRequest.destinationCity, result)
+        val isValidDepartureStreet = isValidAddressField("departureStreet", orderDataRequest.departureStreet, result)
+        val isValidDestinationStreet = isValidAddressField("destinationStreet", orderDataRequest.destinationStreet, result)
+
+        return isValidDepartureCity && isValidDestinationCity && isValidDepartureStreet && isValidDestinationStreet
+    }
+
+    private fun isValidTime(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
+        fun validateTimeField(field: String, time: String) {
+            val regexPattern = Regex("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$")
+            if (!regexPattern.matches(time)) {
+                result.rejectValue(field, "error.$field", "Неверный формат времени")
+            }
+        }
+
+        validateTimeField("departureTime", orderDataRequest.loadingTime)
+        validateTimeField("destinationTime", orderDataRequest.unloadingTime)
+
+        return !result.hasErrors()
+    }
+
+
 }

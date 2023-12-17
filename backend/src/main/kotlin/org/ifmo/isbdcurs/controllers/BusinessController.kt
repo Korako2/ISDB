@@ -11,7 +11,6 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
@@ -46,8 +45,13 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_order")
-    fun addOrder(@Valid orderData: OrderData, result: BindingResult): String {
-        return "index"
+    fun addOrder(@Valid orderDataRequest: OrderDataRequest, result: BindingResult): String {
+        if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
+            // orderService.addOrder(orderDataRequest)
+            //todo create order and push in DB
+            return "redirect:/orders?pageNumber=1&pageSize=10";
+        }
+        return "redirect:/orders?pageNumber=1&pageSize=10";
     }
 
     @PostMapping("/add_customer")

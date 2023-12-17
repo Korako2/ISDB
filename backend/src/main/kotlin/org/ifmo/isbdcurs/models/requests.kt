@@ -33,6 +33,7 @@ data class AddDriverInfoRequest(
     val fuelStationName : String,
 )
 
+//todo Delete?
 data class AddOrderRequest(
     val distance : Int,
     val weight : Int,
@@ -76,7 +77,7 @@ data class UserDto(
     var phone: String,
 )
 
-data class OrderData(
+data class OrderDataRequest(
     @NotEmpty(message = "Поле не может быть пустым")
     val departureCountry: String,
     @NotEmpty(message = "Поле не может быть пустым")
