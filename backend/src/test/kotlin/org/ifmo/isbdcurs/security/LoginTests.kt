@@ -9,6 +9,7 @@ import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfig
 import org.springframework.security.web.FilterChainProxy
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder
+import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup
 import org.springframework.web.context.WebApplicationContext
 
@@ -21,6 +22,13 @@ class LoginTests {
     @Autowired
     private lateinit var springSecurityFilterChain: FilterChainProxy
 
-    protected var mockMvc: MockMvc? = null
+    private lateinit var mockMvc: MockMvc
 
+    @BeforeEach
+    fun setup() {
+        mockMvc = MockMvcBuilders
+            .webAppContextSetup(wac)
+            .apply<DefaultMockMvcBuilder>(springSecurity())
+            .build()
+    }
 }
