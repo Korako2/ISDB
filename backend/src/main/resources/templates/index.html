@@ -5,36 +5,85 @@
     <title>DB course work</title>
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!--link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"-->
 </head>
 <body>
-<div th:switch="${orders}" class="container my-5">
-    <div th:case="null">
-        <h1>Orders not found</h1>
-    </div>
-    <div th:case="*">
-        <h1>Orders</h1>
-        <table class="table table-bordered table-striped">
-            <thead class="thead-dark">
-            <tr>
-                <th scope="col">id</th>
-                <th scope="col">customerName</th>
-                <th scope="col">driverName</th>
-                <th scope="col">deliveryPoint</th>
-                <th scope="col">departurePoint</th>
-                <th scope="col">status</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="order : ${orders}">
-                <td th:text="${order.id}"></td>
-                <td th:text="${order.customerName}"></td>
-                <td th:text="${order.driverName}"></td>
-                <td th:text="${order.deliveryPoint}"></td>
-                <td th:text="${order.departurePoint}"></td>
-                <td th:text="${order.status}"></td>
-            </tr>
-            </tbody>
-        </table>
+
+<div class="container">
+    <div class="row">
+        <!-- Форма -->
+        <div class="col-md-6">
+            <div class="order-form">
+                <h2>Форма оформления заказа</h2>
+                <form action="/add_order" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="departure">Адрес отправления:</label>
+                        <input type="text" class="form-control" id="departure" name="departure" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="destination">Адрес получения:</label>
+                        <input type="text" class="form-control" id="destination" name="destination" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="length">Длина:</label>
+                        <input type="text" class="form-control" id="length" name="length" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="width">Ширина:</label>
+                        <input type="text" class="form-control" id="width" name="width" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="height">Высота:</label>
+                        <input type="text" class="form-control" id="height" name="height" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Вес:</label>
+                        <input type="text" class="form-control" id="weight" name="weight" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cargoType">Тип груза:</label>
+                        <select class="form-control" id="cargoType" name="cargoType">
+                            <option value="насыпной">Насыпной</option>
+                            <option value="палетный">Палетный</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Оформить заказ</button>
+                </form>
+            </div>
+        </div>
+        <!-- Таблица -->
+        <div class="col-md-6">
+            <div th:switch="${orders}" class="container my-5">
+                <div th:case="null">
+                    <h1>Orders not found</h1>
+                </div>
+                <div th:case="*">
+                    <h1>История заказов</h1>
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">id</th>
+                            <th scope="col">customerName</th>
+                            <th scope="col">driverName</th>
+                            <th scope="col">deliveryPoint</th>
+                            <th scope="col">departurePoint</th>
+                            <th scope="col">status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="order : ${orders}">
+                            <td th:text="${order.id}"></td>
+                            <td th:text="${order.customerName}"></td>
+                            <td th:text="${order.driverName}"></td>
+                            <td th:text="${order.deliveryPoint}"></td>
+                            <td th:text="${order.departurePoint}"></td>
+                            <td th:text="${order.status}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>
