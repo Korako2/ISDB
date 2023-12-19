@@ -31,18 +31,18 @@ data class User(
     }
 
     override fun isAccountNonExpired(): Boolean {
-        return true;
+        return true
     }
 
     override fun isAccountNonLocked(): Boolean {
-        return true;
+        return true
     }
 
     override fun isCredentialsNonExpired(): Boolean {
-        return true;
+        return true
     }
 
     override fun isEnabled(): Boolean {
-        return true;
+        return true
     }
 }
