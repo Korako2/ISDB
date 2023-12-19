@@ -3,10 +3,9 @@ package org.ifmo.isbdcurs.controllers
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.ifmo.isbdcurs.models.*
-import org.ifmo.isbdcurs.services.CustomerService
-import org.ifmo.isbdcurs.services.DriverService
-import org.ifmo.isbdcurs.services.OrderService
-import org.ifmo.isbdcurs.services.StoragePointService
+import org.ifmo.isbdcurs.services.*
+import org.ifmo.isbdcurs.util.ExceptionHelper
+import org.ifmo.isbdcurs.util.addErrorIfFailed
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
@@ -28,6 +27,7 @@ class BusinessController @Autowired constructor(
 
     @GetMapping("/index")
     fun showOrdersList(request: HttpServletRequest): String {
+        // redirects to appropriate page depending on user role
         if (request.isUserInRole("ROLE_ADMIN")) {
             return "redirect:/admin"
         }
@@ -36,7 +36,10 @@ class BusinessController @Autowired constructor(
 
     @GetMapping("/orders")
     fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
-        model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
+        addErrorIfFailed(model) {
+            val ordersPaged = orderService.getOrdersPaged(pageNumber, pageSize)
+            model.addAttribute("orders", ordersPaged)
+        }
         return "index"
     }
 
@@ -44,7 +47,11 @@ class BusinessController @Autowired constructor(
     fun showCustomerOrders(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
         // TODO: get customer Id from session
         val customerId = -1L
-        model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))
+
+        addErrorIfFailed(model) {
+            val ordersPaged = orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize)
+            model.addAttribute("orders", ordersPaged)
+        }
         return "index"
     }
 
@@ -53,45 +60,35 @@ class BusinessController @Autowired constructor(
         if (result.hasErrors()) {
             return "add-order"
         }
-        orderService.addOrder(addOrderRequest)
+        addErrorIfFailed(model) {
+            orderService.addOrder(addOrderRequest)
+        }
         return "redirect:/index"
     }
 
     @PostMapping("/add_customer")
     fun addCustomer(@Valid @RequestBody addCustomerRequest: AddCustomerRequest, result: BindingResult, model: Model): String {
-        if (result.hasErrors()) {
-            return "add-customer"
-        }
         // TODO: может нам понадобится сохранять Id созданного заказчика?
         // TODO: обработка ошибок и вывод клиенту
+
         customerService.addCustomer(addCustomerRequest)
         return "redirect:/index"
     }
 
     @PostMapping("/add_driver")
     fun addDriver(@Valid @RequestBody addDriverRequest: AddDriverRequest, result: BindingResult, model: Model): String {
-        if (result.hasErrors()) {
-            return "add-driver"
-        }
         driverService.addDriver(addDriverRequest)
         return "redirect:/index"
     }
 
     @PostMapping("/add_driver_info")
     fun addDriverInfo(@Valid @RequestBody addDriverInfoRequest: AddDriverInfoRequest, result: BindingResult, model: Model): String {
-        logger.error(addDriverInfoRequest.toString())
-        if (result.hasErrors()) {
-            return "add-driver-info"
-        }
         driverService.addDriverInfo(addDriverInfoRequest)
         return "redirect:/index"
     }
 
     @PostMapping("/add_storagepoint")
     fun addAddress(@Valid @RequestBody addAddressRequest: AddStoragePointRequest, result: BindingResult, model: Model): String {
-        if (result.hasErrors()) {
-            return "add-address"
-        }
         storagePointService.addStoragePoint(addAddressRequest)
         return "redirect:/index"
     }
