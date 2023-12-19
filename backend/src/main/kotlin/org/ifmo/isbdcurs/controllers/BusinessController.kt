@@ -50,9 +50,9 @@ class BusinessController @Autowired constructor(
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
             // orderService.addOrder(orderDataRequest)
             //todo create order and push in DB
-            return "redirect:/orders?pageNumber=1&pageSize=10";
+            return "redirect:/orders?pageNumber=1&pageSize=10"
         }
-        return "redirect:/orders?pageNumber=1&pageSize=10";
+        return "redirect:/orders?pageNumber=1&pageSize=10"
     }
 
     @PostMapping("/add_customer")

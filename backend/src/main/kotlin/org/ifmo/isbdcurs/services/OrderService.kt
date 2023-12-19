@@ -141,16 +141,19 @@ class OrderService @Autowired constructor(
 
     private fun isValidAddresses(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
         if (!isValidCountry(orderDataRequest.departureCountry)) {
+            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.departureCountry}")
             rejectInvalidValue(result, "departureCountry", "error.departureCountry", "Страна не поддерживается")
             return false
         }
 
         if (!isValidCountry(orderDataRequest.destinationCountry)) {
+            logger.warn("[OrderService] isValidAddresses: destinationCountry = ${orderDataRequest.destinationCountry}")
             rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страна не поддерживается")
             return false
         }
 
         if (orderDataRequest.departureCountry != orderDataRequest.destinationCountry) {
+            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.departureCountry}, destinationCountry = ${orderDataRequest.destinationCountry}")
             rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страны отправления и назначения должны совпадать")
             return false
         }
