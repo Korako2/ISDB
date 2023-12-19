@@ -43,9 +43,8 @@ class LoginController(private val userService: UserService) {
     fun register(@ModelAttribute("user") @Valid user: UserDto, result: BindingResult, model: ModelMap): ModelAndView  {
         if (userService.isUniqueUserData(user, result) && !result.hasErrors()) {
             userService.addUser(user)
-            model.addAttribute("loggedInUser", user.username)
             return ModelAndView("redirect:/index", model)
         }
-        return ModelAndView("/register")
+        return ModelAndView("/register", model)
     }
 }
