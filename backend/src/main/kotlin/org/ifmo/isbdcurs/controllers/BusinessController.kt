@@ -3,11 +3,14 @@ package org.ifmo.isbdcurs.controllers
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.ifmo.isbdcurs.models.*
+import org.ifmo.isbdcurs.persistence.CustomerRepository
+import org.ifmo.isbdcurs.persistence.UserRepository
 import org.ifmo.isbdcurs.services.*
-import org.ifmo.isbdcurs.util.ExceptionHelper
 import org.ifmo.isbdcurs.util.addErrorIfFailed
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
@@ -22,6 +25,8 @@ class BusinessController @Autowired constructor(
     private val customerService: CustomerService,
     private val driverService: DriverService,
     private val storagePointService: StoragePointService,
+    private val userRepository: UserRepository,
+    private val customerRepository: CustomerRepository,
 ) {
     private val logger: Logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
 
@@ -35,20 +40,17 @@ class BusinessController @Autowired constructor(
     }
 
     @GetMapping("/orders")
-    fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
+    fun showCustomerOrders(
+        model: Model,
+        @RequestParam pageNumber: Int,
+        @RequestParam pageSize: Int,
+        @AuthenticationPrincipal userDetails: UserDetails
+    ): String {
         addErrorIfFailed(model) {
-            val ordersPaged = orderService.getOrdersPaged(pageNumber, pageSize)
-            model.addAttribute("orders", ordersPaged)
-        }
-        return "index"
-    }
-
-    // @GetMapping("/orders")
-    fun showCustomerOrders(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
-        // TODO: get customer Id from session
-        val customerId = -1L
-
-        addErrorIfFailed(model) {
+            val userEntity =
+                userRepository.findByUsername(userDetails.username).orElseThrow()
+            // TODO: here we assume that customer ID is the same as user ID
+            val customerId = customerRepository.findById(userEntity.id!!).orElseThrow().id!!
             val ordersPaged = orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize)
             model.addAttribute("orders", ordersPaged)
         }
@@ -67,7 +69,11 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_customer")
-    fun addCustomer(@Valid @RequestBody addCustomerRequest: AddCustomerRequest, result: BindingResult, model: Model): String {
+    fun addCustomer(
+        @Valid @RequestBody addCustomerRequest: AddCustomerRequest,
+        result: BindingResult,
+        model: Model
+    ): String {
         // TODO: может нам понадобится сохранять Id созданного заказчика?
         // TODO: обработка ошибок и вывод клиенту
 
@@ -82,13 +88,21 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_driver_info")
-    fun addDriverInfo(@Valid @RequestBody addDriverInfoRequest: AddDriverInfoRequest, result: BindingResult, model: Model): String {
+    fun addDriverInfo(
+        @Valid @RequestBody addDriverInfoRequest: AddDriverInfoRequest,
+        result: BindingResult,
+        model: Model
+    ): String {
         driverService.addDriverInfo(addDriverInfoRequest)
         return "redirect:/index"
     }
 
     @PostMapping("/add_storagepoint")
-    fun addAddress(@Valid @RequestBody addAddressRequest: AddStoragePointRequest, result: BindingResult, model: Model): String {
+    fun addAddress(
+        @Valid @RequestBody addAddressRequest: AddStoragePointRequest,
+        result: BindingResult,
+        model: Model
+    ): String {
         storagePointService.addStoragePoint(addAddressRequest)
         return "redirect:/index"
     }
