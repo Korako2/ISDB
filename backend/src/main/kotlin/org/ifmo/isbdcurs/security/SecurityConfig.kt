@@ -45,11 +45,10 @@ class SecurityConfig(private val userRepository: UserRepository) {
         http {
             csrf { disable() }
             authorizeHttpRequests {
-                authorize(mvcMatcherBuilder.pattern("/css/**"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/error"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/login"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/register"), permitAll)
-                authorize(mvcMatcherBuilder.pattern("/admin-page"), hasRole("ADMIN"))
+                authorize(mvcMatcherBuilder.pattern("/admin"), hasRole("ADMIN"))
                 authorize(mvcMatcherBuilder.pattern("/orders"), hasRole("USER"))
 
                 // multiple roles USER and ADMIN

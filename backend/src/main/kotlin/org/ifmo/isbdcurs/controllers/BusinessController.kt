@@ -1,5 +1,6 @@
 package org.ifmo.isbdcurs.controllers
 
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.services.CustomerService
@@ -26,9 +27,11 @@ class BusinessController @Autowired constructor(
     val logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
 
     @GetMapping("/index")
-    fun showOrdersList(model: Model): String {
-        model.addAttribute("orders", orderService.getOrdersPaged(0, 10))
-        return "index"
+    fun showOrdersList(request: HttpServletRequest): String {
+        if (request.isUserInRole("ROLE_ADMIN")) {
+            return "redirect:/admin"
+        }
+        return "redirect:/orders"
     }
 
     @GetMapping("/orders")
