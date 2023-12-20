@@ -25,7 +25,7 @@ class OrderService @Autowired constructor(
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
     private val availableCountries = arrayOf("Россия")
-    val MAX_CITY_OR_STREET_LENGTH = 50
+
     private fun ExtendedOrder.toOrderResponse(): OrderResponse {
         return OrderResponse(
             id = this.id,
@@ -121,22 +121,13 @@ class OrderService @Autowired constructor(
     }
 
     fun isValidData(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
-        return isValidAddresses(orderDataRequest, result) && isValidTime(orderDataRequest, result)
+        return isValidAddresses(orderDataRequest, result) && isValidCargoType(orderDataRequest.cargoType)
     }
 
     private fun isValidCountry(country: String): Boolean = country in availableCountries
 
     private fun rejectInvalidValue(result: BindingResult, field: String, errorCode: String, errorMessage: String) {
         result.rejectValue(field, errorCode, errorMessage)
-    }
-    private fun isValidAddressField(field: String, value: String, result: BindingResult): Boolean {
-        if (value.length > MAX_CITY_OR_STREET_LENGTH) {
-            val errorField = "error.$field"
-            val errorMessage = "Название $field не должно превышать $MAX_CITY_OR_STREET_LENGTH символов"
-            rejectInvalidValue(result, field, errorField, errorMessage)
-            return false
-        }
-        return true
     }
 
     private fun isValidAddresses(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
@@ -158,26 +149,10 @@ class OrderService @Autowired constructor(
             return false
         }
 
-        val isValidDepartureCity = isValidAddressField("departureCity", orderDataRequest.departureCity, result)
-        val isValidDestinationCity = isValidAddressField("destinationCity", orderDataRequest.destinationCity, result)
-        val isValidDepartureStreet = isValidAddressField("departureStreet", orderDataRequest.departureStreet, result)
-        val isValidDestinationStreet = isValidAddressField("destinationStreet", orderDataRequest.destinationStreet, result)
-
-        return isValidDepartureCity && isValidDestinationCity && isValidDepartureStreet && isValidDestinationStreet
+        return true
     }
-
-    private fun isValidTime(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
-        fun validateTimeField(field: String, time: String) {
-            val regexPattern = Regex("^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$")
-            if (!regexPattern.matches(time)) {
-                result.rejectValue(field, "error.$field", "Неверный формат времени")
-            }
-        }
-
-        validateTimeField("departureTime", orderDataRequest.loadingTime)
-        validateTimeField("destinationTime", orderDataRequest.unloadingTime)
-
-        return !result.hasErrors()
+    private fun isValidCargoType(cargoType: String): Boolean {
+        return cargoType in arrayOf("BULK", "TIPPER", "PALLETIZED")
     }
 
 
