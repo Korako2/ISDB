@@ -1,6 +1,7 @@
 package org.ifmo.isbdcurs.models
 
 import jakarta.validation.constraints.*
+import org.springframework.format.annotation.DateTimeFormat
 import java.util.Date
 
 data class AddCustomerRequest(
@@ -77,31 +78,22 @@ data class UserDto(
     var phone: String,
 )
 
-data class OrderDataRequest(
+data class StorageAddressRequest(
     @NotEmpty(message = "Поле не может быть пустым")
-    val departureCountry: String,
+    val country: String,
     @NotEmpty(message = "Поле не может быть пустым")
     @Size(max = 50, message = "Длина города не более 50 символов")
-    val departureCity: String,
+    val city: String,
     @NotEmpty(message = "Поле не может быть пустым")
     @Size(max = 50, message = "Длина улицы не более 50 символов")
-    val departureStreet: String,
+    val street: String,
     @NotEmpty(message = "Поле не может быть пустым")
     @DecimalMin(value = "1", message = "Номер дома должен быть больше 0")
     @DecimalMax(value = "1000", message = "Номер дома должен быть меньше 1000")
-    val departureHouse: Double,
-    @NotEmpty(message = "Поле не может быть пустым")
-    val destinationCountry: String,
-    @NotEmpty(message = "Поле не может быть пустым")
-    @Size(max = 50, message = "Длина города не более 50 символов")
-    val destinationCity: String,
-    @NotEmpty(message = "Поле не может быть пустым")
-    @Size(max = 50, message = "Длина улицы не более 50 символов")
-    val destinationStreet: String,
-    @NotEmpty(message = "Поле не может быть пустым")
-    @DecimalMin(value = "1", message = "Номер дома должен быть больше 0")
-    @DecimalMax(value = "1000", message = "Номер дома должен быть меньше 1000")
-    val destinationHouse: Double,
+    val building: Int
+)
+
+data class PhysicalParametersRequest(
     @DecimalMin(value = "0.1", message = "Длина должна быть не менее 0.1")
     @DecimalMax(value = "15", message = "Длина должна быть не более 15")
     val length: Double,
@@ -115,11 +107,20 @@ data class OrderDataRequest(
     @DecimalMax(value = "25000", message = "Вес должен быть не более 25000")
     val weight: Double,
     @NotEmpty(message = "Поле не может быть пустым")
-    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
-    val loadingTime: String,
-    @NotEmpty(message = "Поле не может быть пустым")
-    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
-    val unloadingTime: String,
-    @NotEmpty(message = "Поле не может быть пустым")
     val cargoType: String
+)
+
+data class TimeParametersRequest(
+    @NotEmpty(message = "Поле не может быть пустым")
+    @DateTimeFormat(pattern = "HH:mm")
+    val loadingTime: Date,
+    @DateTimeFormat(pattern = "HH:mm")
+    val unloadingTime: Date,
+)
+
+data class OrderDataRequest(
+    val departureStoragePoint: StorageAddressRequest,
+    val deliveryStoragePoint: StorageAddressRequest,
+    val orderParameters: PhysicalParametersRequest,
+    val time: TimeParametersRequest
 )
