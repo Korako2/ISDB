@@ -194,7 +194,7 @@ class OrderService @Autowired constructor(
         )
     }
 
-    private fun getAddressOrAddNew(addStoragePointRequest: StoragePointRequest) : Address {
+    private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressRequest) : Address {
         val address = addressRepository.findByCountryAndCityAndStreetAndBuilding(
             addStoragePointRequest.country,
             addStoragePointRequest.city,

@@ -1,6 +1,7 @@
 package org.ifmo.isbdcurs.models
 
 import jakarta.validation.constraints.*
+import org.springframework.format.annotation.DateTimeFormat
 import java.util.Date
 
 data class AddCustomerRequest(
@@ -60,7 +61,7 @@ data class UserDto(
     var phone: String,
 )
 
-data class StoragePointRequest(
+data class StorageAddressRequest(
     @NotEmpty(message = "Поле не может быть пустым")
     val country: String,
     @NotEmpty(message = "Поле не может быть пустым")
@@ -94,16 +95,15 @@ data class PhysicalParametersRequest(
 
 data class TimeParametersRequest(
     @NotEmpty(message = "Поле не может быть пустым")
-    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
-    val loadingTime: String,
-    @NotEmpty(message = "Поле не может быть пустым")
-    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
-    val unloadingTime: String,
+    @DateTimeFormat(pattern = "HH:mm")
+    val loadingTime: Date,
+    @DateTimeFormat(pattern = "HH:mm")
+    val unloadingTime: Date,
 )
 
 data class OrderDataRequest(
-    val departureStoragePoint: StoragePointRequest,
-    val deliveryStoragePoint: StoragePointRequest,
+    val departureStoragePoint: StorageAddressRequest,
+    val deliveryStoragePoint: StorageAddressRequest,
     val orderParameters: PhysicalParametersRequest,
     val time: TimeParametersRequest
 )
