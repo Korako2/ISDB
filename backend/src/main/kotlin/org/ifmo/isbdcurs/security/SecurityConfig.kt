@@ -4,6 +4,8 @@ import org.ifmo.isbdcurs.persistence.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -32,6 +34,14 @@ class SecurityConfig(private val userRepository: UserRepository) {
         provider.setUserDetailsService(customerUserDetailsService)
         provider.setPasswordEncoder(BCryptPasswordEncoder())
         return provider
+    }
+
+    @Bean
+    fun roleHierarchy(): RoleHierarchy {
+        val roleHierarchy = RoleHierarchyImpl()
+        val hierarchy = "ROLE_ADMIN > ROLE_USER"
+        roleHierarchy.setHierarchy(hierarchy)
+        return roleHierarchy
     }
 
     @Bean

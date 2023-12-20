@@ -18,5 +18,7 @@ fun addErrorIfFailed(model: org.springframework.ui.Model, f: () -> Unit) {
         return f()
     } catch (e: BackendException) {
         model.addAttribute("errorMessage", e.message)
+    } catch (e: Exception) {
+        model.addAttribute("errorMessage", "Internal server error")
     }
 }
