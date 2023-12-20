@@ -1,17 +1,18 @@
 package org.ifmo.isbdcurs.controllers
 
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
 import org.ifmo.isbdcurs.services.OrderService
 import org.ifmo.isbdcurs.services.StoragePointService
+import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
@@ -23,12 +24,14 @@ class BusinessController @Autowired constructor(
     private val driverService: DriverService,
     private val storagePointService: StoragePointService,
 ) {
-    val logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
+    private val logger: Logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
 
     @GetMapping("/index")
-    fun showOrdersList(model: Model): String {
-        model.addAttribute("orders", orderService.getOrdersPaged(0, 10))
-        return "index"
+    fun showOrdersList(request: HttpServletRequest): String {
+        if (request.isUserInRole("ROLE_ADMIN")) {
+            return "redirect:/admin"
+        }
+        return "redirect:/orders"
     }
 
     @GetMapping("/orders")
@@ -40,7 +43,7 @@ class BusinessController @Autowired constructor(
     // @GetMapping("/orders")
     fun showCustomerOrders(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
         // TODO: get customer Id from session
-        val customerId = -1L;
+        val customerId = -1L
         model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))
         return "index"
     }
