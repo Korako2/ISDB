@@ -55,10 +55,11 @@ class SecurityConfig(private val userRepository: UserRepository) {
                 authorize(mvcMatcherBuilder.pattern("/login"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/register"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/admin"), hasRole("ADMIN"))
-                authorize(mvcMatcherBuilder.pattern("/orders"), hasAnyRole("USER", "ADMIN"))
+                authorize(mvcMatcherBuilder.pattern("/logs"), hasRole("ADMIN"))
+                authorize(mvcMatcherBuilder.pattern("/orders"), hasRole("USER"))
 
                 // multiple roles USER and ADMIN
-                authorize(mvcMatcherBuilder.pattern("/index"), hasAnyRole("USER", "ADMIN"))
+                authorize(mvcMatcherBuilder.pattern("/index"), hasRole("USER"))
             }
             formLogin {
                 loginPage = "/login"

@@ -6,7 +6,7 @@ import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.CustomerRepository
 import org.ifmo.isbdcurs.persistence.UserRepository
 import org.ifmo.isbdcurs.services.*
-import org.ifmo.isbdcurs.util.addErrorIfFailed
+import org.ifmo.isbdcurs.util.ErrorHelper
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -27,8 +27,9 @@ class BusinessController @Autowired constructor(
     private val storagePointService: StoragePointService,
     private val userRepository: UserRepository,
     private val customerRepository: CustomerRepository,
+    adminLogService: AdminLogService,
 ) {
-    private val logger: Logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
+    private val errorHelper = ErrorHelper(adminLogService)
 
     @GetMapping("/index")
     fun showOrdersList(request: HttpServletRequest): String {
@@ -46,7 +47,7 @@ class BusinessController @Autowired constructor(
         @RequestParam pageSize: Int,
         @AuthenticationPrincipal userDetails: UserDetails
     ): String {
-        addErrorIfFailed(model) {
+        errorHelper.addErrorIfFailed(model) {
             val userEntity =
                 userRepository.findByUsername(userDetails.username).orElseThrow()
             // TODO: here we assume that customer ID is the same as user ID
@@ -62,7 +63,7 @@ class BusinessController @Autowired constructor(
         if (result.hasErrors()) {
             return "add-order"
         }
-        addErrorIfFailed(model) {
+        errorHelper.addErrorIfFailed(model) {
             orderService.addOrder(addOrderRequest)
         }
         return "redirect:/index"
