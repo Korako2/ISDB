@@ -1,11 +1,10 @@
 package org.ifmo.isbdcurs
 
 import kotlinx.datetime.Clock
-import org.ifmo.isbdcurs.generator.FillTables
 import org.ifmo.isbdcurs.generator.CSVDataDumper
+import org.ifmo.isbdcurs.generator.FillTables
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.ConfigurableApplicationContext

@@ -24,3 +24,9 @@ fun Coordinates.calcDistanceKm(other: Coordinates): Double {
     dist *= 1.609344
     return dist
 }
+
+enum class LogLevels {
+    INFO,
+    WARNING,
+    ERROR,
+}

@@ -3,8 +3,8 @@ package org.ifmo.isbdcurs.services
 import org.ifmo.isbdcurs.internal.DriverWorker
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.*
+import org.ifmo.isbdcurs.util.ExceptionHelper
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.BindingResult
@@ -24,42 +24,40 @@ class OrderService @Autowired constructor(
     private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
+
     private val availableCountries = arrayOf("Россия")
 
-    private fun ExtendedOrder.toOrderResponse(): OrderResponse {
-        return OrderResponse(
-            id = this.id,
-            customerName = this.customerName,
-            driverName = this.driverName,
-            departurePoint = this.departurePoint,
-            deliveryPoint = this.deliveryPoint,
-            status = this.status,
-        )
-    }
+    private val exceptionHelper = ExceptionHelper(logger)
+
 
     fun getOrdersPaged(page: Int, size: Int): List<OrderResponse> {
         val minOrderId = page * size
         val maxOrderId = page * size + size
-        return orderRepo.getExtendedResults(minOrderId, maxOrderId).map { it.toOrderResponse() }
+        return exceptionHelper.wrapWithBackendException("Error while getting orders") {
+            orderRepo.getExtendedResults(minOrderId, maxOrderId).map { it.toOrderResponse() }
+        }
     }
 
+    // gets order from database. Raises exception if order not found or jpa error
     fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<OrderResponse> {
         val minOrderId = page * pageSize
         val maxOrderId = page * pageSize + pageSize
-        return orderRepo.getExtendedResultsByCustomerId(customerId, minOrderId, maxOrderId).map { it.toOrderResponse() }
+        return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
+            orderRepo.getExtendedResultsByCustomerId(customerId, minOrderId, maxOrderId).map { it.toOrderResponse() }
+        }
     }
-
-    fun create(order: Order) = orderRepo.save(order)
-
-    fun update(id: Long, order: Order) = orderRepo.save(order.copy(id = id))
-
-    fun delete(id: Long) = orderRepo.deleteById(id)
 
     @Transactional
     fun addOrder(addOrderRequest: AddOrderRequest): AddOrderResult {
+        return exceptionHelper.wrapWithBackendException("Error while adding order") {
+            addOrderOrThrow(addOrderRequest)
+        }
+    }
+
+    private fun addOrderOrThrow(addOrderRequest: AddOrderRequest): AddOrderResult {
         val vehicleId = vehicleService.findSuitableVehicle(addOrderRequest)
         if (vehicleId == -1L) {
-            throw Exception("No suitable vehicle found")
+            throw BackendException("No suitable vehicle found")
         }
 
         val vehicleCoordinates =
@@ -155,5 +153,15 @@ class OrderService @Autowired constructor(
         return cargoType in arrayOf("BULK", "TIPPER", "PALLETIZED")
     }
 
+    private fun ExtendedOrder.toOrderResponse(): OrderResponse {
+        return OrderResponse(
+            id = this.id,
+            customerName = this.customerName,
+            driverName = this.driverName,
+            departurePoint = this.departurePoint,
+            deliveryPoint = this.deliveryPoint,
+            status = this.status,
+        )
+    }
 
 }
