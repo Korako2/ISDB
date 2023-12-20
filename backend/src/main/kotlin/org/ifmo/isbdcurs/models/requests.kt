@@ -33,6 +33,7 @@ data class AddDriverInfoRequest(
     val fuelStationName : String,
 )
 
+//todo Delete?
 data class AddOrderRequest(
     val distance : Int,
     val weight : Int,
@@ -74,4 +75,51 @@ data class UserDto(
     @NotEmpty(message = "Номер телефона не может быть пустым")
     @Pattern(regexp = "^[0-9]{11}$", message = "Неверный формат номера телефона")
     var phone: String,
+)
+
+data class OrderDataRequest(
+    @NotEmpty(message = "Поле не может быть пустым")
+    val departureCountry: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @Size(max = 50, message = "Длина города не более 50 символов")
+    val departureCity: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @Size(max = 50, message = "Длина улицы не более 50 символов")
+    val departureStreet: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @DecimalMin(value = "1", message = "Номер дома должен быть больше 0")
+    @DecimalMax(value = "1000", message = "Номер дома должен быть меньше 1000")
+    val departureHouse: Double,
+    @NotEmpty(message = "Поле не может быть пустым")
+    val destinationCountry: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @Size(max = 50, message = "Длина города не более 50 символов")
+    val destinationCity: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @Size(max = 50, message = "Длина улицы не более 50 символов")
+    val destinationStreet: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @DecimalMin(value = "1", message = "Номер дома должен быть больше 0")
+    @DecimalMax(value = "1000", message = "Номер дома должен быть меньше 1000")
+    val destinationHouse: Double,
+    @DecimalMin(value = "0.1", message = "Длина должна быть не менее 0.1")
+    @DecimalMax(value = "15", message = "Длина должна быть не более 15")
+    val length: Double,
+    @DecimalMin(value = "0.1", message = "Ширина должна быть не менее 0.1")
+    @DecimalMax(value = "2.5", message = "Ширина должна быть не более 2.5")
+    val width: Double,
+    @DecimalMin(value = "0.1", message = "Высота должна быть не менее 0.1")
+    @DecimalMax(value = "4", message = "Высота должна быть не более 4")
+    val height: Double,
+    @DecimalMin(value = "0.5", message = "Вес должен быть не менее 0.5")
+    @DecimalMax(value = "25000", message = "Вес должен быть не более 25000")
+    val weight: Double,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
+    val loadingTime: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
+    val unloadingTime: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    val cargoType: String
 )

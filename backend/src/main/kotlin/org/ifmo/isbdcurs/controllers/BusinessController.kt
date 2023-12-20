@@ -41,6 +41,12 @@ class BusinessController @Autowired constructor(
     }
 
     @GetMapping("/orders")
+    fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
+        model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
+        model.addAttribute("orderDataRequest", OrderDataRequest("", "", "", 0.0, "", "", "", 0.0,0.0,  0.0, 0.0, 0.0, "00:00", "00:00", "BULK"))
+        return "index"
+    }
+
     fun showCustomerOrders(
         model: Model,
         @RequestParam pageNumber: Int,
@@ -59,14 +65,16 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_order")
-    fun addOrder(@Valid @RequestBody addOrderRequest: AddOrderRequest, result: BindingResult, model: Model): String {
-        if (result.hasErrors()) {
-            return "add-order"
+    fun addOrder(@Valid orderDataRequest: OrderDataRequest, result: BindingResult): String {
+        if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
+            // orderService.addOrder(orderDataRequest)
+            //todo create order and push in DB
+            return "redirect:/orders?pageNumber=1&pageSize=10"
         }
         errorHelper.addErrorIfFailed(model) {
             orderService.addOrder(addOrderRequest)
         }
-        return "redirect:/index"
+        return "redirect:/orders?pageNumber=1&pageSize=10"
     }
 
     @PostMapping("/add_customer")
@@ -107,4 +115,6 @@ class BusinessController @Autowired constructor(
         storagePointService.addStoragePoint(addAddressRequest)
         return "redirect:/index"
     }
+
+
 }

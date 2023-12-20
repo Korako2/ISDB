@@ -7,6 +7,7 @@ import org.ifmo.isbdcurs.util.ExceptionHelper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.validation.BindingResult
 import java.time.Instant
 import java.time.LocalTime
 import java.util.*
@@ -23,7 +24,11 @@ class OrderService @Autowired constructor(
     private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
+
+    private val availableCountries = arrayOf("Россия")
+
     private val exceptionHelper = ExceptionHelper(logger)
+
 
     fun getOrdersPaged(page: Int, size: Int): List<OrderResponse> {
         val minOrderId = page * size
@@ -111,6 +116,41 @@ class OrderService @Autowired constructor(
             driverWorker.startWork(driverId = driverId, orderId = orderId)
         }
         return addOrderResult
+    }
+
+    fun isValidData(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
+        return isValidAddresses(orderDataRequest, result) && isValidCargoType(orderDataRequest.cargoType)
+    }
+
+    private fun isValidCountry(country: String): Boolean = country in availableCountries
+
+    private fun rejectInvalidValue(result: BindingResult, field: String, errorCode: String, errorMessage: String) {
+        result.rejectValue(field, errorCode, errorMessage)
+    }
+
+    private fun isValidAddresses(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
+        if (!isValidCountry(orderDataRequest.departureCountry)) {
+            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.departureCountry}")
+            rejectInvalidValue(result, "departureCountry", "error.departureCountry", "Страна не поддерживается")
+            return false
+        }
+
+        if (!isValidCountry(orderDataRequest.destinationCountry)) {
+            logger.warn("[OrderService] isValidAddresses: destinationCountry = ${orderDataRequest.destinationCountry}")
+            rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страна не поддерживается")
+            return false
+        }
+
+        if (orderDataRequest.departureCountry != orderDataRequest.destinationCountry) {
+            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.departureCountry}, destinationCountry = ${orderDataRequest.destinationCountry}")
+            rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страны отправления и назначения должны совпадать")
+            return false
+        }
+
+        return true
+    }
+    private fun isValidCargoType(cargoType: String): Boolean {
+        return cargoType in arrayOf("BULK", "TIPPER", "PALLETIZED")
     }
 
     private fun ExtendedOrder.toOrderResponse(): OrderResponse {

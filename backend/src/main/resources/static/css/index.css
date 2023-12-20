@@ -1,0 +1,6 @@
+.departure-container, .destination-container {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #F2F2F2;
+}
