@@ -6,11 +6,12 @@ import org.ifmo.isbdcurs.persistence.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.validation.BindingResult
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class UserService (val userRepository: UserRepository, val passwordEncoder: PasswordEncoder) {
     fun isPasswordCorrect(username: String, password: String): Boolean {
-        val user = userRepository.findByUsername(username) ?: return false
+        val user = userRepository.findByUsername(username).orElse(null) ?: return false
         return passwordEncoder.matches(password, user.password)
     }
 
@@ -43,6 +44,6 @@ class UserService (val userRepository: UserRepository, val passwordEncoder: Pass
     }
 
     fun isAdmin(username: String): Boolean {
-        return userRepository.findByUsername(username)?.isAdmin ?: false
+        return userRepository.findByUsername(username).getOrNull()?.isAdmin ?: false
     }
 }

@@ -22,6 +22,6 @@ class CustomUserDetailsService : UserDetailsService {
         if (username == null) {
             throw UsernameNotFoundException("Username is null")
         }
-        return userRepository.findByUsername(username) ?: throw UsernameNotFoundException(username)
+        return userRepository.findByUsername(username).orElseThrow { throw UsernameNotFoundException(username) }
     }
 }

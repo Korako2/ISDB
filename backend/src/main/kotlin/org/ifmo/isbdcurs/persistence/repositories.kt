@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
+import java.util.*
 
 interface PersonRepository : CrudRepository<Person, Long>
 
@@ -65,7 +66,7 @@ interface VehicleRepository : CrudRepository<Vehicle, Long> {
           cargo_longitude => :#{#request.longitude}
         ) 
     """, nativeQuery = true)
-    fun findSuitableVehicle(@Param("request") request: AddOrderRequest): Long
+    fun findSuitableVehicle(@Param("request") request: OrderDataForVehicle): Long
 
 //    @Query("SELECT * FROM get_vehicle_coordinates(:vehicleId)", nativeQuery = true)
 //    fun getVehicleCoordinates(vehicleId: Long): Coordinates
@@ -85,12 +86,12 @@ interface OrderRepository : JpaRepository<Order, Long> {
     @Query("SELECT add_order(:#{#v_customer_id}, :#{#v_distance}, :#{#v_vehicle_id}, :#{#v_weight}, :#{#v_width}, :#{#v_height}, :#{#v_length}, :#{#v_cargo_type}, :#{#v_date})", nativeQuery = true)
     fun addOrder(
         @Param("v_customer_id") customerId: Int,
-        @Param("v_distance") distance: Int,
+        @Param("v_distance") distance: Double,
         @Param("v_vehicle_id") vehicleId: Int,
-        @Param("v_weight") weight: Int,
-        @Param("v_width") width: Int,
-        @Param("v_height") height: Int,
-        @Param("v_length") length: Int,
+        @Param("v_weight") weight: Double,
+        @Param("v_width") width: Double,
+        @Param("v_height") height: Double,
+        @Param("v_length") length: Double,
         @Param("v_cargo_type") cargoType: String,
         @Param("v_date") date: java.util.Date,
     ) : Long
@@ -130,7 +131,9 @@ interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesP
 
 interface CargoRepository : CrudRepository<Cargo, Long>
 
-interface AddressRepository : CrudRepository<Address, Long>
+interface AddressRepository : CrudRepository<Address, Long> {
+    fun findByCountryAndCityAndStreetAndBuilding(country: String, city: String, street: String, building: Int): Optional<Address>
+}
 
 interface StoragePointRepository : CrudRepository<StoragePoint, Long>
 

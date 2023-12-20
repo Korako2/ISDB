@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
+import java.util.*
 
 @Controller
 class BusinessController @Autowired constructor(
@@ -43,7 +44,34 @@ class BusinessController @Autowired constructor(
     @GetMapping("/orders")
     fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
         model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
-        model.addAttribute("orderDataRequest", OrderDataRequest("", "", "", 0.0, "", "", "", 0.0,0.0,  0.0, 0.0, 0.0, "00:00", "00:00", "BULK"))
+        model.addAttribute("orderDataRequest",
+            OrderDataRequest(
+                departureStoragePoint = StorageAddressRequest(
+                    country = "Россия",
+                    city = "Москва",
+                    street = "Ленина",
+                    building = 1,
+                ),
+                deliveryStoragePoint = StorageAddressRequest(
+                    country = "Россия",
+                    city = "Москва",
+                    street = "Ленина",
+                    building = 2,
+                ),
+                orderParameters = PhysicalParametersRequest(
+                    length = 1.0,
+                    width = 1.0,
+                    height = 1.0,
+                    weight = 1.0,
+                    cargoType = "Тип груза",
+                ),
+                time = TimeParametersRequest(
+                    // TODO: fix
+                    loadingTime = Date(),
+                    unloadingTime = Date()
+                )
+            )
+        )
         return "index"
     }
 
@@ -54,10 +82,7 @@ class BusinessController @Autowired constructor(
         @AuthenticationPrincipal userDetails: UserDetails
     ): String {
         errorHelper.addErrorIfFailed(model) {
-            val userEntity =
-                userRepository.findByUsername(userDetails.username).orElseThrow()
-            // TODO: here we assume that customer ID is the same as user ID
-            val customerId = customerRepository.findById(userEntity.id!!).orElseThrow().id!!
+            val customerId = getCustomerId(userDetails)
             val ordersPaged = orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize)
             model.addAttribute("orders", ordersPaged)
         }
@@ -65,14 +90,11 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_order")
-    fun addOrder(@Valid orderDataRequest: OrderDataRequest, result: BindingResult): String {
+    fun addOrder(model: Model, @Valid orderDataRequest: OrderDataRequest, result: BindingResult): String {
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
-            // orderService.addOrder(orderDataRequest)
-            //todo create order and push in DB
-            return "redirect:/orders?pageNumber=1&pageSize=10"
-        }
-        errorHelper.addErrorIfFailed(model) {
-            orderService.addOrder(addOrderRequest)
+            errorHelper.addErrorIfFailed(model) {
+                orderService.addOrder(orderDataRequest)
+            }
         }
         return "redirect:/orders?pageNumber=1&pageSize=10"
     }
@@ -116,5 +138,9 @@ class BusinessController @Autowired constructor(
         return "redirect:/index"
     }
 
-
+    private fun getCustomerId(userDetails: UserDetails): Long {
+        val userEntity = userRepository.findByUsername(userDetails.username).orElseThrow()
+        // TODO: here we assume that customer ID is the same as user ID
+        return customerRepository.findById(userEntity.id!!).orElseThrow().id!!
+    }
 }
