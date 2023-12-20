@@ -54,10 +54,7 @@ class BusinessController @Autowired constructor(
         @AuthenticationPrincipal userDetails: UserDetails
     ): String {
         errorHelper.addErrorIfFailed(model) {
-            val userEntity =
-                userRepository.findByUsername(userDetails.username).orElseThrow()
-            // TODO: here we assume that customer ID is the same as user ID
-            val customerId = customerRepository.findById(userEntity.id!!).orElseThrow().id!!
+            val customerId = getCustomerId(userDetails)
             val ordersPaged = orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize)
             model.addAttribute("orders", ordersPaged)
         }
@@ -65,14 +62,11 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_order")
-    fun addOrder(@Valid orderDataRequest: OrderDataRequest, result: BindingResult): String {
+    fun addOrder(model: Model, @Valid orderDataRequest: OrderDataRequest, result: BindingResult): String {
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
-            // orderService.addOrder(orderDataRequest)
-            //todo create order and push in DB
-            return "redirect:/orders?pageNumber=1&pageSize=10"
-        }
-        errorHelper.addErrorIfFailed(model) {
-            orderService.addOrder(addOrderRequest)
+            errorHelper.addErrorIfFailed(model) {
+                orderService.addOrder(orderDataRequest)
+            }
         }
         return "redirect:/orders?pageNumber=1&pageSize=10"
     }
@@ -116,5 +110,9 @@ class BusinessController @Autowired constructor(
         return "redirect:/index"
     }
 
-
+    private fun getCustomerId(userDetails: UserDetails): Long {
+        val userEntity = userRepository.findByUsername(userDetails.username).orElseThrow()
+        // TODO: here we assume that customer ID is the same as user ID
+        return customerRepository.findById(userEntity.id!!).orElseThrow().id!!
+    }
 }

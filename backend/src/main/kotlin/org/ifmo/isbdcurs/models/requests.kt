@@ -33,23 +33,6 @@ data class AddDriverInfoRequest(
     val fuelStationName : String,
 )
 
-//todo Delete?
-data class AddOrderRequest(
-    val distance : Int,
-    val weight : Int,
-    val width : Int,
-    val height : Int,
-    val length : Int,
-    val cargoType : String,
-    val latitude : Double,
-    val longitude : Double,
-    val departurePointId : Long,
-    val deliveryPointId : Long,
-    val senderId : Long,
-    val receiverId : Long,
-    val unloadingTime : Long = 3,
-    val loadingTime : Long = 3,
-)
 
 data class AddStoragePointRequest(
     val name : String,

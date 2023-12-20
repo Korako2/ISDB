@@ -22,13 +22,14 @@ class OrderService @Autowired constructor(
     private val personRepository: PersonRepository,
     private val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
     private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
+    private val storagePointRepository: StoragePointRepository,
+    private val addressRepository: AddressRepository,
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
 
     private val availableCountries = arrayOf("Россия")
 
     private val exceptionHelper = ExceptionHelper(logger)
-
 
     fun getOrdersPaged(page: Int, size: Int): List<OrderResponse> {
         val minOrderId = page * size
@@ -48,14 +49,34 @@ class OrderService @Autowired constructor(
     }
 
     @Transactional
-    fun addOrder(addOrderRequest: AddOrderRequest): AddOrderResult {
+    fun addOrder(orderDataRequest: OrderDataRequest): AddOrderResult {
         return exceptionHelper.wrapWithBackendException("Error while adding order") {
-            addOrderOrThrow(addOrderRequest)
+            addOrderOrThrow(orderDataRequest)
         }
     }
 
-    private fun addOrderOrThrow(addOrderRequest: AddOrderRequest): AddOrderResult {
-        val vehicleId = vehicleService.findSuitableVehicle(addOrderRequest)
+    private fun addOrderOrThrow(orderDataRequest: OrderDataRequest): AddOrderResult {
+        val departureAddress: Address = getAddressOrAddNew()
+        val deliveryAddress: Address = getAddressOrAddNew()
+
+        val departureStoragePoint: StoragePoint = storagePointRepository.findById(departureAddress.id!!)
+            .orElseThrow { BackendException("Departure storage point not found") }
+        val deliveryStoragePoint: StoragePoint = storagePointRepository.findById(deliveryAddress.id!!)
+            .orElseThrow { BackendException("Delivery storage point not found") }
+
+        val orderCoordinates = Coordinates(departureStoragePoint.latitude.toDouble(), departureStoragePoint.longitude.toDouble())
+        val deliveryCoordinates = Coordinates(deliveryStoragePoint.latitude.toDouble(), deliveryStoragePoint.longitude.toDouble())
+        val orderDataForVehicle = OrderDataForVehicle(
+            length = orderDataRequest.length,
+            width = orderDataRequest.width,
+            height = orderDataRequest.height,
+            cargoType = CargoType.valueOf(orderDataRequest.cargoType),
+            weight = orderDataRequest.weight,
+            latitude = orderCoordinates.latitude,
+            longitude = orderCoordinates.longitude,
+        )
+
+        val vehicleId = vehicleService.findSuitableVehicle(orderDataForVehicle)
         if (vehicleId == -1L) {
             throw BackendException("No suitable vehicle found")
         }
@@ -64,7 +85,6 @@ class OrderService @Autowired constructor(
             vehicleMovementHistoryRepository.findByVehicleIdOrderByDateDesc(vehicleId).firstOrNull()?.let {
                 Coordinates(it.latitude.toDouble(), it.longitude.toDouble())
             } ?: Coordinates(0.0, 0.0)
-        val orderCoordinates = Coordinates(addOrderRequest.latitude, addOrderRequest.longitude)
 
         logger.debug("Found nearest vehicle with id = $vehicleId")
         val driverId = vehicleOwnershipRepository.findByVehicleId(vehicleId).driverId
@@ -75,32 +95,40 @@ class OrderService @Autowired constructor(
         // TODO: get current customer id from session
         val customerId = 1L
 
+        val distance = orderCoordinates.calcDistanceKm(deliveryCoordinates)
+
         val orderId = orderRepo.addOrder(
             customerId.toInt(),
-            addOrderRequest.distance,
+            distance,
             vehicleId.toInt(),
-            addOrderRequest.weight,
-            addOrderRequest.width,
-            addOrderRequest.height,
-            addOrderRequest.length,
-            addOrderRequest.cargoType,
+            orderDataRequest.weight,
+            orderDataRequest.width,
+            orderDataRequest.height,
+            orderDataRequest.length,
+            orderDataRequest.cargoType,
             Date.from(Instant.now()),
         )
 
         logger.debug("New Order id = $orderId")
 
-        val unloadingSeconds = addOrderRequest.unloadingTime * 60 * 60
-        val loadingSeconds = addOrderRequest.loadingTime * 60 * 60
+        // TODO: take time from request
+        //        val unloadingSeconds = orderDataRequest.unloadingTime * 60 * 60
+        //        val loadingSeconds = orderDataRequest.loadingTime * 60 * 60
+        val unloadingSeconds = 100L
+        val loadingSeconds = 100L
+
+        val senderId = customerId
+        val receiverId = -1L // TODO: random number
         // create agreement
         val loadingUnloadingAgreement = LoadingUnloadingAgreement(
             orderId = orderId,
             driverId = driverId,
             unloadingTime = LocalTime.ofSecondOfDay(unloadingSeconds),
             loadingTime = LocalTime.ofSecondOfDay(loadingSeconds),
-            departurePoint = addOrderRequest.departurePointId,
-            deliveryPoint = addOrderRequest.deliveryPointId,
-            senderId = addOrderRequest.senderId,
-            receiverId = addOrderRequest.receiverId,
+            departurePoint = departureAddress.id!!,
+            deliveryPoint = deliveryAddress.id!!,
+            senderId = senderId,
+            receiverId = receiverId,
         )
 
         loadingUnloadingAgreementRepository.save(loadingUnloadingAgreement)
@@ -164,4 +192,30 @@ class OrderService @Autowired constructor(
         )
     }
 
+    private fun getAddressOrAddNew(addStoragePointRequest: AddStoragePointRequest) : Address {
+        val address = addressRepository.findByCountryAndCityAndStreetAndBuilding(
+            addStoragePointRequest.country,
+            addStoragePointRequest.city,
+            addStoragePointRequest.street,
+            addStoragePointRequest.building,
+        ).getOrElse {
+            val newAddress = Address(
+                country = addStoragePointRequest.country,
+                city = addStoragePointRequest.city,
+                street = addStoragePointRequest.street,
+                building = addStoragePointRequest.building,
+                corpus = addStoragePointRequest.corpus,
+            )
+            val newStoragePoint = StoragePoint(
+                addressId = newAddress.id!!,
+                // TODO: random coordinates
+                latitude = addStoragePointRequest.latitude.toFloat(),
+                longitude = addStoragePointRequest.longitude.toFloat(),
+            )
+            storagePointRepository.save(newStoragePoint)
+            addressRepository.save(newAddress)
+            newAddress
+        }
+        return address
+    }
 }
