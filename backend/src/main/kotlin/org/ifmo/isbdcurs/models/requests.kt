@@ -77,7 +77,7 @@ data class UserDto(
     var phone: String,
 )
 
-data class StorageAdressRequest(
+data class StorageAddressRequest(
     @NotEmpty(message = "Поле не может быть пустым")
     val country: String,
     @NotEmpty(message = "Поле не может быть пустым")
@@ -119,8 +119,8 @@ data class TimeParametersRequest(
 )
 
 data class OrderDataRequest(
-    val departureStoragePoint: StorageAdressRequest,
-    val deliveryStoragePoint: StorageAdressRequest,
+    val departureStoragePoint: StorageAddressRequest,
+    val deliveryStoragePoint: StorageAddressRequest,
     val orderParameters: PhysicalParametersRequest,
     val time: TimeParametersRequest
 )
