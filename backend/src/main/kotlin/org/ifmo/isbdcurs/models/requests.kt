@@ -92,9 +92,7 @@ data class StoragePointRequest(
     val building: Int
 )
 
-data class OrderDataRequest(
-    val departureStoragePoint: StoragePointRequest,
-    val deliveryStoragePoint: StoragePointRequest,
+data class PhysicalParametersRequest(
     @DecimalMin(value = "0.1", message = "Длина должна быть не менее 0.1")
     @DecimalMax(value = "15", message = "Длина должна быть не более 15")
     val length: Double,
@@ -108,11 +106,21 @@ data class OrderDataRequest(
     @DecimalMax(value = "25000", message = "Вес должен быть не более 25000")
     val weight: Double,
     @NotEmpty(message = "Поле не может быть пустым")
+    val cargoType: String
+)
+
+data class TimeParametersRequest(
+    @NotEmpty(message = "Поле не может быть пустым")
     @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
     val loadingTime: String,
     @NotEmpty(message = "Поле не может быть пустым")
     @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
     val unloadingTime: String,
-    @NotEmpty(message = "Поле не может быть пустым")
-    val cargoType: String
+)
+
+data class OrderDataRequest(
+    val departureStoragePoint: StoragePointRequest,
+    val deliveryStoragePoint: StoragePointRequest,
+    val orderParameters: PhysicalParametersRequest,
+    val time: TimeParametersRequest
 )
