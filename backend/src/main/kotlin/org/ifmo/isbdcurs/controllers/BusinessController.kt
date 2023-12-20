@@ -43,7 +43,33 @@ class BusinessController @Autowired constructor(
     @GetMapping("/orders")
     fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
         model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
-        model.addAttribute("orderDataRequest", OrderDataRequest("", "", "", 0.0, "", "", "", 0.0,0.0,  0.0, 0.0, 0.0, "00:00", "00:00", "BULK"))
+        model.addAttribute("orderDataRequest",
+            OrderDataRequest(
+                departureStoragePoint = StoragePointRequest(
+                    country = "Россия",
+                    city = "Москва",
+                    street = "Ленина",
+                    building = 1,
+                ),
+                deliveryStoragePoint = StoragePointRequest(
+                    country = "Россия",
+                    city = "Москва",
+                    street = "Ленина",
+                    building = 2,
+                ),
+                orderParameters = PhysicalParametersRequest(
+                    length = 1.0,
+                    width = 1.0,
+                    height = 1.0,
+                    weight = 1.0,
+                    cargoType = "Тип груза",
+                ),
+                time = TimeParametersRequest(
+                    loadingTime = "00:00",
+                    unloadingTime = "00:00",
+                )
+            )
+        )
         return "index"
     }
 
