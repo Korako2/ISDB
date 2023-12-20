@@ -13,12 +13,3 @@ class ExceptionHelper(private val logger: org.slf4j.Logger) {
     }
 }
 
-fun addErrorIfFailed(model: org.springframework.ui.Model, f: () -> Unit) {
-    try {
-        return f()
-    } catch (e: BackendException) {
-        model.addAttribute("errorMessage", e.message)
-    } catch (e: Exception) {
-        model.addAttribute("errorMessage", "Internal server error")
-    }
-}

@@ -294,3 +294,12 @@ data class ExtendedOrder (
     val deliveryPoint: Long,
     val status: OrderStatus,
 )
+
+@Entity
+data class AdminLogRow (
+    @Id var id: Long? = null,
+    val message: String,
+    @Enumerated(EnumType.STRING)
+    val level: LogLevels,
+    val timestamp: Instant,
+)

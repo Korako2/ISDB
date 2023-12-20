@@ -6,7 +6,9 @@ import org.springframework.data.domain.Page
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.query.Procedure
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
 
 interface PersonRepository : CrudRepository<Person, Long>
@@ -142,3 +144,8 @@ interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, Fu
 
 interface FuelExpensesRepository : CrudRepository<FuelExpenses, FuelExpensesPK>
 
+interface AdminLogRepository : PagingAndSortingRepository<AdminLogRow, Long> {
+    fun findByLevel(level: LogLevels, pageable: Pageable): Page<AdminLogRow>
+
+    fun save(logEntry: AdminLogRow): AdminLogRow
+}
