@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import java.util.*
 
 @Controller
@@ -42,7 +43,15 @@ class BusinessController @Autowired constructor(
     }
 
     @GetMapping("/orders")
-    fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
+    fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
+                           @RequestParam(defaultValue = "10") pageSize: Int,
+                           redirectAttributes: RedirectAttributes
+    ): String {
+        if (pageNumber < 0 || pageNumber > orderService.getTotalPages() || pageSize != 10) {
+            redirectAttributes.addAttribute("pageNumber", 0)
+            redirectAttributes.addAttribute("pageSize", 10)
+            return "redirect:/orders"
+        }
         model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)

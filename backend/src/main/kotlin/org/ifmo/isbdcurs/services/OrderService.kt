@@ -39,6 +39,10 @@ class OrderService @Autowired constructor(
         }
     }
 
+    fun getTotalPages(): Int {
+        return 5
+    }
+
     // gets order from database. Raises exception if order not found or jpa error
     fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<OrderResponse> {
         val minOrderId = page * pageSize
