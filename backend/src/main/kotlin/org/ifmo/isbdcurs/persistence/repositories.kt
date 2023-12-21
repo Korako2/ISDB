@@ -42,18 +42,17 @@ interface DriverRepository : CrudRepository<Driver, Long> {
         SELECT 
         new org.ifmo.isbdcurs.models.DriverResponse(
             d.id, 
-            p.firstName, p.lastName, 'FIXMEPHONE', 'TODO: EMAIL', dl.licenseNumber, 
+            p.firstName, p.lastName, c_phone.value, c_mail.value, dl.licenseNumber, 
             dl.issueDate, dl.expirationDate, d.bankCardNumber)
         FROM Driver d
             JOIN Person p ON d.personId = p.id
             JOIN DriverLicense dl ON d.id = dl.driverId
+            LEFT JOIN ContactInfo c_mail ON c_mail.personId = p.id AND c_mail.contactType = 'EMAIL'
+            LEFT JOIN ContactInfo c_phone ON c_phone.personId = p.id AND c_phone.contactType = 'PHONE NUMBER'
             JOIN VehicleOwnership vo ON d.id = vo.driverId
             JOIN Vehicle v ON vo.vehicleId = v.id
         WHERE d.id >= :minDriverId AND d.id <= :maxDriverId
     """)
-// TODO: fix email & phone number enum exception
-//    JOIN ContactInfo c_mail ON p.id = d.personId AND c_mail.contactType = 'EMAIL'
-//    JOIN ContactInfo c_phone ON p.id = d.personId AND c_phone.contactType = 'PHONE_NUMBER'
     fun getExtendedDriversPaged(minDriverId: Int, maxDriverId: Int): List<DriverResponse>
 }
 
@@ -64,15 +63,13 @@ interface CustomerRepository : CrudRepository<Customer, Long> {
     @Query("""
         SELECT 
         new org.ifmo.isbdcurs.models.CustomerResponse(
-            c.id, p.firstName, p.lastName, p.dateOfBirth, 'FIXMEPHONE', 'FIXMEMAIL')
+            c.id, p.firstName, p.lastName, p.dateOfBirth, c_phone.value, c_mail.value)
         FROM Customer c
             JOIN Person p ON c.personId = p.id
+            LEFT JOIN ContactInfo c_mail ON c_mail.personId = p.id AND c_mail.contactType = 'EMAIL'
+            LEFT JOIN ContactInfo c_phone ON c_phone.personId = p.id AND c_phone.contactType = 'PHONE NUMBER'
         WHERE c.id >= :minCustomerId AND c.id <= :maxCustomerId
     """)
-
-// TODO: fix email & phone number enum exception
-//    JOIN ContactInfo c_phone ON p.id = c.personId AND c_phone.hkj
-//    JOIN ContactInfo c_mail ON p.id = c.personId AND c_mail.contactType = 'EMAIL'
     fun getExtendedCustomersPaged(minCustomerId: Int, maxCustomerId: Int): List<CustomerResponse>
 }
 
