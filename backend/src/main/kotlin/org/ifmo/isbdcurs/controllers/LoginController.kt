@@ -3,7 +3,6 @@ package org.ifmo.isbdcurs.controllers
 import jakarta.validation.Valid
 import org.ifmo.isbdcurs.models.AddCustomerRequest
 import org.ifmo.isbdcurs.models.AddNewCustomer
-import org.ifmo.isbdcurs.models.User
 import org.ifmo.isbdcurs.models.UserDto
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.UserService
