@@ -6,6 +6,7 @@ import org.ifmo.isbdcurs.models.PhysicalParametersRequest
 import org.ifmo.isbdcurs.models.StorageAddressRequest
 import org.ifmo.isbdcurs.models.TimeParametersRequest
 import org.ifmo.isbdcurs.services.AdminLogService
+import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
 import org.ifmo.isbdcurs.services.OrderService
 import org.ifmo.isbdcurs.util.ErrorHelper
@@ -21,7 +22,8 @@ import java.util.*
 class AdminController @Autowired constructor(
     private val adminLogService: AdminLogService,
     private val orderService: OrderService,
-    private val driverService: DriverService
+    private val driverService: DriverService,
+    private val customerService: CustomerService
     ) {
     private val errorHelper = ErrorHelper(adminLogService)
 
@@ -64,18 +66,35 @@ class AdminController @Autowired constructor(
                            @RequestParam(defaultValue = "10") pageSize: Int,
                            redirectAttributes: RedirectAttributes
     ): String {
-        if (pageNumber < 0 || pageNumber > orderService.getTotalPages() || pageSize != 10) {
+        if (pageNumber < 0 || pageNumber > driverService.getTotalPages() || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/admin/drivers"
         }
-        model.addAttribute("drivers", orderService.getOrdersPaged(pageNumber, pageSize))
-        //model.addAttribute("drivers", driverService.getDriversPaged(pageNumber, pageSize)) //todo реализовать метод
+        model.addAttribute("drivers", driverService.getDriversPaged(pageNumber, pageSize)) //todo реализовать метод
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)
         //model.addAttribute("totalPages", driverService.getTotalPages) //todo
         return "tables/drivers"
+    }
+
+    @GetMapping("/admin/customers")
+    fun showCustomersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
+                            @RequestParam(defaultValue = "10") pageSize: Int,
+                            redirectAttributes: RedirectAttributes
+    ): String {
+        if (pageNumber < 0 || pageNumber > customerService.getTotalPages() || pageSize != 10) {
+            redirectAttributes.addAttribute("pageNumber", 0)
+            redirectAttributes.addAttribute("pageSize", 10)
+            return "redirect:/admin/customers"
+        }
+        model.addAttribute("customers", customerService.getCastomersPaged(pageNumber, pageSize)) //todo реализовать метод
+        model.addAttribute("currentPage", pageNumber)
+        model.addAttribute("pageSize", pageSize)
+        model.addAttribute("totalPages", 5)
+        //model.addAttribute("totalPages", customerService.getTotalPages) //todo
+        return "tables/customers"
     }
 
 }
