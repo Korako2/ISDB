@@ -36,7 +36,7 @@ class DriverService @Autowired constructor(
     }
 
     fun getDriversPaged(page: Int, size: Int): List<DriverResponse> {
-        val minOrderId = page * size
+        val minOrderId = page * size + 1
         val maxOrderId = page * size + size
         return exceptionHelper.wrapWithBackendException("Error while getting orders") {
             driverRepository.getExtendedDriversPaged(minOrderId, maxOrderId)

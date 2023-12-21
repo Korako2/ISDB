@@ -32,7 +32,7 @@ class OrderService @Autowired constructor(
     private val exceptionHelper = ExceptionHelper(logger)
 
     fun getOrdersPaged(page: Int, size: Int): List<OrderResponse> {
-        val minOrderId = page * size
+        val minOrderId = page * size + 1
         val maxOrderId = page * size + size
         return exceptionHelper.wrapWithBackendException("Error while getting orders") {
             orderRepo.getExtendedResults(minOrderId, maxOrderId).map { it.toOrderResponse() }
