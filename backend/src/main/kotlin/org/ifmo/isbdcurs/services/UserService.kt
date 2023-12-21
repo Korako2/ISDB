@@ -31,16 +31,17 @@ class UserService (val userRepository: UserRepository, val passwordEncoder: Pass
         return true
     }
 
-    fun addUser(userDto: UserDto) {
+    fun addUser(userDto: UserDto, userId: Long? = null): User {
         val password = passwordEncoder.encode(userDto.password)
         val user = User(
+            id = userId,
             username = userDto.username,
             password = password,
             email = userDto.email,
             phone = userDto.phone,
             isAdmin = isAdmin(userDto.username)
         )
-        userRepository.save(user)
+        return userRepository.save(user)
     }
 
     fun isAdmin(username: String): Boolean {
