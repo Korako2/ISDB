@@ -4,6 +4,7 @@ import org.ifmo.isbdcurs.internal.DriverWorker
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.*
 import org.ifmo.isbdcurs.util.ExceptionHelper
+import org.ifmo.isbdcurs.util.pageToIdRangeReversed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -31,11 +32,11 @@ class OrderService @Autowired constructor(
 
     private val exceptionHelper = ExceptionHelper(logger)
 
-    fun getOrdersPaged(page: Int, size: Int): List<OrderResponse> {
-        val minOrderId = page * size + 1
-        val maxOrderId = page * size + size
+    fun getOrdersPaged(page: Int, pageSize: Int): List<OrderResponse> {
+        val totalPages = getTotalPages(pageSize).toInt()
+        val (startOrderId, endOrderId) = pageToIdRangeReversed(totalPages, page, pageSize)
         return exceptionHelper.wrapWithBackendException("Error while getting orders") {
-            orderRepo.getExtendedResults(minOrderId, maxOrderId).map { it.toOrderResponse() }
+            orderRepo.getExtendedResults(startOrderId, endOrderId).map { it.toOrderResponse() }
         }
     }
 
@@ -43,12 +44,12 @@ class OrderService @Autowired constructor(
         return (orderRepo.count() + pageSize - 1) / pageSize
     }
 
-    // gets order from database. Raises exception if order not found or jpa error
+    // gets order from database in reverse order. Raises exception if order not found or jpa error
     fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<OrderResponse> {
-        val minOrderId = page * pageSize
-        val maxOrderId = page * pageSize + pageSize
+        val totalPages = getTotalPages(pageSize).toInt()
+        val (startOrderId, endOrderId) = pageToIdRangeReversed(totalPages, page, pageSize)
         return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
-            orderRepo.getExtendedResultsByCustomerId(customerId, minOrderId, maxOrderId).map { it.toOrderResponse() }
+            orderRepo.getExtendedResultsByCustomerId(customerId, startOrderId, endOrderId).map { it.toOrderResponse() }
         }
     }
 

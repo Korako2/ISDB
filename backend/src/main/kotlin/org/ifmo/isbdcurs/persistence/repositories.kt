@@ -139,6 +139,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
             JOIN Person driver_p ON d.personId = driver_p.id
         WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
             AND o.id >= :minOrderId AND o.id <= :maxOrderId
+        ORDER BY o.id DESC
     """)
     fun getExtendedResults(minOrderId: Int, maxOrderId: Int): List<ExtendedOrder>
 
@@ -154,6 +155,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
             JOIN Person driver_p ON d.personId = driver_p.id
         WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
         AND c.id = :customerId AND o.id >= :minOrderId AND o.id <= :maxOrderId
+        ORDER BY o.id DESC
     """)
     fun getExtendedResultsByCustomerId(customerId: Long, minOrderId: Int, maxOrderId: Int): List<ExtendedOrder>
 }

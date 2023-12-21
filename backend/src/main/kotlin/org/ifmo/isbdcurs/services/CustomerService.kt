@@ -4,6 +4,7 @@ import org.ifmo.isbdcurs.models.AddCustomerRequest
 import org.ifmo.isbdcurs.models.CustomerResponse
 import org.ifmo.isbdcurs.persistence.CustomerRepository
 import org.ifmo.isbdcurs.util.ExceptionHelper
+import org.ifmo.isbdcurs.util.pageToIdRangeNormal
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -23,8 +24,7 @@ class CustomerService @Autowired constructor(private val customerRepo: CustomerR
     }
 
     fun getCustomersPaged(page: Int, size: Int): List<CustomerResponse> {
-        val minOrderId = page * size + 1
-        val maxOrderId = page * size + size
+        val (minOrderId, maxOrderId) = pageToIdRangeNormal(page, size)
         return exceptionHelper.wrapWithBackendException("Error while getting orders") {
             customerRepo.getExtendedCustomersPaged(minOrderId, maxOrderId)
         }

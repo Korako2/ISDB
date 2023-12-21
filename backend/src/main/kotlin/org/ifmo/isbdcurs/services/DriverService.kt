@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.DriverRepository
 import org.ifmo.isbdcurs.util.ExceptionHelper
+import org.ifmo.isbdcurs.util.pageToIdRangeNormal
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -36,8 +37,7 @@ class DriverService @Autowired constructor(
     }
 
     fun getDriversPaged(page: Int, size: Int): List<DriverResponse> {
-        val minOrderId = page * size + 1
-        val maxOrderId = page * size + size
+        val (minOrderId, maxOrderId) = pageToIdRangeNormal(page, size)
         return exceptionHelper.wrapWithBackendException("Error while getting orders") {
             driverRepository.getExtendedDriversPaged(minOrderId, maxOrderId)
         }
