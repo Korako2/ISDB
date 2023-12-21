@@ -234,7 +234,7 @@ CREATE TABLE IF NOT EXISTS users
     id       serial PRIMARY KEY,
     email    varchar(100),
     password varchar(255),
-    phone    varchar(11),
-    username varchar(20),
+    phone    varchar(20),
+    username varchar(255),
     is_admin boolean NOT NULL
 );
