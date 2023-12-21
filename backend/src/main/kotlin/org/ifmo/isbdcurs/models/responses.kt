@@ -1,5 +1,7 @@
 package org.ifmo.isbdcurs.models
 
+import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 data class AddOrderResult(
@@ -24,8 +26,8 @@ data class DriverResponse (
     val phoneNumber: String,
     val email: String,
     val licenseNumber: String,
-    val issueDate: Date,
-    val expirationDate: Date,
+    val issueDate: Instant,
+    val expirationDate: Instant,
     val carNumber: String
 )
 
@@ -33,7 +35,7 @@ data class CustomerResponse (
     val id: Long,
     val firstName: String,
     val lastName: String,
-    val dateOfBirth: Date,
+    val dateOfBirth: LocalDate,
     val phoneNumber: String,
     val email: String,
 )

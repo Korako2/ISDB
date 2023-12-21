@@ -89,7 +89,7 @@ class AdminController @Autowired constructor(
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/admin/customers"
         }
-        model.addAttribute("customers", customerService.getCastomersPaged(pageNumber, pageSize)) //todo реализовать метод
+        model.addAttribute("customers", customerService.getCustomersPaged(pageNumber, pageSize)) //todo реализовать метод
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)

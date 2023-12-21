@@ -38,11 +38,38 @@ interface DriverRepository : CrudRepository<Driver, Long> {
             "JOIN vehicle_ownership vo ON vehicle.id = vo.vehicle_id " +
             "WHERE driver_id = :driverId", nativeQuery = true)
     fun getVehicleByDriverId(driverId: Long): Vehicle
+
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.DriverResponse(
+            d.id, p.firstName, p.lastName, c_phone.value, c_mail.value, dl.licenseNumber, dl.issueDate, dl.expirationDate, d.bankCardNumber)
+        FROM Driver d
+            JOIN Person p ON d.personId = p.id
+            JOIN ContactInfo c_phone ON p.id = d.personId AND c_phone.contactType = 'PHONE'
+            JOIN ContactInfo c_mail ON p.id = d.personId AND c_mail.contactType = 'EMAIL'
+            JOIN DriverLicense dl ON d.id = dl.driverId
+            JOIN VehicleOwnership vo ON d.id = vo.driverId
+            JOIN Vehicle v ON vo.vehicleId = v.id
+        WHERE d.id >= :minDriverId AND d.id <= :maxDriverId
+    """)
+    fun getExtendedDriversPaged(minDriverId: Int, maxDriverId: Int): List<DriverResponse>
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
     @Query("SELECT add_new_customer(:#{#c.firstName}, :#{#c.lastName}, :#{#c.gender}, :#{#c.dateOfBirth}, :#{#c.middleName}), :#{#c.organization}", nativeQuery = true)
     fun addNewCustomer(@Param("c") addCustomerRequest: AddCustomerRequest): Long
+
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.CustomerResponse(
+            c.id, p.firstName, p.lastName, p.dateOfBirth, c_phone.value, c_mail.value)
+        FROM Customer c
+            JOIN Person p ON c.personId = p.id
+            JOIN ContactInfo c_phone ON p.id = c.personId AND c_phone.contactType = 'PHONE'
+            JOIN ContactInfo c_mail ON p.id = c.personId AND c_mail.contactType = 'EMAIL'
+        WHERE c.id >= :minCustomerId AND c.id <= :maxCustomerId
+    """)
+    fun getExtendedCustomerPaged(minCustomerId: Int, maxCustomerId: Int): List<CustomerResponse>
 }
 
 interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Long> {

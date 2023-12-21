@@ -12,4 +12,12 @@ class CustomerService @Autowired constructor(private val customerRepo: CustomerR
         val customerId = customerRepo.addNewCustomer(addCustomerRequest)
         return customerId
     }
+
+    fun getCustomersPaged(page: Int, size: Int) {
+        val minOrderId = page * size
+        val maxOrderId = page * size + size
+        return exceptionHelper.wrapWithBackendException("Error while getting orders") {
+            customerRepo.getExtendedCustomersPaged(minOrderId, maxOrderId)
+        }
+    }
 }

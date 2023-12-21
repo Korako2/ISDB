@@ -45,11 +45,18 @@ data class Person(
     val dateOfBirth: LocalDate,
 )
 
+
+data class ContactInfoPK(
+    var personId: Long? = null,
+    var contactType: ContactInfoType? = null
+) : java.io.Serializable
+
 @Entity
+@IdClass(ContactInfoPK::class)
 data class ContactInfo(
     @Id val personId: Long,
     @Enumerated(EnumType.STRING)
-    val contactType: ContactInfoType,
+    @Id val contactType: ContactInfoType,
     val value: String,
 )
 

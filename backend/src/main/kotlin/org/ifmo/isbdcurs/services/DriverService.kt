@@ -1,10 +1,9 @@
 package org.ifmo.isbdcurs.services
 
 import jakarta.transaction.Transactional
-import org.ifmo.isbdcurs.models.AddDriverInfoRequest
-import org.ifmo.isbdcurs.models.AddDriverRequest
-import org.ifmo.isbdcurs.models.AddOrderRequest
+import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.DriverRepository
+import org.ifmo.isbdcurs.util.ExceptionHelper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -12,6 +11,9 @@ import org.springframework.stereotype.Service
 class DriverService @Autowired constructor(
     private val driverRepository: DriverRepository,
 ) {
+    private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverService::class.java)
+    private val exceptionHelper = ExceptionHelper(logger)
+
     fun addDriver(addDriverRequest: AddDriverRequest) {
         driverRepository.addDriver(addDriverRequest)
     }
@@ -27,6 +29,14 @@ class DriverService @Autowired constructor(
             addDriverInfoRequest.fuelCard,
             addDriverInfoRequest.fuelStationName,
         )
+    }
+
+    fun getDriversPaged(page: Int, size: Int): List<DriverResponse> {
+        val minOrderId = page * size
+        val maxOrderId = page * size + size
+        return exceptionHelper.wrapWithBackendException("Error while getting orders") {
+            driverRepository.getExtendedDriversPaged(minOrderId, maxOrderId)
+        }
     }
 
     fun startWork(driverId: Long, orderId: Long) {

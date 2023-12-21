@@ -25,7 +25,7 @@ class OrderService @Autowired constructor(
     private val storagePointRepository: StoragePointRepository,
     private val addressRepository: AddressRepository,
 ) {
-    private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
+    private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(OrderService::class.java)
 
     private val availableCountries = arrayOf("Россия")
 
