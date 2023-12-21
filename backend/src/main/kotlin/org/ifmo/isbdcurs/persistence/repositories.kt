@@ -142,7 +142,12 @@ interface OrderRepository : JpaRepository<Order, Long> {
 
     @Query("""
         SELECT 
-        new org.ifmo.isbdcurs.models.ExtendedOrder(o.id, customer_p.lastName, driver_p.lastName, l.departurePoint, l.deliveryPoint, s.status)
+        new org.ifmo.isbdcurs.models.CustomerOrderResponse(
+            s.dateTime,
+            driver_p.lastName,
+            departureAddress,
+            deliveryAddress,
+            s.status)
         FROM Order o
             JOIN Customer c ON o.customerId = c.id
             JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
@@ -150,11 +155,15 @@ interface OrderRepository : JpaRepository<Order, Long> {
             JOIN OrderStatuses s ON s.orderId = o.id
             JOIN Person customer_p ON c.personId = customer_p.id
             JOIN Person driver_p ON d.personId = driver_p.id
-        WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
-        AND c.id = :customerId AND o.id >= :minOrderId AND o.id <= :maxOrderId
+            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+        AND c.id = :customerId
         ORDER BY o.id DESC
+        LIMIT :limit OFFSET :offset
     """)
-    fun getExtendedResultsByCustomerId(customerId: Long, minOrderId: Int, maxOrderId: Int): List<ExtendedOrder>
+    fun getExtendedResultsByCustomerId(customerId: Long, limit: Int, offset: Int): List<CustomerOrderResponse>
+
+    fun countByCustomerId(customerId: Long): Int
 }
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK>

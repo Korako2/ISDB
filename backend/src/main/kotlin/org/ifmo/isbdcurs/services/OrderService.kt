@@ -44,12 +44,18 @@ class OrderService @Autowired constructor(
         return (orderRepo.count() + pageSize - 1) / pageSize
     }
 
+    fun countCustomerPages(customerId: Long, pageSize: Int): Int {
+        return (orderRepo.countByCustomerId(customerId) + pageSize - 1) / pageSize
+    }
+
     // gets order from database in reverse order. Raises exception if order not found or jpa error
-    fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<OrderResponse> {
-        val totalPages = getTotalPages(pageSize).toInt()
-        val (startOrderId, endOrderId) = pageToIdRangeReversed(totalPages, page, pageSize)
+    fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<CustomerOrderResponse> {
+        val offset = page * pageSize
         return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
-            orderRepo.getExtendedResultsByCustomerId(customerId, startOrderId, endOrderId).map { it.toOrderResponse() }
+            val orders = orderRepo.getExtendedResultsByCustomerId(customerId, pageSize, offset)
+            logger.info("Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
+                    "Orders size = ${orders.size}. Offset = $offset")
+            orders
         }
     }
 
@@ -69,8 +75,10 @@ class OrderService @Autowired constructor(
         val deliveryStoragePoint: StoragePoint = storagePointRepository.findById(deliveryAddress.id!!)
             .orElseThrow { BackendException("Delivery storage point not found") }
 
-        val orderCoordinates = Coordinates(departureStoragePoint.latitude.toDouble(), departureStoragePoint.longitude.toDouble())
-        val deliveryCoordinates = Coordinates(deliveryStoragePoint.latitude.toDouble(), deliveryStoragePoint.longitude.toDouble())
+        val orderCoordinates =
+            Coordinates(departureStoragePoint.latitude.toDouble(), departureStoragePoint.longitude.toDouble())
+        val deliveryCoordinates =
+            Coordinates(deliveryStoragePoint.latitude.toDouble(), deliveryStoragePoint.longitude.toDouble())
         val orderParams = orderDataRequest.orderParameters
         val orderDataForVehicle = OrderDataForVehicle(
             weight = orderParams.weight,
@@ -154,7 +162,9 @@ class OrderService @Autowired constructor(
     }
 
     fun isValidData(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
-        return isValidAddresses(orderDataRequest, result) && isValidCargoType(orderDataRequest.orderParameters.cargoType)
+        return isValidAddresses(
+            orderDataRequest, result
+        ) && isValidCargoType(orderDataRequest.orderParameters.cargoType)
     }
 
     private fun isValidCountry(country: String): Boolean = country in availableCountries
@@ -178,12 +188,18 @@ class OrderService @Autowired constructor(
 
         if (orderDataRequest.deliveryStoragePoint.country != orderDataRequest.departureStoragePoint.country) {
             logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.deliveryStoragePoint.country}, destinationCountry = ${orderDataRequest.deliveryStoragePoint.country}")
-            rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страны отправления и назначения должны совпадать")
+            rejectInvalidValue(
+                result,
+                "destinationCountry",
+                "error.destinationCountry",
+                "Страны отправления и назначения должны совпадать"
+            )
             return false
         }
 
         return true
     }
+
     private fun isValidCargoType(cargoType: String): Boolean {
         return cargoType in arrayOf("BULK", "TIPPER", "PALLETIZED")
     }
@@ -199,7 +215,7 @@ class OrderService @Autowired constructor(
         )
     }
 
-    private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressRequest) : Address {
+    private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressRequest): Address {
         val address = addressRepository.findByCountryAndCityAndStreetAndBuilding(
             addStoragePointRequest.country,
             addStoragePointRequest.city,

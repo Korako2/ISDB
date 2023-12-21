@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import java.util.*
 
@@ -45,14 +46,16 @@ class BusinessController @Autowired constructor(
     @GetMapping("/orders")
     fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
                            @RequestParam(defaultValue = "10") pageSize: Int,
-                           redirectAttributes: RedirectAttributes
+                           redirectAttributes: RedirectAttributes,
+                            @AuthenticationPrincipal userDetails: UserDetails
     ): String {
         if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/orders"
         }
-        model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
+        val customerId = getCustomerId(userDetails)
+        model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)
@@ -93,13 +96,13 @@ class BusinessController @Autowired constructor(
         @RequestParam pageNumber: Int,
         @RequestParam pageSize: Int,
         @AuthenticationPrincipal userDetails: UserDetails
-    ): String {
+    ): ModelAndView {
         errorHelper.addErrorIfFailed(model) {
             val customerId = getCustomerId(userDetails)
             val ordersPaged = orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize)
             model.addAttribute("orders", ordersPaged)
         }
-        return "index"
+        return ModelAndView("index")
     }
 
     @PostMapping("/add_order")

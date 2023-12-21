@@ -51,6 +51,7 @@ class SecurityConfig(private val userRepository: UserRepository) {
                 authorize(mvcMatcherBuilder.pattern("/error"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/login"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/register"), permitAll)
+                authorize(mvcMatcherBuilder.pattern("/favicon.ico"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/admin/**"), hasRole("ADMIN"))
                 authorize(mvcMatcherBuilder.pattern("/logs"), hasRole("ADMIN"))
                 authorize(mvcMatcherBuilder.pattern("/orders"), hasAnyRole("USER", "ADMIN"))
@@ -58,6 +59,7 @@ class SecurityConfig(private val userRepository: UserRepository) {
 
                 // multiple roles USER and ADMIN
                 authorize(mvcMatcherBuilder.pattern("/index"), hasAnyRole("USER", "ADMIN"))
+                authorize(mvcMatcherBuilder.pattern("/"), hasAnyRole("USER", "ADMIN"))
             }
             formLogin {
                 loginPage = "/login"

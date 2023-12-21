@@ -36,10 +36,6 @@ class AdminController @Autowired constructor(
         return "logs"
     }
 
-    @GetMapping("/admin")
-    fun showAdminPage(request: HttpServletRequest): String {
-        return "admin"
-    }
     @GetMapping("/admin/orders")
     fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
                            @RequestParam(defaultValue = "10") pageSize: Int,
