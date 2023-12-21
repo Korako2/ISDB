@@ -9,20 +9,18 @@
 <body>
 
 <div class="container">
-    <!-- Вкладки для таблиц -->
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link active" id="driver-tab" href="#driver" aria-selected="true" onclick="showTab('driver')">Driver</a>
+            <a class="nav-link active" th:href="@{/admin/drivers}" aria-selected="true">Driver</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="customer-tab" href="#customer" aria-selected="false" onclick="showTab('customer')">Customer</a>
+            <a class="nav-link" th:href="@{/admin/customers}" aria-selected="false">Customer</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="orders-tab" href="#orders" aria-selected="false" onclick="showTab('orders')">Orders</a>
+            <a class="nav-link" th:href="@{/admin/orders}" aria-selected="false">Orders</a>
         </li>
         <!-- Добавьте другие вкладки для других таблиц -->
     </ul>
-
     <!-- Контейнер для содержимого вкладок -->
     <div class="tab-content">
         <!-- Вкладка Driver -->
@@ -64,44 +62,38 @@
         <!-- Вкладка Orders -->
         <div class="tab-pane fade" id="orders">
             <!-- Здесь должна быть таблица для Orders -->
-            <h1>Orders Table</h1>
-            <table class="table table-bordered table-striped">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col">id</th>
-                    <th scope="col">customerName</th>
-                    <th scope="col">driverName</th>
-                    <th scope="col">deliveryPoint</th>
-                    <th scope="col">departurePoint</th>
-                    <th scope="col">status</th>
-                </tr>
-                </thead>
-                <tbody>
-                <!-- Используйте данные из вашей модели для заполнения таблицы -->
-                <tr th:each="order : ${orders}">
-                    <td th:text="${order.id}"></td>
-                    <td th:text="${order.customerName}"></td>
-                    <td th:text="${order.driverName}"></td>
-                    <td th:text="${order.deliveryPoint}"></td>
-                    <td th:text="${order.departurePoint}"></td>
-                    <td th:text="${order.status}"></td>
-                </tr>
-                </tbody>
-            </table>
+            <div th:switch="${orders}" class="container my-5">
+                <div th:case="null">
+                    <h1>Orders not found</h1>
+                </div>
+                <div th:case="*">
+                    <h2 class="text-center mt-4">История заказов</h2>
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">id</th>
+                            <th scope="col">customerName</th>
+                            <th scope="col">driverName</th>
+                            <th scope="col">deliveryPoint</th>
+                            <th scope="col">departurePoint</th>
+                            <th scope="col">status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="order : ${orders}">
+                            <td th:text="${order.id}"></td>
+                            <td th:text="${order.customerName}"></td>
+                            <td th:text="${order.driverName}"></td>
+                            <td th:text="${order.deliveryPoint}"></td>
+                            <td th:text="${order.departurePoint}"></td>
+                            <td th:text="${order.status}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+            </div>
         </div>
         <!-- Добавьте другие вкладки и таблицы для других таблиц базы данных -->
     </div>
 </div>
-
-<script>
-    function showTab(tabId) {
-        const tabs = document.querySelectorAll('.tab-pane');
-        tabs.forEach(tab => {
-            tab.classList.remove('show', 'active');
-        });
-        document.getElementById(tabId).classList.add('show', 'active');
-    }
-</script>
-
 </body>
 </html>
