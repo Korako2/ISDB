@@ -156,6 +156,4 @@ class BusinessController @Autowired constructor(
         // TODO: here we assume that customer ID is the same as user ID
         return customerRepository.findById(userEntity.id!!).orElseThrow().id!!
     }
-
-
 }
