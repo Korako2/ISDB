@@ -39,7 +39,7 @@ class BusinessController @Autowired constructor(
         if (request.isUserInRole("ROLE_ADMIN")) {
             return "redirect:/admin"
         }
-        return "redirect:/orders"
+        return "redirect:/customer-orders"
     }
 
     @GetMapping("/customer-orders")
@@ -88,20 +88,6 @@ class BusinessController @Autowired constructor(
             )
         )
         return "index"
-    }
-
-    fun showCustomerOrders(
-        model: Model,
-        @RequestParam pageNumber: Int,
-        @RequestParam pageSize: Int,
-        @AuthenticationPrincipal userDetails: UserDetails
-    ): ModelAndView {
-        errorHelper.addErrorIfFailed(model) {
-            val customerId = getCustomerId(userDetails)
-            val ordersPaged = orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize)
-            model.addAttribute("orders", ordersPaged)
-        }
-        return ModelAndView("index")
     }
 
     @PostMapping("/add_order")

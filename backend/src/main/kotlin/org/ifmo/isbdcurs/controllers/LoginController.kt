@@ -10,12 +10,11 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 
 @Controller
-@SessionAttributes("loggedInUser")
 class LoginController(private val userService: UserService) {
     @GetMapping("/register")
     fun showRegisterForm(model: Model): String {
         model.addAttribute("user", UserDto("username", "password", "happy@mail.ru", "88005553535"))
-        return "/register"
+        return "register"
     }
 
     @PostMapping("/register")
@@ -24,6 +23,6 @@ class LoginController(private val userService: UserService) {
             userService.addUser(user)
             return ModelAndView("redirect:/index", model)
         }
-        return ModelAndView("/register", model)
+        return ModelAndView("register", model)
     }
 }
