@@ -78,7 +78,7 @@ data class Person(
     val middleName: String?,
     @Enumerated(EnumType.STRING)
     val gender: Gender,
-    val dateOfBirth: LocalDate,
+    val dateOfBirth: Instant,
 )
 
 

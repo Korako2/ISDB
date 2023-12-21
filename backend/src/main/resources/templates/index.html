@@ -126,7 +126,7 @@
                         </thead>
                         <tbody>
                         <tr th:each="order : ${orders}">
-                            <td th:text="${order.statusChangedTime}"></td>
+                            <td th:text="${#dates.format(order.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></td>
                             <td th:text="${order.driverName}"></td>
                             <td th:text="${order.departureAddress}"></td>
                             <td th:text="${order.deliveryAddress}"></td>

@@ -43,7 +43,7 @@ data class CustomerResponse (
     val id: Long,
     val firstName: String,
     val lastName: String,
-    val dateOfBirth: LocalDate,
+    val dateOfBirth: Instant,
     val phoneNumber: String,
     val email: String,
 )
