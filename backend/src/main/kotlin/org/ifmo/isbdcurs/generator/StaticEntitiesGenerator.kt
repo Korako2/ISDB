@@ -16,7 +16,8 @@ class StaticEntitiesGenerator(
     private val companyNames: List<String> = (1..100).map { faker.company.name() };
     private val firstNames: List<String> = (1..100).map { faker.name.firstName() };
     private val lastNames: List<String> = (1..100).map { faker.name.lastName() };
-    private val emails: List<String> = (1..100).map { faker.internet.email() };
+    private val emails: List<String> = (1..100).map { faker.internet.email() }
+    private val phones: List<String> = (1..100).map { randomNumericStr(11) };
     private val vehicleModels: List<String> = (1..100).map { faker.vehicle.modelsByMake("") };
     private val addressCities: List<String> = (1..100).map { faker.address.city() };
     private val addressStreets: List<String> = (1..100).map { faker.address.streetName() };
@@ -49,8 +50,13 @@ class StaticEntitiesGenerator(
         )
     }
 
-    fun genContactInfo(personId: Long): ContactInfo {
-        return ContactInfo(personId, ContactInfoType.EMAIL, emails.random(random))
+    fun genContactInfoMail(personId: Long): ContactInfo {
+        val mail = emails.random(random)
+        return ContactInfo(personId, ContactInfoType.EMAIL, mail)
+    }
+
+    fun genContactInfoPhone(personId: Long): ContactInfo {
+        return ContactInfo(personId, ContactInfoType.PHONE_NUMBER, phones.random(random))
     }
 
     fun genDriver(personId: Long): Driver {

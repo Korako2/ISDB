@@ -42,7 +42,6 @@ data class DriverPack(
     val movementHistory: MutableList<VehicleMovementHistory>
 )
 
-@Service
 class FillTables {
     val logger: Logger = LoggerFactory.getLogger(FillTables::class.java)
     companion object {
@@ -86,19 +85,36 @@ class FillTables {
         }
     }
 
+    fun createContactInfos(driversCount: Int, customersCount: Int) : List<ContactInfo> {
+        val ordersCount = customersCount * 100
+        val addressesCount = customersCount * 10
+        val personsCount = driversCount + customersCount;
+
+        val persons = (1L..personsCount).map { i -> staticEntriesGenerator.genPerson().apply { id = i } }
+
+        return contactInfos(persons)
+    }
+
+    private fun contactInfos(persons: List<Person>): List<ContactInfo> {
+        val contactInfos = persons.map { staticEntriesGenerator.genContactInfoMail(it.id!!) }.toMutableList()
+        contactInfos += contactInfos.map { staticEntriesGenerator.genContactInfoPhone(it.personId) }
+        return contactInfos
+    }
+
     fun createData(driversCount: Int, customersCount: Int): AllTables {
         val ordersCount = customersCount * 100
         val addressesCount = customersCount * 10
         val personsCount = driversCount + customersCount;
 
         val persons = (1L..personsCount).map { i -> staticEntriesGenerator.genPerson().apply { id = i } }
+
         val drivers = (1L..driversCount).map { i ->
             staticEntriesGenerator.genDriver(personId = persons.random(random).id!!).apply { id = i }
         }
         val fuelCards = drivers.map { staticEntriesGenerator.genFuelCardsForDrivers(it.id!!) }
         val licenses = drivers.map { staticEntriesGenerator.genDriverLicense(it.id!!) }
         val tariffRates = drivers.map { staticEntriesGenerator.genTariffRate(it.id!!) }
-        val contactInfos = persons.map { staticEntriesGenerator.genContactInfo(it.id!!) }
+        val contactInfos = contactInfos(persons)
         val addresses = (1L..addressesCount).map { staticEntriesGenerator.genAddress().apply { id = it } }
         val storagePoints = addresses.map { staticEntriesGenerator.genStoragePoint(it.id!!) }
         val customers = (1L..customersCount).map { i ->
