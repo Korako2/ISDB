@@ -26,7 +26,6 @@ class DriverWorker(
     private val vehicleOwnershipRepository: VehicleOwnershipRepository,
     private val vehicleRepository: VehicleRepository
 ) {
-    // TODO: use ConcurrentHashMap
     private val driverToState = ConcurrentHashMap<Long, DriverState>()
     private val kmPerHour: Int = 60
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverWorker::class.java)
