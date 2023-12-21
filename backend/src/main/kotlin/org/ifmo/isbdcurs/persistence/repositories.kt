@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.query.Procedure
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
@@ -38,11 +37,43 @@ interface DriverRepository : CrudRepository<Driver, Long> {
             "JOIN vehicle_ownership vo ON vehicle.id = vo.vehicle_id " +
             "WHERE driver_id = :driverId", nativeQuery = true)
     fun getVehicleByDriverId(driverId: Long): Vehicle
+
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.DriverResponse(
+            d.id, 
+            p.firstName, p.lastName, 'FIXMEPHONE', 'TODO: EMAIL', dl.licenseNumber, 
+            dl.issueDate, dl.expirationDate, d.bankCardNumber)
+        FROM Driver d
+            JOIN Person p ON d.personId = p.id
+            JOIN DriverLicense dl ON d.id = dl.driverId
+            JOIN VehicleOwnership vo ON d.id = vo.driverId
+            JOIN Vehicle v ON vo.vehicleId = v.id
+        WHERE d.id >= :minDriverId AND d.id <= :maxDriverId
+    """)
+// TODO: fix email & phone number enum exception
+//    JOIN ContactInfo c_mail ON p.id = d.personId AND c_mail.contactType = 'EMAIL'
+//    JOIN ContactInfo c_phone ON p.id = d.personId AND c_phone.contactType = 'PHONE_NUMBER'
+    fun getExtendedDriversPaged(minDriverId: Int, maxDriverId: Int): List<DriverResponse>
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
     @Query("SELECT add_new_customer(:#{#c.firstName}, :#{#c.lastName}, :#{#c.gender}, :#{#c.dateOfBirth}, :#{#c.middleName}), :#{#c.organization}", nativeQuery = true)
     fun addNewCustomer(@Param("c") addCustomerRequest: AddCustomerRequest): Long
+
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.CustomerResponse(
+            c.id, p.firstName, p.lastName, p.dateOfBirth, 'FIXMEPHONE', 'FIXMEMAIL')
+        FROM Customer c
+            JOIN Person p ON c.personId = p.id
+        WHERE c.id >= :minCustomerId AND c.id <= :maxCustomerId
+    """)
+
+// TODO: fix email & phone number enum exception
+//    JOIN ContactInfo c_phone ON p.id = c.personId AND c_phone.hkj
+//    JOIN ContactInfo c_mail ON p.id = c.personId AND c_mail.contactType = 'EMAIL'
+    fun getExtendedCustomersPaged(minCustomerId: Int, maxCustomerId: Int): List<CustomerResponse>
 }
 
 interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Long> {

@@ -1,11 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>DB course work</title>
+    <title>Database Tables</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <body>
-You are admin!
 
+<div class="container">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" th:href="@{/admin/drivers}" aria-selected="false">Driver</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/admin/customers}" aria-selected="false">Customer</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" th:href="@{/admin/orders}" aria-selected="false">Orders</a>
+        </li>
+        <!-- Добавьте другие вкладки для других таблиц -->
+    </ul>
+</div>
 </body>
 </html>

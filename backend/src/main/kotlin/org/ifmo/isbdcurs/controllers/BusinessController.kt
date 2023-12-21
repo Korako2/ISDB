@@ -47,7 +47,7 @@ class BusinessController @Autowired constructor(
                            @RequestParam(defaultValue = "10") pageSize: Int,
                            redirectAttributes: RedirectAttributes
     ): String {
-        if (pageNumber < 0 || pageNumber > orderService.getTotalPages() || pageSize != 10) {
+        if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/orders"
