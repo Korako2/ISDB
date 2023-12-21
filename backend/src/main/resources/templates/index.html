@@ -28,15 +28,15 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="departureCity">Город отправления:</label>
-                                    <input type="text" class="form-control" id="departureCity" name="storageAddressRequest.departureCity" required>
+                                    <input type="text" class="form-control" id="departureCity" name="storageAddressRequest.departureCity" value="Москва" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="departureStreet">Улица:</label>
-                                    <input type="text" class="form-control" id="departureStreet" name="storageAddressRequest.departureStreet" required>
+                                    <input type="text" class="form-control" id="departureStreet" name="storageAddressRequest.departureStreet" value="Ленина" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="departureHouse">Дом:</label>
-                                    <input type="number" class="form-control" id="departureHouse" name="storageAddressRequest.departureHouse" step = "1" min = "1" required>
+                                    <input type="number" class="form-control" id="departureHouse" name="storageAddressRequest.departureHouse" step = "1" min = "1" value="10" required>
                                 </div>
                             </div>
                         </div>
@@ -52,15 +52,15 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="destinationCity">Город получения:</label>
-                                    <input type="text" class="form-control" id="destinationCity" name="storageAddressRequest.destinationCity" required>
+                                    <input type="text" class="form-control" id="destinationCity" name="storageAddressRequest.destinationCity" value="Москва" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="destinationStreet">Улица получения:</label>
-                                    <input type="text" class="form-control" id="destinationStreet" name="storageAddressRequest.destinationStreet" required>
+                                    <input type="text" class="form-control" id="destinationStreet" name="storageAddressRequest.destinationStreet" value="Кирова" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="destinationHouse">Дом:</label>
-                                    <input type="number" class="form-control" id="destinationHouse" name="storageAddressRequest.destinationHouse"  step = "1" min = "1" required>
+                                    <input type="number" class="form-control" id="destinationHouse" name="storageAddressRequest.destinationHouse"  step = "1" min = "1" value="10" required>
                                 </div>
                             </div>
                         </div>
@@ -69,27 +69,27 @@
                         <div class = "col-md-8 offset-2">
                             <div class="form-group">
                                 <label for="length">Длина:</label>
-                                <input type="number" class="form-control" id="length" name="physicalParametersRequest.length" step = "0.1"  min = "0.1" max = "15" required>
+                                <input type="number" class="form-control" id="length" name="physicalParametersRequest.length" step = "0.1"  min = "0.1" max = "15" value="7" required>
                             </div>
                             <div class="form-group">
                                 <label for="width">Ширина:</label>
-                                <input type="number" class="form-control" id="width" name="physicalParametersRequest.width" step = "0.1"  min = "0.1" max = "2.5" required>
+                                <input type="number" class="form-control" id="width" name="physicalParametersRequest.width" step = "0.1"  min = "0.1" max = "2.5" required value="2">
                             </div>
                             <div class="form-group">
                                 <label for="height">Высота:</label>
-                                <input type="number" class="form-control" id="height" name="physicalParametersRequest.height" step = "0.1"  min = "0.1" max = "4" required>
+                                <input type="number" class="form-control" id="height" name="physicalParametersRequest.height" step = "0.1"  min = "0.1" max = "4" required value="1.5">
                             </div>
                             <div class="form-group">
                                 <label for="weight">Вес:</label>
-                                <input type="number" class="form-control" id="weight" name="physicalParametersRequest.weight" step = "0.5"  min = "0.5" max = "25000" required>
+                                <input type="number" class="form-control" id="weight" name="physicalParametersRequest.weight" step = "0.5"  min = "0.5" max = "25000" value="1000" required>
                             </div>
                             <div class="form-group">
                                 <label for="loadingTime">Продолжительность загрузки (hh:mm):</label>
-                                <input type="time" class="form-control" id="loadingTime" name="timeParametersRequest.loadingTime" required>
+                                <input type="time" class="form-control" id="loadingTime" name="timeParametersRequest.loadingTime" value="01:30" required>
                             </div>
                             <div class="form-group">
                                 <label for="unloadingTime">Продолжительность разгрузки (hh:mm):</label>
-                                <input type="time" class="form-control" id="unloadingTime" name="timeParametersRequest.unloadingTime" required>
+                                <input type="time" class="form-control" id="unloadingTime" name="timeParametersRequest.unloadingTime" value="01:30" required>
                             </div>
 
                             <div class="form-group">
