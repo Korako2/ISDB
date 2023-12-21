@@ -354,3 +354,15 @@ data class AdminLogRow (
     val level: LogLevels,
     val timestamp: Instant,
 )
+
+data class addNewCustomer (
+    var username: String,
+    var password: String,
+    var email: String,
+    var phone: String,
+    var firstName: String,
+    var lastName: String,
+    var dateOfBirth: String,
+    var gender: String,
+    var isAdmin: Boolean = false
+)
