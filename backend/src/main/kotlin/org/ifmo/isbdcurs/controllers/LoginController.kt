@@ -6,6 +6,7 @@ import org.ifmo.isbdcurs.models.User
 import org.ifmo.isbdcurs.models.UserDto
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.UserService
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.ui.ModelMap
@@ -19,6 +20,8 @@ class LoginController(
     private val userService: UserService,
     private val customerService: CustomerService
 ) {
+    private val logger = LoggerFactory.getLogger(LoginController::class.java)
+
     @GetMapping("/register")
     fun showRegisterForm(model: Model): String {
         model.addAttribute("user", UserDto("username", "password", "happy@mail.ru", "88005553535"))
@@ -29,6 +32,7 @@ class LoginController(
     fun register(@ModelAttribute("user") @Valid user: UserDto, result: BindingResult, model: ModelMap): ModelAndView {
         if (userService.isUniqueUserData(user, result) && !result.hasErrors()) {
             val customerId = addCustomer(user)
+            logger.info("Added customer with id $customerId")
             userService.addUser(user, customerId)
             return ModelAndView("redirect:/index", model)
         }

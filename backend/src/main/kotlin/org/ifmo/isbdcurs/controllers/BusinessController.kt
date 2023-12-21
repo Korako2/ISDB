@@ -32,6 +32,7 @@ class BusinessController @Autowired constructor(
     adminLogService: AdminLogService,
 ) {
     private val errorHelper = ErrorHelper(adminLogService)
+    private val logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
 
     @GetMapping("/index")
     fun showOrdersList(request: HttpServletRequest): String {
@@ -141,6 +142,7 @@ class BusinessController @Autowired constructor(
 
     private fun getCustomerId(userDetails: UserDetails): Long {
         val userEntity = userRepository.findByUsername(userDetails.username).orElseThrow()
+        logger.info("User entity: $userEntity")
         // TODO: here we assume that customer ID is the same as user ID
         return customerRepository.findById(userEntity.id!!).orElseThrow().id!!
     }
