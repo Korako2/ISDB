@@ -44,6 +44,10 @@ class BusinessController @Autowired constructor(
     @GetMapping("/orders")
     fun showOrdersListPage(model: Model, @RequestParam pageNumber: Int, @RequestParam pageSize: Int): String {
         model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
+        model.addAttribute("currentPage", pageNumber)
+        model.addAttribute("pageSize", pageSize)
+        model.addAttribute("totalPages", 5)
+        //model.addAttribute("totalPages", orderService.getTotalPages) //todo
         model.addAttribute("orderDataRequest",
             OrderDataRequest(
                 departureStoragePoint = StorageAddressRequest(

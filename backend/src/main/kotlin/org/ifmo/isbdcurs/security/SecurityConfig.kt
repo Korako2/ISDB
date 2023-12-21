@@ -56,7 +56,7 @@ class SecurityConfig(private val userRepository: UserRepository) {
                 authorize(mvcMatcherBuilder.pattern("/register"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/admin"), hasRole("ADMIN"))
                 authorize(mvcMatcherBuilder.pattern("/logs"), hasRole("ADMIN"))
-                authorize(mvcMatcherBuilder.pattern("/orders"), hasRole("USER"))
+                authorize(mvcMatcherBuilder.pattern("/orders"), permitAll)
 
                 // multiple roles USER and ADMIN
                 authorize(mvcMatcherBuilder.pattern("/index"), hasRole("USER"))
