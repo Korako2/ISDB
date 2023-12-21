@@ -16,3 +16,15 @@ data class OrderResponse (
     val deliveryPoint: Long,
     val status: OrderStatus,
 )
+
+data class DriverResponse (
+    val id: Long,
+    val firstName: String,
+    val lastName: String,
+    val phoneNumber: String,
+    val email: String,
+    val licenseNumber: String,
+    val issueDate: Date,
+    val expirationDate: Date,
+    val carNumber: String
+)
