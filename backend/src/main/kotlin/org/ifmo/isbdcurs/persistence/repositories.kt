@@ -43,7 +43,7 @@ interface DriverRepository : CrudRepository<Driver, Long> {
         new org.ifmo.isbdcurs.models.DriverResponse(
             d.id, 
             p.firstName, p.lastName, c_phone.value, c_mail.value, dl.licenseNumber, 
-            dl.issueDate, dl.expirationDate, d.bankCardNumber)
+            dl.issueDate, dl.expirationDate, v.plateNumber)
         FROM Driver d
             JOIN Person p ON d.personId = p.id
             JOIN DriverLicense dl ON d.id = dl.driverId
