@@ -11,7 +11,7 @@
 <div class="container">
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link active" th:href="@{/admin/drivers}" aria-selected="true">Driver</a>
+            <a class="nav-link active" th:href="@{/admin/drivers}" aria-selected="false">Driver</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" th:href="@{/admin/customers}" aria-selected="false">Customer</a>
@@ -21,79 +21,6 @@
         </li>
         <!-- Добавьте другие вкладки для других таблиц -->
     </ul>
-    <!-- Контейнер для содержимого вкладок -->
-    <div class="tab-content">
-        <!-- Вкладка Driver -->
-        <div class="tab-pane fade show active" id="driver">
-            <!-- Здесь должна быть таблица для Driver -->
-            <h1>Driver Table</h1>
-            <table class="table table-bordered table-striped">
-                <thead class="thead-dark">
-                <tr>
-                    <th scope="col">id</th>
-                    <th scope="col">customerName</th>
-                    <th scope="col">driverName</th>
-                    <th scope="col">deliveryPoint</th>
-                    <th scope="col">departurePoint</th>
-                    <th scope="col">status</th>
-                </tr>
-                </thead>
-                <tbody>
-                <!-- Используйте данные из вашей модели для заполнения таблицы -->
-                <tr th:each="order : ${orders}">
-                    <td th:text="${order.id}"></td>
-                    <td th:text="${order.customerName}"></td>
-                    <td th:text="${order.driverName}"></td>
-                    <td th:text="${order.deliveryPoint}"></td>
-                    <td th:text="${order.departurePoint}"></td>
-                    <td th:text="${order.status}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Вкладка Customer -->
-        <div class="tab-pane fade" id="customer">
-            <!-- Здесь должна быть таблица для Customer -->
-            <h1>Customer Table</h1>
-            <!-- Добавьте таблицу для Customer, используя нужные данные -->
-        </div>
-
-        <!-- Вкладка Orders -->
-        <div class="tab-pane fade" id="orders">
-            <!-- Здесь должна быть таблица для Orders -->
-            <div th:switch="${orders}" class="container my-5">
-                <div th:case="null">
-                    <h1>Orders not found</h1>
-                </div>
-                <div th:case="*">
-                    <h2 class="text-center mt-4">История заказов</h2>
-                    <table class="table table-bordered table-striped">
-                        <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">id</th>
-                            <th scope="col">customerName</th>
-                            <th scope="col">driverName</th>
-                            <th scope="col">deliveryPoint</th>
-                            <th scope="col">departurePoint</th>
-                            <th scope="col">status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="order : ${orders}">
-                            <td th:text="${order.id}"></td>
-                            <td th:text="${order.customerName}"></td>
-                            <td th:text="${order.driverName}"></td>
-                            <td th:text="${order.deliveryPoint}"></td>
-                            <td th:text="${order.departurePoint}"></td>
-                            <td th:text="${order.status}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-            </div>
-        </div>
-        <!-- Добавьте другие вкладки и таблицы для других таблиц базы данных -->
-    </div>
 </div>
 </body>
 </html>

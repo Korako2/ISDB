@@ -6,6 +6,7 @@ import org.ifmo.isbdcurs.models.PhysicalParametersRequest
 import org.ifmo.isbdcurs.models.StorageAddressRequest
 import org.ifmo.isbdcurs.models.TimeParametersRequest
 import org.ifmo.isbdcurs.services.AdminLogService
+import org.ifmo.isbdcurs.services.DriverService
 import org.ifmo.isbdcurs.services.OrderService
 import org.ifmo.isbdcurs.util.ErrorHelper
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,7 +20,8 @@ import java.util.*
 @Controller
 class AdminController @Autowired constructor(
     private val adminLogService: AdminLogService,
-    private val orderService: OrderService
+    private val orderService: OrderService,
+    private val driverService: DriverService
     ) {
     private val errorHelper = ErrorHelper(adminLogService)
 
@@ -54,36 +56,26 @@ class AdminController @Autowired constructor(
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)
         //model.addAttribute("totalPages", orderService.getTotalPages) //todo
-        model.addAttribute("orderDataRequest",
-            OrderDataRequest(
-                departureStoragePoint = StorageAddressRequest(
-                    country = "Россия",
-                    city = "Москва",
-                    street = "Ленина",
-                    building = 1,
-                ),
-                deliveryStoragePoint = StorageAddressRequest(
-                    country = "Россия",
-                    city = "Москва",
-                    street = "Ленина",
-                    building = 2,
-                ),
-                orderParameters = PhysicalParametersRequest(
-                    length = 1.0,
-                    width = 1.0,
-                    height = 1.0,
-                    weight = 1.0,
-                    cargoType = "Тип груза",
-                ),
-                time = TimeParametersRequest(
-                    // TODO: fix
-                    loadingTime = Date(),
-                    unloadingTime = Date()
-                )
-            )
-        )
-        return "orders"
+        return "tables/orders"
     }
 
+    @GetMapping("/admin/drivers")
+    fun showDriversListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
+                           @RequestParam(defaultValue = "10") pageSize: Int,
+                           redirectAttributes: RedirectAttributes
+    ): String {
+        if (pageNumber < 0 || pageNumber > orderService.getTotalPages() || pageSize != 10) {
+            redirectAttributes.addAttribute("pageNumber", 0)
+            redirectAttributes.addAttribute("pageSize", 10)
+            return "redirect:/admin/drivers"
+        }
+        model.addAttribute("drivers", orderService.getOrdersPaged(pageNumber, pageSize))
+        //model.addAttribute("drivers", driverService.getDriversPaged(pageNumber, pageSize)) //todo реализовать метод
+        model.addAttribute("currentPage", pageNumber)
+        model.addAttribute("pageSize", pageSize)
+        model.addAttribute("totalPages", 5)
+        //model.addAttribute("totalPages", driverService.getTotalPages) //todo
+        return "tables/drivers"
+    }
 
 }
