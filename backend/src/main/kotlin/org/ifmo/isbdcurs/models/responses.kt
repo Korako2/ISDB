@@ -16,7 +16,7 @@ data class OrderResponse (
     val driverName: String,
     val departurePoint: Long,
     val deliveryPoint: Long,
-    val status: OrderStatus,
+    val status: String,
 )
 
 data class CustomerOrderResponse (
@@ -24,7 +24,7 @@ data class CustomerOrderResponse (
     val driverName: String,
     val departureAddress: Address,
     val deliveryAddress: Address,
-    val status: OrderStatus,
+    val status: String,
 )
 
 data class DriverResponse (

@@ -132,7 +132,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
 
     @Query("""
         SELECT 
-        new org.ifmo.isbdcurs.models.CustomerOrderResponse(
+        new org.ifmo.isbdcurs.models.CustomerOrder(
             s.dateTime,
             driver_p.lastName,
             departureAddress,
@@ -151,7 +151,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
         ORDER BY o.id DESC
         LIMIT :limit OFFSET :offset
     """)
-    fun getExtendedResultsByCustomerId(customerId: Long, limit: Int, offset: Int): List<CustomerOrderResponse>
+    fun getExtendedResultsByCustomerId(customerId: Long, limit: Int, offset: Int): List<CustomerOrder>
 
     fun countByCustomerId(customerId: Long): Int
 }
