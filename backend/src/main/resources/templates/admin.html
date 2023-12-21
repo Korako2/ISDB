@@ -1,11 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>DB course work</title>
+    <title>Database Tables</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <body>
-You are admin!
+
+<div class="container">
+    <!-- Вкладки для таблиц -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="driver-tab" href="#driver" aria-selected="true" onclick="showTab('driver')">Driver</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="customer-tab" href="#customer" aria-selected="false" onclick="showTab('customer')">Customer</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="orders-tab" href="#orders" aria-selected="false" onclick="showTab('orders')">Orders</a>
+        </li>
+        <!-- Добавьте другие вкладки для других таблиц -->
+    </ul>
+
+    <!-- Контейнер для содержимого вкладок -->
+    <div class="tab-content">
+        <!-- Вкладка Driver -->
+        <div class="tab-pane fade show active" id="driver">
+            <!-- Здесь должна быть таблица для Driver -->
+            <h1>Driver Table</h1>
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">id</th>
+                    <th scope="col">customerName</th>
+                    <th scope="col">driverName</th>
+                    <th scope="col">deliveryPoint</th>
+                    <th scope="col">departurePoint</th>
+                    <th scope="col">status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Используйте данные из вашей модели для заполнения таблицы -->
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}"></td>
+                    <td th:text="${order.customerName}"></td>
+                    <td th:text="${order.driverName}"></td>
+                    <td th:text="${order.deliveryPoint}"></td>
+                    <td th:text="${order.departurePoint}"></td>
+                    <td th:text="${order.status}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Вкладка Customer -->
+        <div class="tab-pane fade" id="customer">
+            <!-- Здесь должна быть таблица для Customer -->
+            <h1>Customer Table</h1>
+            <!-- Добавьте таблицу для Customer, используя нужные данные -->
+        </div>
+
+        <!-- Вкладка Orders -->
+        <div class="tab-pane fade" id="orders">
+            <!-- Здесь должна быть таблица для Orders -->
+            <h1>Orders Table</h1>
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">id</th>
+                    <th scope="col">customerName</th>
+                    <th scope="col">driverName</th>
+                    <th scope="col">deliveryPoint</th>
+                    <th scope="col">departurePoint</th>
+                    <th scope="col">status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Используйте данные из вашей модели для заполнения таблицы -->
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.id}"></td>
+                    <td th:text="${order.customerName}"></td>
+                    <td th:text="${order.driverName}"></td>
+                    <td th:text="${order.deliveryPoint}"></td>
+                    <td th:text="${order.departurePoint}"></td>
+                    <td th:text="${order.status}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- Добавьте другие вкладки и таблицы для других таблиц базы данных -->
+    </div>
+</div>
+
+<script>
+    function showTab(tabId) {
+        const tabs = document.querySelectorAll('.tab-pane');
+        tabs.forEach(tab => {
+            tab.classList.remove('show', 'active');
+        });
+        document.getElementById(tabId).classList.add('show', 'active');
+    }
+</script>
 
 </body>
 </html>
