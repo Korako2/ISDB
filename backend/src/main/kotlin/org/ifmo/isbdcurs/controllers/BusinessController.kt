@@ -17,7 +17,6 @@ import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import java.util.*
 
 @Controller
 class BusinessController @Autowired constructor(
@@ -81,7 +80,8 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_order")
-    fun addOrder(@ModelAttribute("orderDataRequest") orderDataRequest: OrderDataRequest, result: BindingResult, model: ModelMap): String {
+    fun addOrder(@Valid @ModelAttribute("orderDataRequest") orderDataRequest: OrderDataRequest, result: BindingResult, model: ModelMap): String {
+        if (result.hasErrors())
         logger.info("Order data request: $orderDataRequest")
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
             errorHelper.addErrorIfFailed(model) {
