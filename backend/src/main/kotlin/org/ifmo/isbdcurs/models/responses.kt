@@ -16,7 +16,15 @@ data class OrderResponse (
     val driverName: String,
     val departurePoint: Long,
     val deliveryPoint: Long,
-    val status: OrderStatus,
+    val status: String,
+)
+
+data class CustomerOrderResponse (
+    val statusChangedTime: Instant,
+    val driverName: String,
+    val departureAddress: Address,
+    val deliveryAddress: Address,
+    val status: String,
 )
 
 data class DriverResponse (
@@ -35,7 +43,7 @@ data class CustomerResponse (
     val id: Long,
     val firstName: String,
     val lastName: String,
-    val dateOfBirth: LocalDate,
+    val dateOfBirth: Instant,
     val phoneNumber: String,
     val email: String,
 )

@@ -38,8 +38,8 @@
                             <td th:text="${driver.phoneNumber}"></td>
                             <td th:text="${driver.email}"></td>
                             <td th:text="${driver.licenseNumber}"></td>
-                            <td th:text="${driver.issueDate}"></td>
-                            <td th:text="${driver.expirationDate}"></td>
+                            <td th:text="${#dates.format(driver.issueDate, 'dd.MM.yyyy')}"></td>
+                            <td th:text="${#dates.format(driver.expirationDate, 'dd.MM.yyyy')}"></td>
                             <td th:text="${driver.carNumber}"></td>
                         </tr>
                         </tbody>

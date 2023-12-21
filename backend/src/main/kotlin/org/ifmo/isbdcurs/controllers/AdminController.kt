@@ -1,10 +1,5 @@
 package org.ifmo.isbdcurs.controllers
 
-import jakarta.servlet.http.HttpServletRequest
-import org.ifmo.isbdcurs.models.OrderDataRequest
-import org.ifmo.isbdcurs.models.PhysicalParametersRequest
-import org.ifmo.isbdcurs.models.StorageAddressRequest
-import org.ifmo.isbdcurs.models.TimeParametersRequest
 import org.ifmo.isbdcurs.services.AdminLogService
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
@@ -16,7 +11,6 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import java.util.*
 
 @Controller
 class AdminController @Autowired constructor(
@@ -36,10 +30,6 @@ class AdminController @Autowired constructor(
         return "logs"
     }
 
-    @GetMapping("/admin")
-    fun showAdminPage(request: HttpServletRequest): String {
-        return "admin"
-    }
     @GetMapping("/admin/orders")
     fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
                            @RequestParam(defaultValue = "10") pageSize: Int,

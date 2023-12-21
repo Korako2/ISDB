@@ -110,28 +110,26 @@
         <div class="col-md-6">
             <div th:switch="${orders}" class="container my-5">
                 <div th:case="null">
-                    <h1>Orders not found</h1>
+                    <h1>У вас еще нет заказов</h1>
                 </div>
                 <div th:case="*">
                     <h2 class="text-center mt-4">История заказов</h2>
                     <table class="table table-bordered table-striped">
                         <thead class="thead-dark">
                         <tr>
-                            <th scope="col">id</th>
-                            <th scope="col">customerName</th>
-                            <th scope="col">driverName</th>
-                            <th scope="col">deliveryPoint</th>
-                            <th scope="col">departurePoint</th>
-                            <th scope="col">status</th>
+                            <th scope="col">Дата изменения статуса</th>
+                            <th scope="col">Водитель</th>
+                            <th scope="col">Пункт отправления</th>
+                            <th scope="col">Пункт получения</th>
+                            <th scope="col">Статус</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr th:each="order : ${orders}">
-                            <td th:text="${order.id}"></td>
-                            <td th:text="${order.customerName}"></td>
+                            <td th:text="${#dates.format(order.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></td>
                             <td th:text="${order.driverName}"></td>
-                            <td th:text="${order.deliveryPoint}"></td>
-                            <td th:text="${order.departurePoint}"></td>
+                            <td th:text="${order.departureAddress.country + ', ' + order.departureAddress.city + ', ' + order.departureAddress.street + ', ' + order.departureAddress.building}"></td>
+                            <td th:text="${order.deliveryAddress.country + ', ' + order.deliveryAddress.city + ', ' + order.deliveryAddress.street + ', ' + order.deliveryAddress.building}"></td>
                             <td th:text="${order.status}"></td>
                         </tr>
                         </tbody>
@@ -139,12 +137,12 @@
                     <div th:if="${totalPages > 1}">
                         <ul class="pagination">
                             <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
-                                <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/orders?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
+                                <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/customer-orders?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
                                 <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
                             </li>
 
                             <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
-                                <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/orders?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
+                                <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/customer-orders?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
                                 <a th:unless="${currentPage != totalPages}" class="page-link disabled" href="#" style="pointer-events: none;">&raquo;</a>
                             </li>
                         </ul>

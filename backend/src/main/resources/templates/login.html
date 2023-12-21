@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>DB 4</title>
@@ -23,7 +23,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Войти</button>
     </form>
-    <form th:action="@{/register}" method="get">
+    <form action="/register" method="get" class="register-form">
         <button type="submit" class="btn btn-secondary mt-3">Нет аккаунта? Зарегистрироваться</button>
     </form>
 </div>

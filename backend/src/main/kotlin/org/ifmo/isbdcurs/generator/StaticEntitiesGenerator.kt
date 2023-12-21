@@ -39,14 +39,14 @@ class StaticEntitiesGenerator(
 
     fun genPerson(): Person {
         val gender = if (random.nextBoolean()) Gender.M else Gender.F
-        val birthDate = LocalDate(largePeriodNoised().start.toLocalDateTime(TimeZone.UTC).year, 1, 1)
+        val birthDate = largePeriodNoised().start.toJavaInstant()
         return Person(
             null,
             firstNames.random(random),
             lastNames.random(random),
             null,
             gender,
-            birthDate.toJavaLocalDate()
+            birthDate
         )
     }
 

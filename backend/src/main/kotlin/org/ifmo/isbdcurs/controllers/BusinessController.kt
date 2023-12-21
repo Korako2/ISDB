@@ -7,7 +7,6 @@ import org.ifmo.isbdcurs.persistence.CustomerRepository
 import org.ifmo.isbdcurs.persistence.UserRepository
 import org.ifmo.isbdcurs.services.*
 import org.ifmo.isbdcurs.util.ErrorHelper
-import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import java.util.*
 
@@ -32,6 +32,7 @@ class BusinessController @Autowired constructor(
     adminLogService: AdminLogService,
 ) {
     private val errorHelper = ErrorHelper(adminLogService)
+    private val logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
 
     @GetMapping("/index")
     fun showOrdersList(request: HttpServletRequest): String {
@@ -39,20 +40,22 @@ class BusinessController @Autowired constructor(
         if (request.isUserInRole("ROLE_ADMIN")) {
             return "redirect:/admin"
         }
-        return "redirect:/orders"
+        return "redirect:/customer-orders"
     }
 
-    @GetMapping("/orders")
+    @GetMapping("/customer-orders")
     fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
                            @RequestParam(defaultValue = "10") pageSize: Int,
-                           redirectAttributes: RedirectAttributes
+                           redirectAttributes: RedirectAttributes,
+                            @AuthenticationPrincipal userDetails: UserDetails
     ): String {
         if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
-            return "redirect:/orders"
+            return "redirect:/customer-orders"
         }
-        model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
+        val customerId = getCustomerId(userDetails)
+        model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)
@@ -85,20 +88,6 @@ class BusinessController @Autowired constructor(
                 )
             )
         )
-        return "index"
-    }
-
-    fun showCustomerOrders(
-        model: Model,
-        @RequestParam pageNumber: Int,
-        @RequestParam pageSize: Int,
-        @AuthenticationPrincipal userDetails: UserDetails
-    ): String {
-        errorHelper.addErrorIfFailed(model) {
-            val customerId = getCustomerId(userDetails)
-            val ordersPaged = orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize)
-            model.addAttribute("orders", ordersPaged)
-        }
         return "index"
     }
 
@@ -153,6 +142,7 @@ class BusinessController @Autowired constructor(
 
     private fun getCustomerId(userDetails: UserDetails): Long {
         val userEntity = userRepository.findByUsername(userDetails.username).orElseThrow()
+        logger.info("User entity: $userEntity")
         // TODO: here we assume that customer ID is the same as user ID
         return customerRepository.findById(userEntity.id!!).orElseThrow().id!!
     }
