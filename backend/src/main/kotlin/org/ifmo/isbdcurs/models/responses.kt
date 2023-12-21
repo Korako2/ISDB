@@ -28,3 +28,12 @@ data class DriverResponse (
     val expirationDate: Date,
     val carNumber: String
 )
+
+data class CustomerResponse (
+    val id: Long,
+    val firstName: String,
+    val lastName: String,
+    val dateOfBirth: Date,
+    val phoneNumber: String,
+    val email: String,
+)
