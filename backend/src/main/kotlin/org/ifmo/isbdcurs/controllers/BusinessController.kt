@@ -7,7 +7,6 @@ import org.ifmo.isbdcurs.persistence.CustomerRepository
 import org.ifmo.isbdcurs.persistence.UserRepository
 import org.ifmo.isbdcurs.services.*
 import org.ifmo.isbdcurs.util.ErrorHelper
-import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -43,7 +42,7 @@ class BusinessController @Autowired constructor(
         return "redirect:/orders"
     }
 
-    @GetMapping("/orders")
+    @GetMapping("/customer-orders")
     fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
                            @RequestParam(defaultValue = "10") pageSize: Int,
                            redirectAttributes: RedirectAttributes,
@@ -52,7 +51,7 @@ class BusinessController @Autowired constructor(
         if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
-            return "redirect:/orders"
+            return "redirect:/customer-orders"
         }
         val customerId = getCustomerId(userDetails)
         model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))

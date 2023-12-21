@@ -94,4 +94,4 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8080/orders?pageNumber=0&pageSize=2
+GET http://localhost:8080/customer-orders?pageNumber=0&pageSize=2

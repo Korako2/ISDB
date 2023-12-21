@@ -31,13 +31,6 @@ interface DriverRepository : CrudRepository<Driver, Long> {
     @Query("SELECT add_driver(:#{#v.firstName}, :#{#v.lastName}, :#{#v.middleName}, :#{#v.gender}, :#{#v.dateOfBirth}, :#{#v.passport}, :#{#v.bankCardNumber})", nativeQuery = true)
     fun addDriver(@Param("v") addDriverRequest: AddDriverRequest): Long
 
-    fun getDriverById(driverId: Long): Driver
-
-    @Query("SELECT * FROM vehicle " +
-            "JOIN vehicle_ownership vo ON vehicle.id = vo.vehicle_id " +
-            "WHERE driver_id = :driverId", nativeQuery = true)
-    fun getVehicleByDriverId(driverId: Long): Vehicle
-
     @Query("""
         SELECT 
         new org.ifmo.isbdcurs.models.DriverResponse(
@@ -95,9 +88,6 @@ interface VehicleRepository : CrudRepository<Vehicle, Long> {
         ) 
     """, nativeQuery = true)
     fun findSuitableVehicle(@Param("request") request: OrderDataForVehicle): Long
-
-//    @Query("SELECT * FROM get_vehicle_coordinates(:vehicleId)", nativeQuery = true)
-//    fun getVehicleCoordinates(vehicleId: Long): Coordinates
 }
 
 
