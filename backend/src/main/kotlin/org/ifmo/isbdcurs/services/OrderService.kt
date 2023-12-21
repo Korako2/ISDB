@@ -62,13 +62,13 @@ class OrderService @Autowired constructor(
     }
 
     @Transactional
-    fun addOrder(orderDataRequest: OrderDataRequest): AddOrderResult {
+    fun addOrder(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {
         return exceptionHelper.wrapWithBackendException("Error while adding order") {
-            addOrderOrThrow(orderDataRequest)
+            addOrderOrThrow(customerId, orderDataRequest)
         }
     }
 
-    private fun addOrderOrThrow(orderDataRequest: OrderDataRequest): AddOrderResult {
+    private fun addOrderOrThrow(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {
         val departureAddressDto = StorageAddressDto(
             country = orderDataRequest.departureCountry,
             city = orderDataRequest.departureCity,
@@ -119,8 +119,6 @@ class OrderService @Autowired constructor(
         val driverFullName = person.firstName + " " + person.lastName
 
         val driveToAddressDistance = vehicleCoordinates.calcDistanceKm(orderCoordinates)
-        // TODO: get current customer id from session
-        val customerId = 1L
 
         val distance = orderCoordinates.calcDistanceKm(deliveryCoordinates)
 
@@ -133,7 +131,7 @@ class OrderService @Autowired constructor(
             orderDataRequest.height,
             orderDataRequest.length,
             orderDataRequest.cargoType,
-            Date.from(Instant.now()),
+            Instant.now(),
         )
 
         logger.debug("New Order id = $orderId")
@@ -261,9 +259,8 @@ class OrderService @Autowired constructor(
             addressRepository.save(newAddress)
             val newStoragePoint = StoragePoint(
                 addressId = newAddress.id!!,
-                // TODO: random coordinates
-                latitude = 1.0f,
-                longitude = 1.0f,
+                latitude = (Random().nextDouble() * 2 + 44.0).toFloat(),
+                longitude = (Random().nextDouble() * 2 + 44.0).toFloat()
             )
             storagePointRepository.save(newStoragePoint)
             newAddress
