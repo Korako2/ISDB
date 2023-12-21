@@ -35,7 +35,7 @@ data class OrderDataForVehicle(
     val length: Double,
     val width: Double,
     val height: Double,
-    val cargoType: CargoType,
+    val cargoType: String,
     val weight: Double,
     val latitude: Double,
     val longitude: Double,

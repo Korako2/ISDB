@@ -106,10 +106,10 @@ data class OrderDataRequest(
     val weight: Double,
     @NotEmpty(message = "Поле не может быть пустым")
     @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
-    val loadingTime: Date,
+    val loadingTime: String,
     @NotEmpty(message = "Поле не может быть пустым")
     @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Неверный формат времени")
-    val unloadingTime: Date,
+    val unloadingTime: String,
     @NotEmpty(message = "Поле не может быть пустым")
     val cargoType: String
 )

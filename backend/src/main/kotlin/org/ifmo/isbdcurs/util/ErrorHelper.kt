@@ -15,4 +15,16 @@ class ErrorHelper(private val adminLogService: AdminLogService) {
             model.addAttribute("errorMessage", "Internal server error")
         }
     }
+
+    fun addErrorIfFailed(model: org.springframework.ui.ModelMap, f: () -> Unit) {
+        try {
+            return f()
+        } catch (e: BackendException) {
+            adminLogService.addRow(e.message!!, org.ifmo.isbdcurs.models.LogLevels.ERROR)
+            model.addAttribute("errorMessage", e.message)
+        } catch (e: Exception) {
+            adminLogService.addRow(e.message!!, org.ifmo.isbdcurs.models.LogLevels.ERROR)
+            model.addAttribute("errorMessage", "Internal server error")
+        }
+    }
 }

@@ -15,7 +15,7 @@
         <div class="col-md-6">
             <div class="order-form">
                 <h2 class="text-center mt-4">Форма оформления заказа</h2>
-                <form action="/add_order" method="post" enctype="multipart/form-data" th:object="${orderDataRequest}">
+                <form action="/add_order" method="post" th:object="${orderDataRequest}" novalidate>
                     <div class = "row">
                         <div class="col-md-6">
                             <div class="departure-container">
@@ -57,7 +57,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="destinationStreet">Улица получения:</label>
-                                    <input type="text" class="form-control" id="destinationStreet" name="destinationStreet" th:field="*{departureStreet}" required>
+                                    <input type="text" class="form-control" id="destinationStreet" name="destinationStreet" th:field="*{destinationStreet}" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="destinationHouse">Дом:</label>

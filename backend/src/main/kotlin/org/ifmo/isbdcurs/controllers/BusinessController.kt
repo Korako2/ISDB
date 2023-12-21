@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.ui.ModelMap
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
@@ -41,15 +42,15 @@ class BusinessController @Autowired constructor(
     }
 
     @GetMapping("/customer-orders")
-    fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
+    fun showOrdersListPage(model: ModelMap, @RequestParam(defaultValue = "0") pageNumber: Int,
                            @RequestParam(defaultValue = "10") pageSize: Int,
                            redirectAttributes: RedirectAttributes,
                             @AuthenticationPrincipal userDetails: UserDetails
-    ): String {
+    ): ModelAndView {
         if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
-            return "redirect:/customer-orders"
+            return ModelAndView("redirect:/customer-orders", model)
         }
         val customerId = getCustomerId(userDetails)
         model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))
@@ -72,22 +73,22 @@ class BusinessController @Autowired constructor(
                 height = 1.0,
                 weight = 1.0,
                 cargoType = "Тип груза",
-                loadingTime = Date.from(Date().toInstant().plusSeconds(60 * 60)),
-                unloadingTime = Date.from(Date().toInstant().plusSeconds(60 * 60)),
+                loadingTime = "01:00",
+                unloadingTime = "01:30"
             )
         )
-        return "index"
+        return ModelAndView("index", model)
     }
 
     @PostMapping("/add_order")
-    fun addOrder(model: Model, orderDataRequest: OrderDataRequest, result: BindingResult): String {
+    fun addOrder(@ModelAttribute("orderDataRequest") orderDataRequest: OrderDataRequest, result: BindingResult, model: ModelMap): String {
         logger.info("Order data request: $orderDataRequest")
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
             errorHelper.addErrorIfFailed(model) {
                 orderService.addOrder(orderDataRequest)
             }
         }
-        return "redirect:/orders?pageNumber=1&pageSize=10"
+        return "redirect:/customer-orders?pageNumber=1&pageSize=10"
     }
 
     @PostMapping("/add_customer")

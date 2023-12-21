@@ -347,7 +347,10 @@ data class CustomerOrder (
  )
 
 @Entity
+@Table(name = "logs")
 data class AdminLogRow (
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "logs_id_seq")
+    @SequenceGenerator(name = "logs_id_seq", sequenceName = "logs_id_seq", allocationSize = 1)
     @Id var id: Long? = null,
     val message: String,
     @Enumerated(EnumType.STRING)

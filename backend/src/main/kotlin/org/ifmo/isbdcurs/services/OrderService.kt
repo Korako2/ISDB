@@ -69,13 +69,13 @@ class OrderService @Autowired constructor(
     }
 
     private fun addOrderOrThrow(orderDataRequest: OrderDataRequest): AddOrderResult {
-        val departureAddressDto : StorageAddressDto = StorageAddressDto(
+        val departureAddressDto = StorageAddressDto(
             country = orderDataRequest.departureCountry,
             city = orderDataRequest.departureCity,
             street = orderDataRequest.departureStreet,
             building = orderDataRequest.departureHouse,
         )
-        val deliveryAddressDto : StorageAddressDto = StorageAddressDto(
+        val deliveryAddressDto = StorageAddressDto(
             country = orderDataRequest.destinationCountry,
             city = orderDataRequest.destinationCity,
             street = orderDataRequest.destinationStreet,
@@ -98,8 +98,7 @@ class OrderService @Autowired constructor(
             width = orderDataRequest.width,
             height = orderDataRequest.height,
             length = orderDataRequest.length,
-            // TODO: use enum in data class instead of string
-            cargoType = CargoType.valueOf(orderDataRequest.cargoType),
+            cargoType = orderDataRequest.cargoType,
             latitude = orderCoordinates.latitude,
             longitude = orderCoordinates.longitude,
         )
@@ -142,17 +141,24 @@ class OrderService @Autowired constructor(
         // TODO: take time from request
         //        val unloadingSeconds = orderDataRequest.unloadingTime * 60 * 60
         //        val loadingSeconds = orderDataRequest.loadingTime * 60 * 60
-        val unloadingSeconds = 100L
-        val loadingSeconds = 100L
+        // parse unloadingTime  to LocalTime
+        // unloadinTime = "01:00"
+        logger.debug("unloadingTime = ${orderDataRequest.unloadingTime}")
+        val unloadingSeconds = orderDataRequest.unloadingTime.split(":").let {
+            it[0].toInt() * 60 * 60 + it[1].toInt() * 60
+        }
+        val loadingSeconds = orderDataRequest.loadingTime.split(":").let {
+            it[0].toInt() * 60 * 60 + it[1].toInt() * 60
+        }
 
         val senderId = customerId
-        val receiverId = -1L // TODO: random number
+        val receiverId = 1L
         // create agreement
         val loadingUnloadingAgreement = LoadingUnloadingAgreement(
             orderId = orderId,
             driverId = driverId,
-            unloadingTime = LocalTime.ofSecondOfDay(unloadingSeconds),
-            loadingTime = LocalTime.ofSecondOfDay(loadingSeconds),
+            unloadingTime = LocalTime.ofSecondOfDay(unloadingSeconds.toLong()),
+            loadingTime = LocalTime.ofSecondOfDay(loadingSeconds.toLong()),
             departurePoint = departureAddress.id!!,
             deliveryPoint = deliveryAddress.id!!,
             senderId = senderId,
@@ -252,6 +258,7 @@ class OrderService @Autowired constructor(
                 building = addStoragePointRequest.building,
                 corpus = 1,
             )
+            addressRepository.save(newAddress)
             val newStoragePoint = StoragePoint(
                 addressId = newAddress.id!!,
                 // TODO: random coordinates
@@ -259,7 +266,6 @@ class OrderService @Autowired constructor(
                 longitude = 1.0f,
             )
             storagePointRepository.save(newStoragePoint)
-            addressRepository.save(newAddress)
             newAddress
         }
         return address
