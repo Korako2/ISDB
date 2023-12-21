@@ -25,7 +25,7 @@ class LoginController(
 
     @GetMapping("/register")
     fun showRegisterForm(model: Model): String {
-        model.addAttribute("addNewCustomer", AddNewCustomer("username", "password", "happy@mail.ru", "88005553535", "Happy", "VeryHappy", "12.12.2002", "М", false))
+        model.addAttribute("addNewCustomer", AddNewCustomer("Happy", "VeryHappy", "М", "12.12.2002", "happy","password", "Happy@mail.ru", "88005553535", false))
         return "register"
     }
 
