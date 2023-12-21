@@ -32,7 +32,7 @@
                             <td th:text="${customer.id}"></td>
                             <td th:text="${customer.firstName}"></td>
                             <td th:text="${customer.lastName}"></td>
-                            <td th:text="${customer.dateOfBirth}"></td>
+                            <td th:text="${#dates.format(customer.dateOfBirth, 'dd.MM.yyyy')}"></td>
                             <td th:text="${customer.phoneNumber}"></td>
                             <td th:text="${customer.email}"></td>
                         </tr>
