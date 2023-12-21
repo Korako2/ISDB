@@ -14,7 +14,7 @@ import org.springframework.web.servlet.ModelAndView
 class LoginController(private val userService: UserService) {
     @GetMapping("/register")
     fun showRegisterForm(model: Model): String {
-        model.addAttribute("user", UserDto("username", "password", "happy@mail.ru", "123456578901"))
+        model.addAttribute("user", UserDto("username", "password", "happy@mail.ru", "88005553535"))
         return "/register"
     }
 
