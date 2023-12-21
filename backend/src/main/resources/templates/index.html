@@ -10,35 +10,34 @@
 <body>
 
 <div class="container col-md-auto offset-md-1">
-<!--     test form for object A-->
-<!--    <form action="/add_test" method="post" enctype=l""-->
     <div class="row">
         <!-- Форма -->
         <div class="col-md-6">
             <div class="order-form">
                 <h2 class="text-center mt-4">Форма оформления заказа</h2>
-                <form action="#" th:action="@{/add_order}" method="post" enctype="application/x-www-form-urlencoded" th:object="${orderDataRequest}">
-                    <div class="row">
+                <form action="/add_order" method="post" enctype="multipart/form-data" th:object="${orderDataRequest}">
+                    <div class = "row">
                         <div class="col-md-6">
                             <div class="departure-container">
                                 <h3>Пункт отправления</h3>
                                 <div class="form-group">
                                     <label for="departureCountry">Страна:</label>
-                                    <select class="form-control" id="departureCountry" th:field="*{departureStoragePoint.country}">
+                                    <select class="form-control" id="departureCountry" name="departureCountry">
                                         <option value="Россия">Россия</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="departureCity">Город отправления:</label>
-                                    <input type="text" class="form-control" id="departureCity" th:field="*{departureStoragePoint.city}" required>
+                                    <input type="text" class="form-control" id="departureCity" name="departureCity" th:field="*{departureCity}" required>
+                                    <div th:if="${#fields.hasErrors('departureCity')}" th:errors="*{departureCity}" class="error-message"></div>
                                 </div>
                                 <div class="form-group">
                                     <label for="departureStreet">Улица:</label>
-                                    <input type="text" class="form-control" id="departureStreet" th:field="*{departureStoragePoint.street}" required>
+                                    <input type="text" class="form-control" id="departureStreet" name="departureStreet" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="departureHouse">Дом:</label>
-                                    <input type="number" class="form-control" id="departureHouse" th:field="*{departureStoragePoint.building}" step="1" min="1" required>
+                                    <input type="number" class="form-control" id="departureHouse" name="departureHouse" step = "1" min = "1" required>
                                 </div>
                             </div>
                         </div>
@@ -48,55 +47,55 @@
                                 <h3>Пункт получения</h3>
                                 <div class="form-group">
                                     <label for="destinationCountry">Страна получения:</label>
-                                    <select class="form-control" id="destinationCountry" th:field="*{deliveryStoragePoint.country}">
+                                    <select class="form-control" id="destinationCountry" name="destinationCountry">
                                         <option value="Россия">Россия</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="destinationCity">Город получения:</label>
-                                    <input type="text" class="form-control" id="destinationCity" th:field="*{deliveryStoragePoint.city}" required>
+                                    <input type="text" class="form-control" id="destinationCity" name="destinationCity" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="destinationStreet">Улица получения:</label>
-                                    <input type="text" class="form-control" id="destinationStreet" th:field="*{deliveryStoragePoint.street}" required>
+                                    <input type="text" class="form-control" id="destinationStreet" name="destinationStreet" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="destinationHouse">Дом:</label>
-                                    <input type="number" class="form-control" id="destinationHouse" th:field="*{deliveryStoragePoint.building}" step="1" min="1" required>
+                                    <input type="number" class="form-control" id="destinationHouse" name="destinationHouse"  step = "1" min = "1" required>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-8 offset-2">
+                        <div class = "col-md-8 offset-2">
                             <div class="form-group">
                                 <label for="length">Длина:</label>
-                                <input type="number" class="form-control" id="length" th:field="*{orderParameters.length}" step="0.1" min="0.1" max="15" required>
+                                <input type="number" class="form-control" id="length" name="length" step = "0.1"  min = "0.1" max = "15" required>
                             </div>
                             <div class="form-group">
                                 <label for="width">Ширина:</label>
-                                <input type="number" class="form-control" id="width" th:field="*{orderParameters.width}" step="0.1" min="0.1" max="2.5" required>
+                                <input type="number" class="form-control" id="width" name="width" step = "0.1"  min = "0.1" max = "2.5" required>
                             </div>
                             <div class="form-group">
                                 <label for="height">Высота:</label>
-                                <input type="number" class="form-control" id="height" th:field="*{orderParameters.height}" step="0.1" min="0.1" max="4" required>
+                                <input type="number" class="form-control" id="height" name="height" step = "0.1"  min = "0.1" max = "4" required>
                             </div>
                             <div class="form-group">
                                 <label for="weight">Вес:</label>
-                                <input type="number" class="form-control" id="weight" th:field="*{orderParameters.weight}" step="0.5" min="0.5" max="25000" required>
+                                <input type="number" class="form-control" id="weight" name="weight" step = "0.5"  min = "0.5" max = "25000" required>
                             </div>
                             <div class="form-group">
                                 <label for="loadingTime">Продолжительность загрузки (hh:mm):</label>
-                                <input type="time" class="form-control" id="loadingTime" th:field="*{time.loadingTime}" value="01:00" required>
+                                <input type="time" class="form-control" id="loadingTime" name="loadingTime" required>
                             </div>
                             <div class="form-group">
                                 <label for="unloadingTime">Продолжительность разгрузки (hh:mm):</label>
-                                <input type="time" class="form-control" id="unloadingTime" th:field="*{time.unloadingTime}" value="00:30" required>
+                                <input type="time" class="form-control" id="unloadingTime" name="unloadingTime" required>
                             </div>
 
                             <div class="form-group">
                                 <label for="cargoType">Тип кузова автомобиля:</label>
-                                <select class="form-control" id="cargoType" th:field="*{orderParameters.cargoType}">
+                                <select class="form-control" id="cargoType" name="cargoType">
                                     <option value="BULK">Открытый</option>
                                     <option value="PALLETIZED">Закрытый</option>
                                 </select>
