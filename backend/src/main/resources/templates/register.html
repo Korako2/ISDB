@@ -8,7 +8,7 @@
 <body class="bg-light">
 
 <div class="container mt-5">
-    <form action="/register" method="post" th:object="${user}" class="needs-validation" novalidate>
+    <form action="/register" method="post" th:object="${addNewCustomer}">
         <div class="form-group row">
             <label for="username" class="col-sm-3 col-form-label">Имя пользователя:</label>
             <div class="col-sm-9">
@@ -35,6 +35,37 @@
             <div class="col-sm-9">
                 <input type="text" id="phone" name="phone" th:field="*{phone}" class="form-control" required pattern="[0-9]{11}" title="88005553535">
                 <p th:if="${#fields.hasErrors('phone')}" class="text-danger" th:errorclass="error" th:errors="*{phone}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="firstName" class="col-sm-3 col-form-label">Имя:</label>
+            <div class="col-sm-9">
+                <input type="text" id="firstName" name="firstName" th:field="*{firstName}" class="form-control" maxlength="40" required>
+                <p th:if="${#fields.hasErrors('firstName')}" class="text-danger" th:errorclass="error" th:errors="*{firstName}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="lastName" class="col-sm-3 col-form-label">Фамилия:</label>
+            <div class="col-sm-9">
+                <input type="text" id="lastName" name="lastName" th:field="*{lastName}" class="form-control" maxlength="40" required>
+                <p th:if="${#fields.hasErrors('lastName')}" class="text-danger" th:errorclass="error" th:errors="*{lastName}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="dateOfBirth" class="col-sm-3 col-form-label">Дата рождения:</label>
+            <div class="col-sm-9">
+                <input type="date" id="dateOfBirth" name="dateOfBirth" th:field="*{dateOfBirth}" class="form-control">
+                <p th:if="${#fields.hasErrors('dateOfBirth')}" class="text-danger" th:errorclass="error" th:errors="*{dateOfBirth}"></p>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="gender" class="col-sm-3 col-form-label">Пол:</label>
+            <div class="col-sm-9">
+                <select id="gender" name="gender" th:field="*{gender}" class="form-control" required>
+                    <option value="M">M</option>
+                    <option value="F">F</option>
+                </select>
+                <p th:if="${#fields.hasErrors('gender')}" class="text-danger" th:errorclass="error" th:errors="*{gender}"></p>
             </div>
         </div>
         <input type="hidden" id="isAdmin" name="isAdmin" value="false">

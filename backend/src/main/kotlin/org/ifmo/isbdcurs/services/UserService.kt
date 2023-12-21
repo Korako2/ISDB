@@ -1,5 +1,6 @@
 package org.ifmo.isbdcurs.services
 
+import org.ifmo.isbdcurs.models.AddNewCustomer
 import org.ifmo.isbdcurs.models.User
 import org.ifmo.isbdcurs.models.UserDto
 import org.ifmo.isbdcurs.persistence.UserRepository
@@ -13,16 +14,16 @@ import kotlin.jvm.optionals.getOrNull
 class UserService (val userRepository: UserRepository, val passwordEncoder: PasswordEncoder) {
     private val logger = LoggerFactory.getLogger(UserService::class.java)
 
-    fun isUniqueUserData(user: UserDto, result: BindingResult): Boolean {
-        if (userRepository.existsByUsername(user.username))  {
+    fun isUniqueUserData(addNewCustomer: AddNewCustomer, result: BindingResult): Boolean {
+        if (userRepository.existsByUsername(addNewCustomer.username))  {
             result.rejectValue("username", "error.username", "Логин уже занят")
             return false
         }
-        if (userRepository.existsByEmail(user.email)) {
+        if (userRepository.existsByEmail(addNewCustomer.email)) {
             result.rejectValue("email", "error.email", "Email уже занят")
             return false
         }
-        if (userRepository.existsByPhone(user.phone)) {
+        if (userRepository.existsByPhone(addNewCustomer.phone)) {
             result.rejectValue("phone", "error.phone", "Телефон уже занят")
             return false
         }
