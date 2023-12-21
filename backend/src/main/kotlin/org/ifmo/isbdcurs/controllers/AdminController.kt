@@ -38,10 +38,7 @@ class AdminController @Autowired constructor(
 
     @GetMapping("/admin")
     fun showAdminPage(request: HttpServletRequest): String {
-        if (request.isUserInRole("ROLE_ADMIN")) {
-            return "redirect:/admin"
-        }
-        return "admin" // todo
+        return "admin"
     }
     @GetMapping("/admin/orders")
     fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
