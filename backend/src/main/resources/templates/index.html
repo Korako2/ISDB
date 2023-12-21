@@ -128,8 +128,8 @@
                         <tr th:each="order : ${orders}">
                             <td th:text="${#dates.format(order.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></td>
                             <td th:text="${order.driverName}"></td>
-                            <td th:text="${order.departureAddress}"></td>
-                            <td th:text="${order.deliveryAddress}"></td>
+                            <td th:text="${order.departureAddress.country + ', ' + order.departureAddress.city + ', ' + order.departureAddress.street + ', ' + order.departureAddress.building}"></td>
+                            <td th:text="${order.deliveryAddress.country + ', ' + order.deliveryAddress.city + ', ' + order.deliveryAddress.street + ', ' + order.deliveryAddress.building}"></td>
                             <td th:text="${order.status}"></td>
                         </tr>
                         </tbody>
