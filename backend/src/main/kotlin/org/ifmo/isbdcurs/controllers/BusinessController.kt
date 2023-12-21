@@ -80,7 +80,7 @@ class BusinessController @Autowired constructor(
     }
 
     @PostMapping("/add_order")
-    fun addOrder(model: Model, @ModelAttribute("orderDataRequest") orderDataRequest: OrderDataRequest, result: BindingResult): String {
+    fun addOrder(model: Model, orderDataRequest: OrderDataRequest, result: BindingResult): String {
         logger.info("Order data request: $orderDataRequest")
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
             errorHelper.addErrorIfFailed(model) {
