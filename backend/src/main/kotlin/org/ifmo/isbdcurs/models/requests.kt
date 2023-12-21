@@ -108,7 +108,7 @@ data class OrderDataRequest(
     val time: TimeParametersRequest
 )
 
-data class addNewCustomer (
+data class AddNewCustomer (
     var username: String,
     var password: String,
     var email: String,

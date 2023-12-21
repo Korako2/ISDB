@@ -2,6 +2,7 @@ package org.ifmo.isbdcurs.controllers
 
 import jakarta.validation.Valid
 import org.ifmo.isbdcurs.models.AddCustomerRequest
+import org.ifmo.isbdcurs.models.AddNewCustomer
 import org.ifmo.isbdcurs.models.User
 import org.ifmo.isbdcurs.models.UserDto
 import org.ifmo.isbdcurs.services.CustomerService
@@ -24,16 +25,16 @@ class LoginController(
 
     @GetMapping("/register")
     fun showRegisterForm(model: Model): String {
-        model.addAttribute("user", UserDto("username", "password", "happy@mail.ru", "88005553535"))
+        model.addAttribute("addNewCustomer", AddNewCustomer("username", "password", "happy@mail.ru", "88005553535", "Happy", "VeryHappy", "12.12.2002", "М", false))
         return "register"
     }
 
     @PostMapping("/register")
-    fun register(@ModelAttribute("user") @Valid user: UserDto, result: BindingResult, model: ModelMap): ModelAndView {
-        if (userService.isUniqueUserData(user, result) && !result.hasErrors()) {
-            val customerId = addCustomer(user)
-            logger.info("Added customer with id $customerId")
-            userService.addUser(user, customerId)
+    fun register(@ModelAttribute("addNewCustomer") @Valid addNewCustomer: AddNewCustomer, result: BindingResult, model: ModelMap): ModelAndView {
+        if (userService.isUniqueUserData(addNewCustomer, result) && !result.hasErrors()) {
+            //val customerId = addCustomer(addNewCustomer)
+            //logger.info("Added customer with id $customerId")
+            //userService.addUser(addNewCustomer, customerId)
             return ModelAndView("redirect:/index", model)
         }
         return ModelAndView("register", model)
