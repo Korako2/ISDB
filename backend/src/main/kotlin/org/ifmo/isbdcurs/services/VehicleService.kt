@@ -1,6 +1,5 @@
 package org.ifmo.isbdcurs.services
 
-import org.ifmo.isbdcurs.models.AddOrderRequest
 import org.ifmo.isbdcurs.models.OrderDataForVehicle
 import org.ifmo.isbdcurs.persistence.VehicleRepository
 import org.springframework.beans.factory.annotation.Autowired
