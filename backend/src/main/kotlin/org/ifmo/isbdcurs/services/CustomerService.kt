@@ -1,6 +1,7 @@
 package org.ifmo.isbdcurs.services
 
 import org.ifmo.isbdcurs.models.AddCustomerRequest
+import org.ifmo.isbdcurs.models.CustomerResponse
 import org.ifmo.isbdcurs.persistence.CustomerRepository
 import org.ifmo.isbdcurs.util.ExceptionHelper
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +22,7 @@ class CustomerService @Autowired constructor(private val customerRepo: CustomerR
         return (customerRepo.count() + pageSize - 1) / pageSize
     }
 
-    fun getCustomersPaged(page: Int, size: Int) {
+    fun getCustomersPaged(page: Int, size: Int): List<CustomerResponse> {
         val minOrderId = page * size
         val maxOrderId = page * size + size
         return exceptionHelper.wrapWithBackendException("Error while getting orders") {
