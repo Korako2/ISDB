@@ -156,4 +156,12 @@ class BusinessController @Autowired constructor(
         // TODO: here we assume that customer ID is the same as user ID
         return customerRepository.findById(userEntity.id!!).orElseThrow().id!!
     }
+
+    @GetMapping("/admin")
+    fun showAdminPage(request: HttpServletRequest): String {
+        if (request.isUserInRole("ROLE_ADMIN")) {
+            return "redirect:/admin"
+        }
+        return "admin" // todo
+    }
 }
