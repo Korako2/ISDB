@@ -52,7 +52,9 @@ class OrderService @Autowired constructor(
     fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<CustomerOrderResponse> {
         val offset = page * pageSize
         return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
-            val orders = orderRepo.getExtendedResultsByCustomerId(customerId, pageSize, offset)
+            val orders = orderRepo.getExtendedResultsByCustomerId(customerId, pageSize, offset).map {
+                it.toCustomerOrderResponse()
+            }
             logger.info("Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
                     "Orders size = ${orders.size}. Offset = $offset")
             orders
@@ -211,7 +213,17 @@ class OrderService @Autowired constructor(
             driverName = this.driverName,
             departurePoint = this.departurePoint,
             deliveryPoint = this.deliveryPoint,
-            status = this.status,
+            status = this.status.translate(),
+        )
+    }
+
+    private fun CustomerOrder.toCustomerOrderResponse(): CustomerOrderResponse {
+        return CustomerOrderResponse(
+            statusChangedTime = this.statusChangedTime,
+            driverName = this.driverName,
+            departureAddress = this.departureAddress,
+            deliveryAddress = this.deliveryAddress,
+            status = this.status.translate(),
         )
     }
 

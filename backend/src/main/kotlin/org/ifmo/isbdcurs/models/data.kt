@@ -24,6 +24,34 @@ enum class OrderStatus {
     WAITING, ACCEPTED, ARRIVED_AT_LOADING_LOCATION, LOADING, ON_THE_WAY, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED,
 }
 
+fun OrderStatus.translate(): String {
+    return when (this) {
+        OrderStatus.WAITING -> "Ожидание"
+        OrderStatus.ACCEPTED -> "Принят"
+        OrderStatus.ARRIVED_AT_LOADING_LOCATION -> "Прибыл на погрузку"
+        OrderStatus.LOADING -> "Погрузка"
+        OrderStatus.ON_THE_WAY -> "В пути"
+        OrderStatus.ARRIVED_AT_UNLOADING_LOCATION -> "Прибыл на разгрузку"
+        OrderStatus.UNLOADING -> "Разгрузка"
+        OrderStatus.COMPLETED -> "Завершен"
+    }
+}
+
+fun DriverStatus.translate(): String {
+    return when (this) {
+        DriverStatus.OFF_DUTY -> "Не работает"
+        DriverStatus.ACCEPTED_ORDER -> "Принял заказ"
+        DriverStatus.ARRIVED_AT_LOADING_LOCATION -> "Прибыл на погрузку"
+        DriverStatus.LOADING -> "Погрузка"
+        DriverStatus.EN_ROUTE -> "В пути"
+        DriverStatus.ARRIVED_AT_UNLOADING_LOCATION -> "Прибыл на разгрузку"
+        DriverStatus.UNLOADING -> "Разгрузка"
+        DriverStatus.COMPLETED_ORDER -> "Завершил заказ"
+        DriverStatus.WEEKEND -> "Выходной"
+        DriverStatus.READY_FOR_NEW_ORDER -> "Готов к новому заказу"
+    }
+}
+
 enum class ContactInfoType {
     PHONE_NUMBER, TELEGRAM, EMAIL;
 
@@ -309,6 +337,14 @@ data class ExtendedOrder (
     val deliveryPoint: Long,
     val status: OrderStatus,
 )
+
+data class CustomerOrder (
+    val statusChangedTime: Instant,
+    val driverName: String,
+    val departureAddress: Address,
+    val deliveryAddress: Address,
+    val status: OrderStatus,
+ )
 
 @Entity
 data class AdminLogRow (
