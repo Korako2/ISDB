@@ -6,6 +6,7 @@ import org.ifmo.isbdcurs.generator.FillTables
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
 
 @SpringBootApplication
 class IsbdCursApplication
@@ -31,6 +32,6 @@ fun fillTables(args: Array<String>) {
 }
 
 fun main(args: Array<String>) {
-    fillTables(args)
-//    runApplication<IsbdCursApplication>(*args)
+//    fillTables(args)
+    runApplication<IsbdCursApplication>(*args)
 }

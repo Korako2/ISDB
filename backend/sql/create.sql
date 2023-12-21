@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS person
 
 CREATE TABLE IF NOT EXISTS contact_info
 (
-    person_id    int REFERENCES person (id) ON DELETE CASCADE,
+    person_id    int REFERENCES person (id) ON DELETE NO ACTION,
     contact_type contact_info_type,
     value        text,
     PRIMARY KEY (person_id, contact_type)
