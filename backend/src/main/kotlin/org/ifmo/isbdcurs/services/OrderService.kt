@@ -69,8 +69,20 @@ class OrderService @Autowired constructor(
     }
 
     private fun addOrderOrThrow(orderDataRequest: OrderDataRequest): AddOrderResult {
-        val departureAddress: Address = getAddressOrAddNew(orderDataRequest.departureStoragePoint)
-        val deliveryAddress: Address = getAddressOrAddNew(orderDataRequest.deliveryStoragePoint)
+        val departureAddressDto : StorageAddressDto = StorageAddressDto(
+            country = orderDataRequest.departureCountry,
+            city = orderDataRequest.departureCity,
+            street = orderDataRequest.departureStreet,
+            building = orderDataRequest.departureHouse,
+        )
+        val deliveryAddressDto : StorageAddressDto = StorageAddressDto(
+            country = orderDataRequest.destinationCountry,
+            city = orderDataRequest.destinationCity,
+            street = orderDataRequest.destinationStreet,
+            building = orderDataRequest.destinationHouse,
+        )
+        val departureAddress: Address = getAddressOrAddNew(departureAddressDto)
+        val deliveryAddress: Address = getAddressOrAddNew(deliveryAddressDto)
 
         val departureStoragePoint: StoragePoint = storagePointRepository.findById(departureAddress.id!!)
             .orElseThrow { BackendException("Departure storage point not found") }
@@ -81,14 +93,13 @@ class OrderService @Autowired constructor(
             Coordinates(departureStoragePoint.latitude.toDouble(), departureStoragePoint.longitude.toDouble())
         val deliveryCoordinates =
             Coordinates(deliveryStoragePoint.latitude.toDouble(), deliveryStoragePoint.longitude.toDouble())
-        val orderParams = orderDataRequest.orderParameters
         val orderDataForVehicle = OrderDataForVehicle(
-            weight = orderParams.weight,
-            width = orderParams.width,
-            height = orderParams.height,
-            length = orderParams.length,
+            weight = orderDataRequest.weight,
+            width = orderDataRequest.width,
+            height = orderDataRequest.height,
+            length = orderDataRequest.length,
             // TODO: use enum in data class instead of string
-            cargoType = CargoType.valueOf(orderParams.cargoType),
+            cargoType = CargoType.valueOf(orderDataRequest.cargoType),
             latitude = orderCoordinates.latitude,
             longitude = orderCoordinates.longitude,
         )
@@ -118,11 +129,11 @@ class OrderService @Autowired constructor(
             customerId.toInt(),
             distance,
             vehicleId.toInt(),
-            orderParams.weight,
-            orderParams.width,
-            orderParams.height,
-            orderParams.length,
-            orderParams.cargoType,
+            orderDataRequest.weight,
+            orderDataRequest.width,
+            orderDataRequest.height,
+            orderDataRequest.length,
+            orderDataRequest.cargoType,
             Date.from(Instant.now()),
         )
 
@@ -166,7 +177,7 @@ class OrderService @Autowired constructor(
     fun isValidData(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
         return isValidAddresses(
             orderDataRequest, result
-        ) && isValidCargoType(orderDataRequest.orderParameters.cargoType)
+        ) && isValidCargoType(orderDataRequest.cargoType)
     }
 
     private fun isValidCountry(country: String): Boolean = country in availableCountries
@@ -176,20 +187,20 @@ class OrderService @Autowired constructor(
     }
 
     private fun isValidAddresses(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
-        if (!isValidCountry(orderDataRequest.departureStoragePoint.country)) {
-            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.departureStoragePoint.country}")
+        if (!isValidCountry(orderDataRequest.departureCountry)) {
+            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.departureCountry}")
             rejectInvalidValue(result, "departureCountry", "error.departureCountry", "Страна не поддерживается")
             return false
         }
 
-        if (!isValidCountry(orderDataRequest.deliveryStoragePoint.country)) {
-            logger.warn("[OrderService] isValidAddresses: destinationCountry = ${orderDataRequest.deliveryStoragePoint.country}")
+        if (!isValidCountry(orderDataRequest.destinationCountry)) {
+            logger.warn("[OrderService] isValidAddresses: destinationCountry = ${orderDataRequest.destinationCountry}")
             rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страна не поддерживается")
             return false
         }
 
-        if (orderDataRequest.deliveryStoragePoint.country != orderDataRequest.departureStoragePoint.country) {
-            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.deliveryStoragePoint.country}, destinationCountry = ${orderDataRequest.deliveryStoragePoint.country}")
+        if (orderDataRequest.destinationCountry != orderDataRequest.departureCountry) {
+            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.destinationCountry}, destinationCountry = ${orderDataRequest.destinationCountry}")
             rejectInvalidValue(
                 result,
                 "destinationCountry",
@@ -227,7 +238,7 @@ class OrderService @Autowired constructor(
         )
     }
 
-    private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressRequest): Address {
+    private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressDto): Address {
         val address = addressRepository.findByCountryAndCityAndStreetAndBuilding(
             addStoragePointRequest.country,
             addStoragePointRequest.city,

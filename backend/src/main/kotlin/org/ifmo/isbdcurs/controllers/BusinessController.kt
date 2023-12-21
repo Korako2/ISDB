@@ -13,10 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import java.util.*
@@ -62,37 +59,29 @@ class BusinessController @Autowired constructor(
         model.addAttribute("totalPages", orderService.getTotalPages(pageSize))
         model.addAttribute("orderDataRequest",
             OrderDataRequest(
-                departureStoragePoint = StorageAddressRequest(
-                    country = "Россия",
-                    city = "Москва",
-                    street = "Ленина",
-                    building = 1,
-                ),
-                deliveryStoragePoint = StorageAddressRequest(
-                    country = "Россия",
-                    city = "Москва",
-                    street = "Ленина",
-                    building = 2,
-                ),
-                orderParameters = PhysicalParametersRequest(
-                    length = 1.0,
-                    width = 1.0,
-                    height = 1.0,
-                    weight = 1.0,
-                    cargoType = "Тип груза",
-                ),
-                time = TimeParametersRequest(
-                    // TODO: fix
-                    loadingTime = Date(),
-                    unloadingTime = Date()
-                )
+                departureCountry = "Россия",
+                departureCity = "Москва",
+                departureStreet = "Ленина",
+                departureHouse = 1,
+                destinationCountry = "Россия",
+                destinationCity = "Москва",
+                destinationStreet = "Ленина",
+                destinationHouse = 2,
+                length = 1.0,
+                width = 1.0,
+                height = 1.0,
+                weight = 1.0,
+                cargoType = "Тип груза",
+                loadingTime = Date.from(Date().toInstant().plusSeconds(60 * 60)),
+                unloadingTime = Date.from(Date().toInstant().plusSeconds(60 * 60)),
             )
         )
         return "index"
     }
 
     @PostMapping("/add_order")
-    fun addOrder(model: Model, @Valid orderDataRequest: OrderDataRequest, result: BindingResult): String {
+    fun addOrder(model: Model, @ModelAttribute("orderDataRequest") orderDataRequest: OrderDataRequest, result: BindingResult): String {
+        logger.info("Order data request: $orderDataRequest")
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
             errorHelper.addErrorIfFailed(model) {
                 orderService.addOrder(orderDataRequest)
