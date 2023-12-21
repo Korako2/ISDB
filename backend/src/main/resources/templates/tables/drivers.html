@@ -10,32 +10,38 @@
 
 <div class="container col-md-auto">
     <div class="col-md-12">
-        <div th:switch="${orders}" class="container my-5">
+        <div th:switch="${drivers}" class="container my-5">
             <div th:case="null">
-                <h1>Orders not found</h1>
+                <h1>Drivers not found</h1>
             </div>
             <div th:case="*">
-                <h2 class="text-center">История заказов</h2>
-                <div class="table-responsive"> <!-- Убран класс mx-auto -->
-                    <table class="table table-bordered table-striped mx-auto"> <!-- Добавлен класс mx-auto -->
+                <h2 class="text-center">Водители компании</h2>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped mx-auto">
                         <thead class="thead-dark">
                         <tr>
                             <th scope="col">id</th>
-                            <th scope="col">customerName</th>
-                            <th scope="col">driverName</th>
-                            <th scope="col">deliveryPoint</th>
-                            <th scope="col">departurePoint</th>
-                            <th scope="col">status</th>
+                            <th scope="col">Имя</th>
+                            <th scope="col">Фамилия</th>
+                            <th scope="col">Номер телефона</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Номер ВУ</th>
+                            <th scope="col">Дата получения</th>
+                            <th scope="col">Дата окончания действия</th>
+                            <th scope="col">Номер автомобиля</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="order : ${orders}">
-                            <td th:text="${order.id}"></td>
-                            <td th:text="${order.customerName}"></td>
-                            <td th:text="${order.driverName}"></td>
-                            <td th:text="${order.deliveryPoint}"></td>
-                            <td th:text="${order.departurePoint}"></td>
-                            <td th:text="${order.status}"></td>
+                        <tr th:each="driver : ${drivers}">
+                            <td th:text="${driver.id}"></td>
+                            <td th:text="${driver.firstName}"></td>
+                            <td th:text="${driver.lastName}"></td>
+                            <td th:text="${driver.phoneNumber}"></td>
+                            <td th:text="${driver.email}"></td>
+                            <td th:text="${driver.licenseNumber}"></td>
+                            <td th:text="${driver.issueDate}"></td>
+                            <td th:text="${driver.expirationDate}"></td>
+                            <td th:text="${driver.carNumber}"></td>
                         </tr>
                         </tbody>
                     </table>
