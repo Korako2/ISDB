@@ -11,7 +11,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
@@ -23,16 +22,14 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector
 class SecurityConfig(private val userRepository: UserRepository) {
     @Autowired
     private lateinit var customerUserDetailsService: CustomUserDetailsService
-    @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+    @Autowired
+    private lateinit var passwordEncoder: PasswordEncoder
 
     @Bean
     fun authenticationProvider(): AuthenticationProvider {
         val provider = DaoAuthenticationProvider()
         provider.setUserDetailsService(customerUserDetailsService)
-        provider.setPasswordEncoder(BCryptPasswordEncoder())
+        provider.setPasswordEncoder(passwordEncoder)
         return provider
     }
 
@@ -57,6 +54,7 @@ class SecurityConfig(private val userRepository: UserRepository) {
                 authorize(mvcMatcherBuilder.pattern("/admin/**"), hasRole("ADMIN"))
                 authorize(mvcMatcherBuilder.pattern("/logs"), hasRole("ADMIN"))
                 authorize(mvcMatcherBuilder.pattern("/orders"), hasAnyRole("USER", "ADMIN"))
+                authorize(mvcMatcherBuilder.pattern("/add_order"), hasAnyRole("USER"))
 
                 // multiple roles USER and ADMIN
                 authorize(mvcMatcherBuilder.pattern("/index"), hasAnyRole("USER", "ADMIN"))

@@ -25,7 +25,15 @@ enum class OrderStatus {
 }
 
 enum class ContactInfoType {
-    PHONE_NUMBER, TELEGRAM, EMAIL,
+    PHONE_NUMBER, TELEGRAM, EMAIL;
+
+    override fun toString(): String {
+        return when (this) {
+            PHONE_NUMBER -> "PHONE NUMBER"
+            TELEGRAM -> "TELEGRAM"
+            EMAIL -> "EMAIL"
+        }
+    }
 }
 
 enum class Gender {

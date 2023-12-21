@@ -35,6 +35,9 @@ class CSVDataDumper(
             }
             csvPrinter.printRecord(sortedProperties.map { p ->
                 val value = p.getter.call(t) ?: return@map null
+                if (value.toString().contains("@")) {
+                    return@map value
+                }
                 value.toString().split(".").let {
                     if (it.size > 1) {
                         it[0] + "." + it[1].take(3)
@@ -52,6 +55,14 @@ class CSVDataDumper(
     private inline fun <reified T : Any> saveTable(
         tableName: String,
         table: List<T>,
+    ) {
+        println("Saving $tableName")
+        convertTableToCsv(tableName, table)
+    }
+
+    fun saveOneTable(
+        tableName: String,
+        table: List<Any>,
     ) {
         println("Saving $tableName")
         convertTableToCsv(tableName, table)
