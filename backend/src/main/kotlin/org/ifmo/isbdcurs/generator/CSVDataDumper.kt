@@ -26,7 +26,6 @@ class CSVDataDumper(
 
         val csvPrinter = CSVPrinter(writer, csvFormat)
 
-//        csvPrinter.printRecord(table[0]!!::class.java.declaredFields.map { it.name.camelToSnakeCase() })
         table.forEach { t ->
             // kotlin get all properties of data class values
             val constructorParamNames = t::class.primaryConstructor?.parameters?.map { p -> p.name }
