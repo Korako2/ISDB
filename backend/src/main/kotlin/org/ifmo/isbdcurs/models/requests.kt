@@ -8,7 +8,7 @@ data class AddCustomerRequest(
     val lastName : String,
     val gender : String,
     val dateOfBirth : Date,
-    val middleName : String,
+    val middleName : String?,
     val organization : String?,
 )
 
@@ -112,4 +112,24 @@ data class OrderDataRequest(
     val unloadingTime: String,
     @NotEmpty(message = "Поле не может быть пустым")
     val cargoType: String
+)
+
+data class AddNewCustomer (
+    @Size(max = 40, message = "Фамилия не должна превышать 40 символов")
+    var firstName: String,
+    @Size(max = 40, message = "Фамилия не должна превышать 40 символов")
+    var lastName: String,
+    @Pattern(regexp = "\\b(?:M|F)\\b", message = "Гендер должен быть 'M' или 'F'")
+    var gender: String,
+    @Past(message = "Дата рождения должна быть в прошлом")
+    @Pattern(regexp = "\\d{2}-\\d{2}-\\d{4}", message = "Дата рождения должна быть в формате dd-MM-yyyy")
+    var dateOfBirth: String,
+    @Size(max = 40, message = "Логин не должен превышать 40 символов")
+    var username: String,
+    var password: String,
+    @Email(message = "Некорректный формат email")
+    var email: String,
+    @Pattern(regexp = "\\d{10}", message = "Телефонный номер должен содержать 10 цифр")
+    var phone: String,
+    var isAdmin: Boolean = false
 )

@@ -2,7 +2,7 @@ package org.ifmo.isbdcurs.controllers
 
 import jakarta.validation.Valid
 import org.ifmo.isbdcurs.models.AddCustomerRequest
-import org.ifmo.isbdcurs.models.User
+import org.ifmo.isbdcurs.models.AddNewCustomer
 import org.ifmo.isbdcurs.models.UserDto
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.UserService
@@ -13,6 +13,8 @@ import org.springframework.ui.ModelMap
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 @Controller
@@ -24,35 +26,38 @@ class LoginController(
 
     @GetMapping("/register")
     fun showRegisterForm(model: Model): String {
-        model.addAttribute("user", UserDto("username", "password", "happy@mail.ru", "88005553535"))
+        model.addAttribute("addNewCustomer", AddNewCustomer("Happy", "VeryHappy", "F", "12.12.2002", "happy","password", "Happy@mail.ru", "88005553535", false))
         return "register"
     }
 
     @PostMapping("/register")
-    fun register(@ModelAttribute("user") @Valid user: UserDto, result: BindingResult, model: ModelMap): ModelAndView {
-        if (userService.isUniqueUserData(user, result) && !result.hasErrors()) {
-            val customerId = addCustomer(user)
+    fun register(@ModelAttribute("addNewCustomer") @Valid addNewCustomer: AddNewCustomer, result: BindingResult, model: ModelMap): ModelAndView {
+        if (userService.isUniqueUserData(addNewCustomer, result) && !result.hasErrors()) {
+            val userDto = UserDto(
+                username = addNewCustomer.username,
+                password = addNewCustomer.password,
+                email = addNewCustomer.email,
+                phone = addNewCustomer.phone,
+            )
+            val customerId = addCustomer(addNewCustomer)
             logger.info("Added customer with id $customerId")
-            userService.addUser(user, customerId)
+            userService.addUser(userDto, customerId)
             return ModelAndView("redirect:/index", model)
         }
         return ModelAndView("register", model)
     }
 
-    private fun addCustomer(user: UserDto): Long {
-        // TODO: remove hardcode when user add form is implemented
-        val customer = AddCustomerRequest(
-            firstName = user.username,
-            lastName = "Пушкин",
-            gender = "M",
-            dateOfBirth = Date.from(Calendar.getInstance().apply {
-                set(Calendar.YEAR, 1981)
-                set(Calendar.MONTH, 9)
-                set(Calendar.DAY_OF_MONTH, 22)
-            }.toInstant()),
-            middleName = "Олегович",
+    private fun addCustomer(customer: AddNewCustomer): Long {
+        val sdf = SimpleDateFormat("yyyy-MM-dd")
+        val date: Date = sdf.parse(customer.dateOfBirth)
+        val customerObj = AddCustomerRequest(
+            firstName = customer.firstName,
+            lastName = customer.lastName,
+            gender = customer.gender,
+            dateOfBirth = date,
+            middleName = null,
             organization = null
         )
-        return customerService.addCustomer(customer)
+        return customerService.addCustomer(customerObj)
     }
 }
