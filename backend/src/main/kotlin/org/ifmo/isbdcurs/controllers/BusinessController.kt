@@ -47,7 +47,7 @@ class BusinessController @Autowired constructor(
                            @RequestParam(defaultValue = "10") pageSize: Int,
                            redirectAttributes: RedirectAttributes
     ): String {
-        if (pageNumber < 0 || pageNumber > orderService.getTotalPages() || pageSize != 10) {
+        if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/orders"
@@ -56,7 +56,7 @@ class BusinessController @Autowired constructor(
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)
-        //model.addAttribute("totalPages", orderService.getTotalPages) //todo
+        model.addAttribute("totalPages", orderService.getTotalPages(pageSize))
         model.addAttribute("orderDataRequest",
             OrderDataRequest(
                 departureStoragePoint = StorageAddressRequest(

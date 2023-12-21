@@ -25,7 +25,7 @@ data class DriverResponse (
     val lastName: String,
     val phoneNumber: String,
     val email: String,
-    val licenseNumber: String,
+    val licenseNumber: Int,
     val issueDate: Instant,
     val expirationDate: Instant,
     val carNumber: String

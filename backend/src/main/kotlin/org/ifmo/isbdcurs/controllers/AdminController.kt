@@ -48,7 +48,7 @@ class AdminController @Autowired constructor(
                            @RequestParam(defaultValue = "10") pageSize: Int,
                            redirectAttributes: RedirectAttributes
     ): String {
-        if (pageNumber < 0 || pageNumber > orderService.getTotalPages() || pageSize != 10) {
+        if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/admin/orders"
@@ -57,7 +57,7 @@ class AdminController @Autowired constructor(
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)
-        //model.addAttribute("totalPages", orderService.getTotalPages) //todo
+        model.addAttribute("totalPages", orderService.getTotalPages(pageSize))
         return "tables/orders"
     }
 
@@ -66,16 +66,16 @@ class AdminController @Autowired constructor(
                            @RequestParam(defaultValue = "10") pageSize: Int,
                            redirectAttributes: RedirectAttributes
     ): String {
-        if (pageNumber < 0 || pageNumber > driverService.getTotalPages() || pageSize != 10) {
+        if (pageNumber < 0 || pageNumber > driverService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/admin/drivers"
         }
-        model.addAttribute("drivers", driverService.getDriversPaged(pageNumber, pageSize)) //todo реализовать метод
+        model.addAttribute("drivers", driverService.getDriversPaged(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)
-        //model.addAttribute("totalPages", driverService.getTotalPages) //todo
+        model.addAttribute("totalPages", driverService.getTotalPages(pageSize))
         return "tables/drivers"
     }
 
@@ -84,16 +84,16 @@ class AdminController @Autowired constructor(
                             @RequestParam(defaultValue = "10") pageSize: Int,
                             redirectAttributes: RedirectAttributes
     ): String {
-        if (pageNumber < 0 || pageNumber > customerService.getTotalPages() || pageSize != 10) {
+        if (pageNumber < 0 || pageNumber > customerService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/admin/customers"
         }
-        model.addAttribute("customers", customerService.getCustomersPaged(pageNumber, pageSize)) //todo реализовать метод
+        model.addAttribute("customers", customerService.getCustomersPaged(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)
-        //model.addAttribute("totalPages", customerService.getTotalPages) //todo
+        model.addAttribute("totalPages", customerService.getTotalPages(pageSize))
         return "tables/customers"
     }
 

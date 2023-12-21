@@ -39,8 +39,8 @@ class OrderService @Autowired constructor(
         }
     }
 
-    fun getTotalPages(): Int {
-        return 5
+    fun getTotalPages(pageSize: Int): Long {
+        return (orderRepo.count() + pageSize - 1) / pageSize
     }
 
     // gets order from database. Raises exception if order not found or jpa error

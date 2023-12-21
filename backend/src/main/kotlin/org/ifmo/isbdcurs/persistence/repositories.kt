@@ -42,7 +42,9 @@ interface DriverRepository : CrudRepository<Driver, Long> {
     @Query("""
         SELECT 
         new org.ifmo.isbdcurs.models.DriverResponse(
-            d.id, p.firstName, p.lastName, c_phone.value, c_mail.value, dl.licenseNumber, dl.issueDate, dl.expirationDate, d.bankCardNumber)
+            d.id, 
+            p.firstName, p.lastName, c_phone.value, c_mail.value, dl.licenseNumber, 
+            dl.issueDate, dl.expirationDate, d.bankCardNumber)
         FROM Driver d
             JOIN Person p ON d.personId = p.id
             JOIN ContactInfo c_phone ON p.id = d.personId AND c_phone.contactType = 'PHONE'
@@ -69,7 +71,7 @@ interface CustomerRepository : CrudRepository<Customer, Long> {
             JOIN ContactInfo c_mail ON p.id = c.personId AND c_mail.contactType = 'EMAIL'
         WHERE c.id >= :minCustomerId AND c.id <= :maxCustomerId
     """)
-    fun getExtendedCustomerPaged(minCustomerId: Int, maxCustomerId: Int): List<CustomerResponse>
+    fun getExtendedCustomersPaged(minCustomerId: Int, maxCustomerId: Int): List<CustomerResponse>
 }
 
 interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Long> {

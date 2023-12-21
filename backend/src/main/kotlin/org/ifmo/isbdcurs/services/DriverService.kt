@@ -31,6 +31,10 @@ class DriverService @Autowired constructor(
         )
     }
 
+    fun getTotalPages(pageSize: Int): Long {
+        return (driverRepository.count() + pageSize - 1) / pageSize
+    }
+
     fun getDriversPaged(page: Int, size: Int): List<DriverResponse> {
         val minOrderId = page * size
         val maxOrderId = page * size + size
