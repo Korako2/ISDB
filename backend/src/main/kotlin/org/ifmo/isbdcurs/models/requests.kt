@@ -9,7 +9,7 @@ data class AddCustomerRequest(
     val lastName : String,
     val gender : String,
     val dateOfBirth : Date,
-    val middleName : String,
+    val middleName : String?,
     val organization : String?,
 )
 
@@ -113,7 +113,7 @@ data class AddNewCustomer (
     var firstName: String,
     @Size(max = 40, message = "Фамилия не должна превышать 40 символов")
     var lastName: String,
-    @Pattern(regexp = "\\b(?:М|Ж)\\b", message = "Гендер должен быть 'М' или 'Ж'")
+    @Pattern(regexp = "\\b(?:M|F)\\b", message = "Гендер должен быть 'M' или 'F'")
     var gender: String,
     @Past(message = "Дата рождения должна быть в прошлом")
     @Pattern(regexp = "\\d{2}-\\d{2}-\\d{4}", message = "Дата рождения должна быть в формате dd-MM-yyyy")
