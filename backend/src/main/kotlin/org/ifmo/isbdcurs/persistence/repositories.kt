@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.query.Procedure
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
+import java.time.Instant
 import java.util.*
 
 interface PersonRepository : CrudRepository<Person, Long>
@@ -111,7 +112,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
         @Param("v_height") height: Double,
         @Param("v_length") length: Double,
         @Param("v_cargo_type") cargoType: String,
-        @Param("v_date") date: java.util.Date,
+        @Param("v_date") date: Instant,
     ) : Long
 
     @Query("""

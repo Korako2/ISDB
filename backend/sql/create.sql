@@ -238,3 +238,11 @@ CREATE TABLE IF NOT EXISTS users
     username varchar(255),
     is_admin boolean NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS logs
+(
+    id        serial PRIMARY KEY,
+    message   text,
+    level     varchar(255),
+    timestamp timestamp
+);

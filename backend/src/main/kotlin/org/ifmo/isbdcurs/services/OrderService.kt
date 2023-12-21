@@ -62,15 +62,27 @@ class OrderService @Autowired constructor(
     }
 
     @Transactional
-    fun addOrder(orderDataRequest: OrderDataRequest): AddOrderResult {
+    fun addOrder(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {
         return exceptionHelper.wrapWithBackendException("Error while adding order") {
-            addOrderOrThrow(orderDataRequest)
+            addOrderOrThrow(customerId, orderDataRequest)
         }
     }
 
-    private fun addOrderOrThrow(orderDataRequest: OrderDataRequest): AddOrderResult {
-        val departureAddress: Address = getAddressOrAddNew(orderDataRequest.departureStoragePoint)
-        val deliveryAddress: Address = getAddressOrAddNew(orderDataRequest.deliveryStoragePoint)
+    private fun addOrderOrThrow(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {
+        val departureAddressDto = StorageAddressDto(
+            country = orderDataRequest.departureCountry,
+            city = orderDataRequest.departureCity,
+            street = orderDataRequest.departureStreet,
+            building = orderDataRequest.departureHouse,
+        )
+        val deliveryAddressDto = StorageAddressDto(
+            country = orderDataRequest.destinationCountry,
+            city = orderDataRequest.destinationCity,
+            street = orderDataRequest.destinationStreet,
+            building = orderDataRequest.destinationHouse,
+        )
+        val departureAddress: Address = getAddressOrAddNew(departureAddressDto)
+        val deliveryAddress: Address = getAddressOrAddNew(deliveryAddressDto)
 
         val departureStoragePoint: StoragePoint = storagePointRepository.findById(departureAddress.id!!)
             .orElseThrow { BackendException("Departure storage point not found") }
@@ -81,14 +93,12 @@ class OrderService @Autowired constructor(
             Coordinates(departureStoragePoint.latitude.toDouble(), departureStoragePoint.longitude.toDouble())
         val deliveryCoordinates =
             Coordinates(deliveryStoragePoint.latitude.toDouble(), deliveryStoragePoint.longitude.toDouble())
-        val orderParams = orderDataRequest.orderParameters
         val orderDataForVehicle = OrderDataForVehicle(
-            weight = orderParams.weight,
-            width = orderParams.width,
-            height = orderParams.height,
-            length = orderParams.length,
-            // TODO: use enum in data class instead of string
-            cargoType = CargoType.valueOf(orderParams.cargoType),
+            weight = orderDataRequest.weight,
+            width = orderDataRequest.width,
+            height = orderDataRequest.height,
+            length = orderDataRequest.length,
+            cargoType = orderDataRequest.cargoType,
             latitude = orderCoordinates.latitude,
             longitude = orderCoordinates.longitude,
         )
@@ -109,8 +119,6 @@ class OrderService @Autowired constructor(
         val driverFullName = person.firstName + " " + person.lastName
 
         val driveToAddressDistance = vehicleCoordinates.calcDistanceKm(orderCoordinates)
-        // TODO: get current customer id from session
-        val customerId = 1L
 
         val distance = orderCoordinates.calcDistanceKm(deliveryCoordinates)
 
@@ -118,12 +126,12 @@ class OrderService @Autowired constructor(
             customerId.toInt(),
             distance,
             vehicleId.toInt(),
-            orderParams.weight,
-            orderParams.width,
-            orderParams.height,
-            orderParams.length,
-            orderParams.cargoType,
-            Date.from(Instant.now()),
+            orderDataRequest.weight,
+            orderDataRequest.width,
+            orderDataRequest.height,
+            orderDataRequest.length,
+            orderDataRequest.cargoType,
+            Instant.now(),
         )
 
         logger.debug("New Order id = $orderId")
@@ -131,17 +139,24 @@ class OrderService @Autowired constructor(
         // TODO: take time from request
         //        val unloadingSeconds = orderDataRequest.unloadingTime * 60 * 60
         //        val loadingSeconds = orderDataRequest.loadingTime * 60 * 60
-        val unloadingSeconds = 100L
-        val loadingSeconds = 100L
+        // parse unloadingTime  to LocalTime
+        // unloadinTime = "01:00"
+        logger.debug("unloadingTime = ${orderDataRequest.unloadingTime}")
+        val unloadingSeconds = orderDataRequest.unloadingTime.split(":").let {
+            it[0].toInt() * 60 * 60 + it[1].toInt() * 60
+        }
+        val loadingSeconds = orderDataRequest.loadingTime.split(":").let {
+            it[0].toInt() * 60 * 60 + it[1].toInt() * 60
+        }
 
         val senderId = customerId
-        val receiverId = -1L // TODO: random number
+        val receiverId = 1L
         // create agreement
         val loadingUnloadingAgreement = LoadingUnloadingAgreement(
             orderId = orderId,
             driverId = driverId,
-            unloadingTime = LocalTime.ofSecondOfDay(unloadingSeconds),
-            loadingTime = LocalTime.ofSecondOfDay(loadingSeconds),
+            unloadingTime = LocalTime.ofSecondOfDay(unloadingSeconds.toLong()),
+            loadingTime = LocalTime.ofSecondOfDay(loadingSeconds.toLong()),
             departurePoint = departureAddress.id!!,
             deliveryPoint = deliveryAddress.id!!,
             senderId = senderId,
@@ -166,7 +181,7 @@ class OrderService @Autowired constructor(
     fun isValidData(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
         return isValidAddresses(
             orderDataRequest, result
-        ) && isValidCargoType(orderDataRequest.orderParameters.cargoType)
+        ) && isValidCargoType(orderDataRequest.cargoType)
     }
 
     private fun isValidCountry(country: String): Boolean = country in availableCountries
@@ -176,20 +191,20 @@ class OrderService @Autowired constructor(
     }
 
     private fun isValidAddresses(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
-        if (!isValidCountry(orderDataRequest.departureStoragePoint.country)) {
-            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.departureStoragePoint.country}")
+        if (!isValidCountry(orderDataRequest.departureCountry)) {
+            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.departureCountry}")
             rejectInvalidValue(result, "departureCountry", "error.departureCountry", "Страна не поддерживается")
             return false
         }
 
-        if (!isValidCountry(orderDataRequest.deliveryStoragePoint.country)) {
-            logger.warn("[OrderService] isValidAddresses: destinationCountry = ${orderDataRequest.deliveryStoragePoint.country}")
+        if (!isValidCountry(orderDataRequest.destinationCountry)) {
+            logger.warn("[OrderService] isValidAddresses: destinationCountry = ${orderDataRequest.destinationCountry}")
             rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страна не поддерживается")
             return false
         }
 
-        if (orderDataRequest.deliveryStoragePoint.country != orderDataRequest.departureStoragePoint.country) {
-            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.deliveryStoragePoint.country}, destinationCountry = ${orderDataRequest.deliveryStoragePoint.country}")
+        if (orderDataRequest.destinationCountry != orderDataRequest.departureCountry) {
+            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.destinationCountry}, destinationCountry = ${orderDataRequest.destinationCountry}")
             rejectInvalidValue(
                 result,
                 "destinationCountry",
@@ -227,7 +242,7 @@ class OrderService @Autowired constructor(
         )
     }
 
-    private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressRequest): Address {
+    private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressDto): Address {
         val address = addressRepository.findByCountryAndCityAndStreetAndBuilding(
             addStoragePointRequest.country,
             addStoragePointRequest.city,
@@ -241,14 +256,13 @@ class OrderService @Autowired constructor(
                 building = addStoragePointRequest.building,
                 corpus = 1,
             )
+            addressRepository.save(newAddress)
             val newStoragePoint = StoragePoint(
                 addressId = newAddress.id!!,
-                // TODO: random coordinates
-                latitude = 1.0f,
-                longitude = 1.0f,
+                latitude = (Random().nextDouble() * 2 + 44.0).toFloat(),
+                longitude = (Random().nextDouble() * 2 + 44.0).toFloat()
             )
             storagePointRepository.save(newStoragePoint)
-            addressRepository.save(newAddress)
             newAddress
         }
         return address

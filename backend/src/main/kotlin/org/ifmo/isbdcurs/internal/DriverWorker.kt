@@ -77,9 +77,9 @@ class DriverWorker(
     }
 
     private fun setDriverStatus(driverState: DriverState, newStatus: DriverStatus) {
-        logger.debug("Driver {} changed status from {} to {}", driverState.driverId, driverState.currentDriverStatus, newStatus)
         driverState.currentDriverStatus = newStatus
         val driverId = driverState.driverId
+        logger.debug("Driver {} changed status from {} to {}. At {}", driverState.driverId, driverState.currentDriverStatus, newStatus, Instant.now())
         val newDriverStatus = DriverStatusHistory(
             driverId = driverId,
             date = Instant.now(),

@@ -8,7 +8,6 @@ DECLARE
     v_vehicle_id int;
     v_order_id int;
     v_customer_id int;
-    v_vehicles int[];
     ve_plate_number varchar;
     ve_body_type varchar;
 BEGIN

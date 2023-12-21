@@ -68,14 +68,14 @@ POST http://localhost:8080/add_storagepoint
 Content-Type: application/json
 
 {
-    "name": "test",
-    "country": "test",
-    "city": "test",
-    "street": "test",
-    "building": 1,
-    "corpus": 1,
-    "latitude": 47.5,
-    "longitude": 23.54
+  "name": "test",
+  "country": "test",
+  "city": "test",
+  "street": "test",
+  "building": 1,
+  "corpus": 1,
+  "latitude": 47.5,
+  "longitude": 23.54
 }
 
 ###
@@ -83,15 +83,45 @@ POST http://localhost:8080/add_storagepoint
 Content-Type: application/json
 
 {
-    "name": "test2",
-    "country": "test",
-    "city": "test2",
-    "street": "test2",
-    "building": 1,
-    "corpus": 1,
-    "latitude": 47.9,
-    "longitude": 23.84
+  "name": "test2",
+  "country": "test",
+  "city": "test2",
+  "street": "test2",
+  "building": 1,
+  "corpus": 1,
+  "latitude": 47.9,
+  "longitude": 23.84
 }
 
 ###
 GET http://localhost:8080/customer-orders?pageNumber=0&pageSize=2
+
+###
+GET http://localhost:8080/logout
+
+###
+POST http://localhost:8080/login
+Content-Type: multipart/form-data; boundary=---------------------------218705725231419778643152202234
+
+-----------------------------218705725231419778643152202234
+Content-Disposition: form-data; name="username"
+
+admin
+-----------------------------218705725231419778643152202234
+Content-Disposition: form-data; name="password"
+
+admin
+
+###
+POST http://localhost:8080/login
+Content-Type: multipart/form-data; boundary=---------------------------218705725231419778643152202234
+
+-----------------------------218705725231419778643152202234
+Content-Disposition: form-data; name="username"
+
+qwert5
+
+-----------------------------218705725231419778643152202234
+Content-Disposition: form-data; name="password"
+
+qwert5

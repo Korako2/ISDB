@@ -12,14 +12,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.ui.ModelMap
 import org.springframework.validation.BindingResult
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import java.util.*
 
 @Controller
 class BusinessController @Autowired constructor(
@@ -44,15 +41,15 @@ class BusinessController @Autowired constructor(
     }
 
     @GetMapping("/customer-orders")
-    fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
+    fun showOrdersListPage(model: ModelMap, @RequestParam(defaultValue = "0") pageNumber: Int,
                            @RequestParam(defaultValue = "10") pageSize: Int,
                            redirectAttributes: RedirectAttributes,
                             @AuthenticationPrincipal userDetails: UserDetails
-    ): String {
+    ): ModelAndView {
         if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
-            return "redirect:/customer-orders"
+            return ModelAndView("redirect:/customer-orders", model)
         }
         val customerId = getCustomerId(userDetails)
         model.addAttribute("orders", orderService.getOrdersByCustomerId(customerId, pageNumber, pageSize))
@@ -62,43 +59,38 @@ class BusinessController @Autowired constructor(
         model.addAttribute("totalPages", orderService.getTotalPages(pageSize))
         model.addAttribute("orderDataRequest",
             OrderDataRequest(
-                departureStoragePoint = StorageAddressRequest(
-                    country = "Россия",
-                    city = "Москва",
-                    street = "Ленина",
-                    building = 1,
-                ),
-                deliveryStoragePoint = StorageAddressRequest(
-                    country = "Россия",
-                    city = "Москва",
-                    street = "Ленина",
-                    building = 2,
-                ),
-                orderParameters = PhysicalParametersRequest(
-                    length = 1.0,
-                    width = 1.0,
-                    height = 1.0,
-                    weight = 1.0,
-                    cargoType = "Тип груза",
-                ),
-                time = TimeParametersRequest(
-                    // TODO: fix
-                    loadingTime = Date(),
-                    unloadingTime = Date()
-                )
+                departureCountry = "Россия",
+                departureCity = "Москва",
+                departureStreet = "Ленина",
+                departureHouse = 1,
+                destinationCountry = "Россия",
+                destinationCity = "Москва",
+                destinationStreet = "Ленина",
+                destinationHouse = 2,
+                length = 1.0,
+                width = 1.0,
+                height = 1.0,
+                weight = 1.0,
+                cargoType = "Тип груза",
+                loadingTime = "01:00",
+                unloadingTime = "01:30"
             )
         )
-        return "index"
+        return ModelAndView("index", model)
     }
 
     @PostMapping("/add_order")
-    fun addOrder(model: Model, @Valid orderDataRequest: OrderDataRequest, result: BindingResult): String {
+    fun addOrder(@Valid @ModelAttribute("orderDataRequest") orderDataRequest: OrderDataRequest, result: BindingResult, model: ModelMap,
+                 @AuthenticationPrincipal userDetails: UserDetails): String {
+        if (result.hasErrors())
+        logger.info("Order data request: $orderDataRequest")
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
             errorHelper.addErrorIfFailed(model) {
-                orderService.addOrder(orderDataRequest)
+                val customerId = getCustomerId(userDetails)
+                orderService.addOrder(customerId, orderDataRequest)
             }
         }
-        return "redirect:/orders?pageNumber=1&pageSize=10"
+        return "redirect:/customer-orders?pageNumber=1&pageSize=10"
     }
 
     @PostMapping("/add_customer")

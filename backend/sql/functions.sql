@@ -446,7 +446,7 @@ CREATE OR REPLACE FUNCTION find_suitable_vehicle(
 RETURNS TABLE (
     closest_vehicle_id INT,
     distance FLOAT
-) AS '
+) AS $$
     DECLARE
         suitable_vehicles CURSOR FOR
             SELECT *
@@ -475,7 +475,7 @@ RETURNS TABLE (
                 SELECT EXISTS (SELECT 1
                                FROM driver_status_history
                                WHERE driver_id = vehicle_owner
-                                 AND status = ''READY_FOR_NEW_ORDER''
+                                 AND (status = 'READY_FOR_NEW_ORDER' OR status = 'OFF_DUTY')
                                  -- Getting the latest status for the driver
                                  AND (driver_id, date) IN (SELECT driver_id,
                                                                   MAX(date)
@@ -512,8 +512,8 @@ RETURNS TABLE (
         -- Возвращаем ID самого близкого автомобиля и расстояние до него
         RETURN QUERY SELECT closest_vehicle_id,
                             closest_distance;
-    END;
-' LANGUAGE plpgsql;
+    END
+$$ LANGUAGE plpgsql;
 
 -- function which check that driver has only one vehicle in a time period, so time period doesn't intersect for the driver
 CREATE OR REPLACE FUNCTION check_single_ownership_overlap() RETURNS TRIGGER AS
