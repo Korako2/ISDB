@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>DB course work</title>
-    <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}">
+    <style>
+        .departure-container, .destination-container {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #F2F2F2;
+        }
+    </style>
 </head>
 <body>
 
-<div class="container col-md-auto offset-md-1">
+<div class="container col-md-auto offset-md-0">
     <div class="row">
         <!-- Форма -->
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="order-form">
                 <h2 class="text-center mt-4">Форма оформления заказа</h2>
                 <form action="/add_order" method="post" th:object="${orderDataRequest}" novalidate>
                     <div class = "row">
                         <div class="col-md-6">
                             <div class="departure-container">
-                                <h3>Пункт отправления</h3>
+                                <h3>Отправление</h3>
                                 <div class="form-group">
                                     <label for="departureCountry">Страна:</label>
                                     <select class="form-control" id="departureCountry" name="departureCountry" th:field="*{departureCountry}">
@@ -44,7 +50,7 @@
 
                         <div class="col-md-6">
                             <div class="destination-container">
-                                <h3>Пункт получения</h3>
+                                <h3>Получение</h3>
                                 <div class="form-group">
                                     <label for="destinationCountry">Страна получения:</label>
                                     <select class="form-control" id="destinationCountry" name="destinationCountry" th:field="*{destinationCountry}">
@@ -67,7 +73,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class = "col-md-8 offset-2">
+                        <div class = "col-md-6">
                             <div class="form-group">
                                 <label for="length">Длина:</label>
                                 <input type="number" class="form-control" id="length" name="length" th:field="*{length}" step = "0.1"  min = "0.1" max = "15" required>
@@ -80,19 +86,22 @@
                                 <label for="height">Высота:</label>
                                 <input type="number" class="form-control" id="height" name="height" th:field="*{height}" step = "0.1"  min = "0.1" max = "4" required>
                             </div>
+                        </div>
+                        <div class = "col-md-6">
                             <div class="form-group">
                                 <label for="weight">Вес:</label>
                                 <input type="number" class="form-control" id="weight" name="weight" th:field="*{weight}" step = "0.5"  min = "0.5" max = "25000" required>
                             </div>
                             <div class="form-group">
-                                <label for="loadingTime">Продолжительность загрузки (hh:mm):</label>
+                                <label for="loadingTime">Продолжительность загрузки:</label>
                                 <input type="time" class="form-control" id="loadingTime" th:field="*{loadingTime}" name="loadingTime" required>
                             </div>
                             <div class="form-group">
-                                <label for="unloadingTime">Продолжительность разгрузки (hh:mm):</label>
+                                <label for="unloadingTime">Продолжительность разгрузки:</label>
                                 <input type="time" class="form-control" id="unloadingTime" th:field="*{unloadingTime}" name="unloadingTime" required>
                             </div>
-
+                        </div>
+                        <div class = "col-md-12 text-center">
                             <div class="form-group">
                                 <label for="cargoType">Тип кузова автомобиля:</label>
                                 <select class="form-control" id="cargoType" th:field="*{cargoType}" name="cargoType">
@@ -107,7 +116,7 @@
             </div>
         </div>
         <!-- Таблица -->
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div th:switch="${orders}" class="container my-5">
                 <div th:case="null">
                     <h1>У вас еще нет заказов</h1>
