@@ -52,6 +52,10 @@
                             <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
                         </li>
 
+                        <li class="page-item disabled">
+                            <span class="page-link" style="cursor: default;">[[${currentPage + 1}]]</span>
+                        </li>
+
                         <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
                             <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/admin/drivers?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
                             <a th:unless="${currentPage != totalPages}" class="page-link disabled" href="#" style="pointer-events: none;">&raquo;</a>
