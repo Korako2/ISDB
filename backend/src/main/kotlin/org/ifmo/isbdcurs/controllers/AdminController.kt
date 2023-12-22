@@ -15,7 +15,8 @@ class AdminController @Autowired constructor(
     private val orderService: OrderService,
     private val driverService: DriverService,
     private val customerService: CustomerService,
-    private val vehicleService: VehicleService
+    private val vehicleService: VehicleService,
+    private val loadingUnloadingAgreementService: LoadingUnloadingAgreementService
     ) {
     private val errorHelper = ErrorHelper(adminLogService)
 
@@ -92,12 +93,30 @@ class AdminController @Autowired constructor(
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/admin/cars"
         }
-        model.addAttribute("customers", vehicleService.getCustomersPaged(pageNumber, pageSize))
+        model.addAttribute("customers", vehicleService.getCarsPaged(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", 5)
         model.addAttribute("totalPages", vehicleService.getTotalPages(pageSize))
         return "tables/cars"
+    }
+
+    @GetMapping("/admin/loading_unloading_agreement")
+    fun showLoadingUnloadingAgreementsListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
+                         @RequestParam(defaultValue = "10") pageSize: Int,
+                         redirectAttributes: RedirectAttributes
+    ): String {
+        if (pageNumber < 0 || pageNumber > loadingUnloadingAgreementService.getTotalPages(pageSize) || pageSize != 10) {  //todo Реализовать все методы
+            redirectAttributes.addAttribute("pageNumber", 0)
+            redirectAttributes.addAttribute("pageSize", 10)
+            return "redirect:/admin/loading_unloading_agreement"
+        }
+        model.addAttribute("loadingUnloadingAgreements", loadingUnloadingAgreementService.getLoadingUnloadingArgreementsPaged(pageNumber, pageSize))
+        model.addAttribute("currentPage", pageNumber)
+        model.addAttribute("pageSize", pageSize)
+        model.addAttribute("totalPages", 5)
+        model.addAttribute("totalPages", loadingUnloadingAgreementService.getTotalPages(pageSize))
+        return "tables/loading_unloading_agreement"
     }
 
 
