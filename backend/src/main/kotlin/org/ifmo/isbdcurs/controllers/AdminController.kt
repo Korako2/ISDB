@@ -1,9 +1,6 @@
 package org.ifmo.isbdcurs.controllers
 
-import org.ifmo.isbdcurs.services.AdminLogService
-import org.ifmo.isbdcurs.services.CustomerService
-import org.ifmo.isbdcurs.services.DriverService
-import org.ifmo.isbdcurs.services.OrderService
+import org.ifmo.isbdcurs.services.*
 import org.ifmo.isbdcurs.util.ErrorHelper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
@@ -17,7 +14,8 @@ class AdminController @Autowired constructor(
     private val adminLogService: AdminLogService,
     private val orderService: OrderService,
     private val driverService: DriverService,
-    private val customerService: CustomerService
+    private val customerService: CustomerService,
+    private val vehicleService: VehicleService
     ) {
     private val errorHelper = ErrorHelper(adminLogService)
 
@@ -83,5 +81,24 @@ class AdminController @Autowired constructor(
         model.addAttribute("totalPages", customerService.getTotalPages(pageSize))
         return "tables/customers"
     }
+
+    @GetMapping("/admin/cars")
+    fun showCarsListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
+                              @RequestParam(defaultValue = "10") pageSize: Int,
+                              redirectAttributes: RedirectAttributes
+    ): String {
+        if (pageNumber < 0 || pageNumber > vehicleService.getTotalPages(pageSize) || pageSize != 10) {  //todo Реализовать все методы
+            redirectAttributes.addAttribute("pageNumber", 0)
+            redirectAttributes.addAttribute("pageSize", 10)
+            return "redirect:/admin/cars"
+        }
+        model.addAttribute("customers", vehicleService.getCustomersPaged(pageNumber, pageSize))
+        model.addAttribute("currentPage", pageNumber)
+        model.addAttribute("pageSize", pageSize)
+        model.addAttribute("totalPages", 5)
+        model.addAttribute("totalPages", vehicleService.getTotalPages(pageSize))
+        return "tables/cars"
+    }
+
 
 }
