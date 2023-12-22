@@ -571,3 +571,17 @@ RETURNS TABLE (
             LIMIT 1;
     END
 ' LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION add_contacts(
+    v_person_id bigint,
+    v_phone_number varchar(20),
+    v_email varchar(50)
+) RETURNS void AS $$
+    BEGIN
+        INSERT INTO contact_info (person_id, contact_type, value)
+        VALUES (v_person_id, 'PHONE NUMBER'::contact_info_type, v_email),
+                (v_person_id, 'EMAIL'::contact_info_type, v_phone_number);
+
+    END
+$$ LANGUAGE plpgsql;

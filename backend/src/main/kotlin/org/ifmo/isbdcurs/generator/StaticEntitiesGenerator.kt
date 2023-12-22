@@ -52,11 +52,11 @@ class StaticEntitiesGenerator(
 
     fun genContactInfoMail(personId: Long): ContactInfo {
         val mail = emails.random(random)
-        return ContactInfo(personId, ContactInfoType.EMAIL, mail)
+        return ContactInfo(personId, "EMAIL", mail)
     }
 
     fun genContactInfoPhone(personId: Long): ContactInfo {
-        return ContactInfo(personId, ContactInfoType.PHONE_NUMBER, phones.random(random))
+        return ContactInfo(personId, "PHONE NUMBER", phones.random(random))
     }
 
     fun genDriver(personId: Long): Driver {
