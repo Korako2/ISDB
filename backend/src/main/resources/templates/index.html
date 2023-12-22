@@ -144,10 +144,14 @@
                         </tbody>
                     </table>
                     <div th:if="${totalPages > 1}">
-                        <ul class="pagination">
+                        <ul class="pagination pagination-lg justify-content-center">
                             <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
                                 <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/customer-orders?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
                                 <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
+                            </li>
+
+                            <li class="page-item disabled">
+                                <span class="page-link" style="cursor: default;">[[${currentPage + 1}]]</span>
                             </li>
 
                             <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
@@ -170,5 +174,6 @@
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>

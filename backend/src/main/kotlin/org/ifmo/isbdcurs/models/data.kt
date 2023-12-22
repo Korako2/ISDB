@@ -81,18 +81,16 @@ data class Person(
     val dateOfBirth: Instant,
 )
 
-
 data class ContactInfoPK(
     var personId: Long? = null,
-    var contactType: ContactInfoType? = null
+    var contactType: String? = null,
 ) : java.io.Serializable
 
 @Entity
 @IdClass(ContactInfoPK::class)
 data class ContactInfo(
     @Id val personId: Long,
-    @Enumerated(EnumType.STRING)
-    @Id val contactType: ContactInfoType,
+    @Id val contactType: String,
     val value: String,
 )
 

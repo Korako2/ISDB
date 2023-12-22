@@ -14,7 +14,10 @@ import java.util.*
 
 interface PersonRepository : CrudRepository<Person, Long>
 
-interface ContactInfoRepository : CrudRepository<ContactInfo, Long>
+interface ContactInfoRepository : CrudRepository<ContactInfo, Long> {
+    @Query("SELECT add_contacts(:personId, :phone, :email)", nativeQuery = true)
+    fun addContactInfo(personId: Long, phone: String, email: String)
+}
 
 interface DriverRepository : CrudRepository<Driver, Long> {
     @Procedure(name = "addDriverInfo")
@@ -45,9 +48,12 @@ interface DriverRepository : CrudRepository<Driver, Long> {
             LEFT JOIN ContactInfo c_phone ON c_phone.personId = p.id AND c_phone.contactType = 'PHONE NUMBER'
             JOIN VehicleOwnership vo ON d.id = vo.driverId
             JOIN Vehicle v ON vo.vehicleId = v.id
-        WHERE d.id >= :minDriverId AND d.id <= :maxDriverId
+        ORDER BY d.id DESC
+        LIMIT :limit OFFSET :offset
     """)
-    fun getExtendedDriversPaged(minDriverId: Int, maxDriverId: Int): List<DriverResponse>
+    fun getExtendedDriversPaged(limit: Int, offset: Int): List<DriverResponse>
+
+    fun existsByPassport(passport: String): Boolean
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
@@ -173,11 +179,15 @@ interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingA
 
 interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, FuelCardsForDriversPK> {
     fun findByFuelCardNumber(fuelCardNumber: String): FuelCardsForDrivers?
+
+    fun existsByFuelCardNumber(fuelCardNumber: String): Boolean
 }
 
 interface FuelExpensesRepository : CrudRepository<FuelExpenses, FuelExpensesPK>
 
 interface AdminLogRepository : PagingAndSortingRepository<AdminLogRow, Long> {
+    fun count(): Long
+
     fun findByLevel(level: LogLevels, pageable: Pageable): Page<AdminLogRow>
 
     fun save(logEntry: AdminLogRow): AdminLogRow
