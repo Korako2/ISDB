@@ -38,7 +38,6 @@ class AdminController @Autowired constructor(
         model.addAttribute("logs", adminLogService.getAdminLog(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
-        model.addAttribute("totalPages", 2)
         model.addAttribute("totalPages", adminLogService.getTotalPages(pageSize))
 
         return "admin"
