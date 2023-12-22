@@ -7,6 +7,7 @@ import org.ifmo.isbdcurs.persistence.CustomerRepository
 import org.ifmo.isbdcurs.persistence.UserRepository
 import org.ifmo.isbdcurs.services.*
 import org.ifmo.isbdcurs.util.ErrorHelper
+import org.ifmo.isbdcurs.util.parseDate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -109,30 +110,39 @@ class BusinessController @Autowired constructor(
 
     @GetMapping("/add_driver")
     fun showAddDriverForm(model: Model): String {
-        model.addAttribute("driverRequest", DriverRequest("Иван", "Иванов", "Иванович", "Ж", "12.12.1980", "8888333444", "1234432112344321", 800, 124, "11.11.2021", "11.11.2031", "123456789", "1234432123", "Лукойл"))
+        model.addAttribute("driverRequest", DriverRequest("Иван", "Иванов", "Иванович", "M", "12.12.1980", "8888333444", "1234432112344321", 800, 124, "11.11.2021", "11.11.2031", "123456789", "1234432123", "Лукойл"))
         return "add_driver"
     }
     @PostMapping("/add_driver")
     fun addDriver(@Valid @ModelAttribute("driverRequest") driverRequest: DriverRequest, result: BindingResult, model: Model): String {
-        //todo Распарсить driverRequest на AddDriverRequest и на AddDriverInfoRequest
-        println(123124124)
+        logger.info("Add Driver request: $driverRequest")
+        val addDriverRequest = AddDriverRequest(
+            firstName = driverRequest.firstName,
+            lastName = driverRequest.lastName,
+            middleName = driverRequest.middleName,
+            gender = driverRequest.gender,
+            dateOfBirth = parseDate(driverRequest.dateOfBirth),
+            passport = driverRequest.passport,
+            bankCardNumber = driverRequest.bankCardNumber
+        )
         if (driverService.isValidData(driverRequest, result) && !result.hasErrors()) {
             errorHelper.addErrorIfFailed(model) {
-                //driverService.addDriver(driverRequest)
-                println("Все ок")
+                val driverId = driverService.addDriver(addDriverRequest)
+                val addDriverInfoRequest = AddDriverInfoRequest(
+                    dailyRate = driverRequest.dailyRate,
+                    ratePerKm = driverRequest.ratePerKm,
+                    issueDate = parseDate(driverRequest.issueDate),
+                    expirationDate = parseDate(driverRequest.expirationDate),
+                    licenseNumber = driverRequest.licenseNumber.toLong(),
+                    fuelCard = driverRequest.fuelCard,
+                    fuelStationName = driverRequest.fuelStationName,
+                    driverId = driverId
+                )
+                driverService.addDriverInfo(addDriverInfoRequest)
+                logger.info("Successfully added driver with id $driverId")
             }
         }
         return "add_driver"
-    }
-
-    @PostMapping("/add_driver_info")
-    fun addDriverInfo(
-        @Valid @RequestBody addDriverInfoRequest: AddDriverInfoRequest,
-        result: BindingResult,
-        model: Model
-    ): String {
-        driverService.addDriverInfo(addDriverInfoRequest)
-        return "redirect:/index"
     }
 
     @PostMapping("/add_storagepoint")

@@ -38,8 +38,8 @@
                                 <label for="gender" class="col-sm-4 col-form-label">Пол:</label>
                                 <div class="col-sm-12">
                                     <select id="gender" name="gender" th:field="*{gender}" class="form-control" required>
-                                        <option value="М">М</option>
-                                        <option value="Ж">Ж</option>
+                                        <option value="M">M</option>
+                                        <option value="F">F</option>
                                     </select>
                                     <p th:if="${#fields.hasErrors('gender')}" class="text-danger" th:errorclass="error" th:errors="*{gender}"></p>
                                 </div>

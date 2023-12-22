@@ -12,7 +12,7 @@ class ErrorHelper(private val adminLogService: AdminLogService) {
             model.addAttribute("errorMessage", e.message)
         } catch (e: Exception) {
             adminLogService.addRow(e.message!!, org.ifmo.isbdcurs.models.LogLevels.ERROR)
-            model.addAttribute("errorMessage", "Internal server error")
+            model.addAttribute("errorMessage", "Internal server error. Check your input data")
         }
     }
 

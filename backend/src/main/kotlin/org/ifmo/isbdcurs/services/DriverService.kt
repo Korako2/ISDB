@@ -1,8 +1,8 @@
 package org.ifmo.isbdcurs.services
 
-import jakarta.transaction.Transactional
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.DriverRepository
+import org.ifmo.isbdcurs.persistence.FuelCardsForDriversRepository
 import org.ifmo.isbdcurs.util.ExceptionHelper
 import org.ifmo.isbdcurs.util.pageToIdRangeNormal
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,12 +13,13 @@ import java.time.LocalDate
 @Service
 class DriverService @Autowired constructor(
     private val driverRepository: DriverRepository,
+    private val fuelCardsForDriversRepository: FuelCardsForDriversRepository,
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverService::class.java)
     private val exceptionHelper = ExceptionHelper(logger)
 
-    fun addDriver(addDriverRequest: AddDriverRequest) {
-        driverRepository.addDriver(addDriverRequest)
+    fun addDriver(addDriverRequest: AddDriverRequest) : Long {
+        return driverRepository.addDriver(addDriverRequest)
     }
 
     fun addDriverInfo(addDriverInfoRequest: AddDriverInfoRequest) {
@@ -54,8 +55,10 @@ class DriverService @Autowired constructor(
         isValid = isValidName(driverRequest, result) && isValid
         isValid = isValidGender(driverRequest, result) && isValid
         isValid = isValidDate(driverRequest.dateOfBirth, "dateOfBirth", "Неверный формат даты рождения", true, result) && isValid
+        isValid = isDateGreaterThan(driverRequest.dateOfBirth, "1924-01-01", "dateOfBirth", "Водитель должен быть младше 100 лет", result) && isValid
         isValid = isValidDate(driverRequest.issueDate, "issueDate", "Неверный формат даты получения ВУ", false, result) && isValid
         isValid = isValidDate(driverRequest.expirationDate, "expirationDate", "Неверный формат даты истечения ВУ", false, result) && isValid
+        isValid = isDateInFuture(driverRequest.expirationDate, "expirationDate", "срок действия ВУ истек", result) && isValid
         isValid = isValidPassport(driverRequest, result) && isValid
        // isValid = isValidDriverLicense(driverRequest, result) && isValid
         isValid = isValidDailyRate(driverRequest, result) && isValid
@@ -63,6 +66,42 @@ class DriverService @Autowired constructor(
         isValid = isValidFuelCard(driverRequest, result) && isValid
         isValid = isValidFuelStationName(driverRequest, result) && isValid
         return isValid
+    }
+
+    private fun isDateInFuture(date: String, fieldName: String, errorMessage: String, result: BindingResult): Boolean {
+        val dateParts = date.split("-")
+        val day = dateParts[2].toIntOrNull()
+        val month = dateParts[1].toIntOrNull()
+        val year = dateParts[0].toIntOrNull()
+        if (day == null || month == null || year == null) {
+            return false
+        }
+        val isInFuture = LocalDate.of(year, month, day).isAfter(LocalDate.now())
+        if (!isInFuture) {
+            result.rejectValue(fieldName, fieldName, errorMessage)
+            return false
+        }
+        return true
+    }
+
+    private fun isDateGreaterThan(date1: String, date2: String, fieldName: String, errorMessage: String, result: BindingResult): Boolean {
+        val dateParts1 = date1.split("-")
+        val day1 = dateParts1[2].toIntOrNull()
+        val month1 = dateParts1[1].toIntOrNull()
+        val year1 = dateParts1[0].toIntOrNull()
+        val dateParts2 = date2.split("-")
+        val day2 = dateParts2[2].toIntOrNull()
+        val month2 = dateParts2[1].toIntOrNull()
+        val year2 = dateParts2[0].toIntOrNull()
+        if (day1 == null || month1 == null || year1 == null || day2 == null || month2 == null || year2 == null) {
+            result.rejectValue(fieldName, fieldName, "Неверный формат даты")
+            return false
+        }
+        if (LocalDate.of(year1, month1, day1).isBefore(LocalDate.of(year2, month2, day2))) {
+            result.rejectValue(fieldName, fieldName, errorMessage)
+            return false
+        }
+        return true
     }
 
     private fun isValidName(driverRequest: DriverRequest, result: BindingResult): Boolean {
@@ -91,8 +130,8 @@ class DriverService @Autowired constructor(
     }
 
     private fun isValidGender(driverRequest: DriverRequest, result: BindingResult): Boolean {
-        if (driverRequest.gender !in arrayOf("М", "Ж")) {
-            result.rejectValue("gender", "gender", "Пол должен быть М или Ж")
+        if (driverRequest.gender !in arrayOf("M", "F")) {
+            result.rejectValue("gender", "gender", "Пол должен быть M или F")
             return false
         }
         return true
@@ -100,11 +139,15 @@ class DriverService @Autowired constructor(
 
     private fun isValidPassport(driverRequest: DriverRequest, result: BindingResult): Boolean {
         if (driverRequest.passport.isBlank()) {
-            result.rejectValue("passportNumber", "passportNumber", "Номер паспорта не может быть пустым")
+            result.rejectValue("passport", "passport", "Номер паспорта не может быть пустым")
             return false
         }
         if (driverRequest.passport.length != 10) {
-            result.rejectValue("passportNumber", "passportNumber", "Номер паспорта должен содержать 10 цифр")
+            result.rejectValue("passport", "passport", "Номер паспорта должен содержать 10 цифр")
+            return false
+        }
+        if (driverRepository.existsByPassport(driverRequest.passport)) {
+            result.rejectValue("passport", "passport", "Водитель с таким паспортом уже существует")
             return false
         }
         return true
@@ -161,8 +204,8 @@ class DriverService @Autowired constructor(
             return false
         }
 
-        if (day !in 1..31 || month !in 1..12 || year !in 1900..LocalDate.now().year) {
-            result.rejectValue(fieldName, fieldName, "Неверный формат даты")
+        if (day !in 1..31 || month !in 1..12) {
+            result.rejectValue(fieldName, fieldName, "Неверный формат даты: $date")
             return false
         }
 
@@ -179,8 +222,12 @@ class DriverService @Autowired constructor(
             result.rejectValue("fuelCard", "fuelCard", "Номер топливной карты не может быть пустым")
             return false
         }
-        if (driverRequest.fuelCard.length in 8..40) {
+        if (driverRequest.fuelCard.length !in 8..40) {
             result.rejectValue("fuelCard", "fuelCard", "Номер топливной карты должен содержать от 8 до 40 цифр")
+            return false
+        }
+        if (fuelCardsForDriversRepository.existsByFuelCardNumber(driverRequest.fuelCard)) {
+            result.rejectValue("fuelCard", "fuelCard", "Топливная карта с таким номером уже существует")
             return false
         }
         return true

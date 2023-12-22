@@ -48,6 +48,8 @@ interface DriverRepository : CrudRepository<Driver, Long> {
         WHERE d.id >= :minDriverId AND d.id <= :maxDriverId
     """)
     fun getExtendedDriversPaged(minDriverId: Int, maxDriverId: Int): List<DriverResponse>
+
+    fun existsByPassport(passport: String): Boolean
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
@@ -173,6 +175,8 @@ interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingA
 
 interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, FuelCardsForDriversPK> {
     fun findByFuelCardNumber(fuelCardNumber: String): FuelCardsForDrivers?
+
+    fun existsByFuelCardNumber(fuelCardNumber: String): Boolean
 }
 
 interface FuelExpensesRepository : CrudRepository<FuelExpenses, FuelExpensesPK>
