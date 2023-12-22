@@ -3,67 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <title>DB course work</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <body>
 
 <div class="container col-md-auto">
-    <div class="col-md-12">
-        <div th:switch="${drivers}" class="container my-5">
-            <div th:case="null">
-                <h1>Drivers not found</h1>
+    <div class="row">
+        <!-- Форма -->
+        <div class="col-md-6">
+<!--            Кнопка для добавления водителя. Ведет на /add_driver -->
+            <div class="col-md-12 text-center mb-4">
+                <a href="/add_driver" class="btn btn-back btn-lg">Добавить водителя</a>
             </div>
-            <div th:case="*">
-                <h2 class="text-center">Водители компании</h2>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped mx-auto">
-                        <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">id</th>
-                            <th scope="col">Имя</th>
-                            <th scope="col">Фамилия</th>
-                            <th scope="col">Номер телефона</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Номер ВУ</th>
-                            <th scope="col">Дата получения</th>
-                            <th scope="col">Дата окончания действия</th>
-                            <th scope="col">Номер автомобиля</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="driver : ${drivers}">
-                            <td th:text="${driver.id}"></td>
-                            <td th:text="${driver.firstName}"></td>
-                            <td th:text="${driver.lastName}"></td>
-                            <td th:text="${driver.phoneNumber}"></td>
-                            <td th:text="${driver.email}"></td>
-                            <td th:text="${driver.licenseNumber}"></td>
-                            <td th:text="${#dates.format(driver.issueDate, 'dd.MM.yyyy')}"></td>
-                            <td th:text="${#dates.format(driver.expirationDate, 'dd.MM.yyyy')}"></td>
-                            <td th:text="${driver.carNumber}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
+            <div class="col-md-12 text-center mb-4">
+                <a href="/admin" class="btn btn-back btn-lg">Назад в админку</a>
+            </div>
+        </div>
+        <!-- Таблица -->
+        <div class="col-md-6">
+            <div th:switch="${drivers}" class="container my-5">
+                <div th:case="null">
+                    <h1>Drivers not found</h1>
                 </div>
-                <div th:if="${totalPages > 1}">
-                    <ul class="pagination pagination-lg justify-content-center">
-                        <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
-                            <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/admin/drivers?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
-                            <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
-                        </li>
+                <div th:case="*">
+                    <h2 class="text-center">Водители компании</h2>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped mx-auto">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">id</th>
+                                <th scope="col">Имя</th>
+                                <th scope="col">Фамилия</th>
+                                <th scope="col">Номер телефона</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Номер ВУ</th>
+                                <th scope="col">Дата получения</th>
+                                <th scope="col">Дата окончания действия</th>
+                                <th scope="col">Номер автомобиля</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="driver : ${drivers}">
+                                <td th:text="${driver.id}"></td>
+                                <td th:text="${driver.firstName}"></td>
+                                <td th:text="${driver.lastName}"></td>
+                                <td th:text="${driver.phoneNumber}"></td>
+                                <td th:text="${driver.email}"></td>
+                                <td th:text="${driver.licenseNumber}"></td>
+                                <td th:text="${#dates.format(driver.issueDate, 'dd.MM.yyyy')}"></td>
+                                <td th:text="${#dates.format(driver.expirationDate, 'dd.MM.yyyy')}"></td>
+                                <td th:text="${driver.carNumber}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${totalPages > 1}">
+                        <ul class="pagination pagination-lg justify-content-center">
+                            <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
+                                <a th:if="${currentPage != 0}" class="page-link"
+                                   th:href="@{'/admin/drivers?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
+                                <a th:unless="${currentPage != 0}" class="page-link disabled" href="#"
+                                   style="pointer-events: none;">&laquo;</a>
+                            </li>
 
                         <li class="page-item disabled">
                             <span class="page-link" style="cursor: default;">[[${currentPage + 1}]]</span>
                         </li>
 
-                        <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
-                            <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/admin/drivers?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
-                            <a th:unless="${currentPage != totalPages}" class="page-link disabled" href="#" style="pointer-events: none;">&raquo;</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-md-12 text-center mb-4">
-                    <a href="/admin" class="btn btn-back btn-lg">Назад в админку</a>
+                            <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
+                                <a th:if="${currentPage != totalPages}" class="page-link"
+                                   th:href="@{'/admin/drivers?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
+                                <a th:unless="${currentPage != totalPages}" class="page-link disabled" href="#"
+                                   style="pointer-events: none;">&raquo;</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
