@@ -1,25 +1,67 @@
 package org.ifmo.isbdcurs.services
 
 import org.ifmo.isbdcurs.models.*
-import org.ifmo.isbdcurs.persistence.DriverRepository
-import org.ifmo.isbdcurs.persistence.FuelCardsForDriversRepository
+import org.ifmo.isbdcurs.persistence.*
 import org.ifmo.isbdcurs.util.ExceptionHelper
 import org.ifmo.isbdcurs.util.pageToIdRangeNormal
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.ui.ModelMap
 import org.springframework.validation.BindingResult
+import java.time.Instant
 import java.time.LocalDate
+import kotlin.random.Random
 
 @Service
 class DriverService @Autowired constructor(
     private val driverRepository: DriverRepository,
     private val fuelCardsForDriversRepository: FuelCardsForDriversRepository,
+    private val contactInfoRepository: ContactInfoRepository,
+    private val vehicleRepository: VehicleRepository,
+    private val vehicleOwnershipRepository: VehicleOwnershipRepository,
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverService::class.java)
     private val exceptionHelper = ExceptionHelper(logger)
 
+    private fun nRandRusLetters(n: Int): String {
+        return (1..n).map { ('А'..'Я').random() }.joinToString("")
+    }
+
+    private fun nRandRusDigits(n: Int): String {
+        return (1..n).map { ('0'..'9').random() }.joinToString("")
+    }
+
+    private fun randomPlateNumber(): String {
+        return nRandRusLetters(1) + nRandRusDigits(3) + nRandRusLetters(2) + nRandRusDigits(2);
+    }
+
+
     fun addDriver(addDriverRequest: AddDriverRequest) : Long {
-        return driverRepository.addDriver(addDriverRequest)
+        val vehicle = Vehicle(
+            manufactureYear = Instant.parse("2000-01-01T00:00:00Z"),
+            plateNumber = randomPlateNumber(),
+            length = Random.nextDouble(12.0, 15.0),
+            width = Random.nextDouble(2.0, 2.5),
+            height = Random.nextDouble(3.0, 4.0),
+            loadCapacity = Random.nextDouble(1000.0, 3000.0),
+            bodyType = BodyType.values().random(),
+            model = "BMW"
+        )
+        val driverId = driverRepository.addDriver(addDriverRequest)
+        vehicleRepository.save(vehicle)
+        val vehicleOwnership = VehicleOwnership(
+            vehicleId = vehicle.id!!,
+            driverId = driverId,
+            ownershipStartDate = Instant.parse("2000-01-01T00:00:00Z"),
+            ownershipEndDate = null
+        )
+        vehicleOwnershipRepository.save(vehicleOwnership)
+        return driverId
+    }
+
+    fun addContactInfo(personId: Long, phone: String, email: String) {
+        logger.info("Adding contact info for person $personId")
+        contactInfoRepository.addContactInfo(personId, phone, email)
     }
 
     fun addDriverInfo(addDriverInfoRequest: AddDriverInfoRequest) {
@@ -41,16 +83,22 @@ class DriverService @Autowired constructor(
 
     fun getDriversPaged(page: Int, size: Int): List<DriverResponse> {
         val (minOrderId, maxOrderId) = pageToIdRangeNormal(page, size)
-        return exceptionHelper.wrapWithBackendException("Error while getting orders") {
-            driverRepository.getExtendedDriversPaged(minOrderId, maxOrderId)
+        val offset = page * size + 1
+        val drivers = exceptionHelper.wrapWithBackendException("Error while getting orders") {
+            driverRepository.getExtendedDriversPaged(size, offset)
         }
+        if (drivers.isEmpty()) {
+            logger.info("No drivers found in range $minOrderId to $maxOrderId")
+        }
+        logger.info("Getting drivers from $minOrderId to $maxOrderId. Got ${drivers.size} drivers")
+        return drivers
     }
 
     fun startWork(driverId: Long, orderId: Long) {
         // slowly move to order address
     }
 
-    fun isValidData(driverRequest: DriverRequest, result: BindingResult): Boolean{
+    fun isValidData(model: ModelMap, driverRequest: DriverRequest, result: BindingResult): Boolean{
         var isValid = true
         isValid = isValidName(driverRequest, result) && isValid
         isValid = isValidGender(driverRequest, result) && isValid

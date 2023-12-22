@@ -149,4 +149,6 @@ data class DriverRequest (
     val licenseNumber : String,
     val fuelCard : String,
     val fuelStationName : String,
+    val phone : String,
+    val email : String,
 )
