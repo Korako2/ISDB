@@ -21,6 +21,48 @@
         </li>
         <!-- Добавьте другие вкладки для других таблиц -->
     </ul>
+    <div th:switch="${logs}" class="container my-5">
+        <div th:case="null">
+            <h1>Logs not found</h1>
+        </div>
+        <div th:case="*">
+            <h2 class="text-center">Логи</h2>
+            <div class="table-responsive"> <!-- Убран класс mx-auto -->
+                <table class="table table-bordered table-striped mx-auto"> <!-- Добавлен класс mx-auto -->
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Message</th>
+                        <th scope="col">Level</th>
+                        <th scope="col">Timestamp</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="log : ${logs}">
+                        <td th:text="${log.id}"></td>
+                        <td th:text="${log.message}"></td>
+                        <td th:text="${log.level}"></td>
+                        <td th:text="${log.timestamp}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${totalPages > 1}">
+                <ul class="pagination pagination-lg justify-content-center"> <!-- Добавлен класс pagination-lg -->
+                    <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
+                        <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/admin?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
+                        <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
+                    </li>
+
+                    <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
+                        <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/admin?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
+                        <a th:unless="${currentPage != totalPages}" class="page-link disabled" href="#" style="pointer-events: none;">&raquo;</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
+

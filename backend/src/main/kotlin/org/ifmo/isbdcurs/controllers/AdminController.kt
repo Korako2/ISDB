@@ -25,12 +25,22 @@ class AdminController @Autowired constructor(
     private val errorHelper = ErrorHelper(adminLogService)
     private val logger = org.slf4j.LoggerFactory.getLogger(AdminController::class.java)
 
-    @GetMapping("/logs")
-    fun showLogs(model: Model): String {
-        errorHelper.addErrorIfFailed(model) {
-            model.addAttribute("logs", adminLogService.getAdminLog(0, 100))
+    @GetMapping("/admin")
+    fun showLogs(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
+                 @RequestParam(defaultValue = "10") pageSize: Int,
+                 redirectAttributes: RedirectAttributes
+    ): String {
+        if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
+            redirectAttributes.addAttribute("pageNumber", 0)
+            redirectAttributes.addAttribute("pageSize", 10)
+            return "redirect:/admin"
         }
-        // TODO: create logs table
+        model.addAttribute("logs", adminLogService.getAdminLog(pageNumber, pageSize))
+        model.addAttribute("currentPage", pageNumber)
+        model.addAttribute("pageSize", pageSize)
+        model.addAttribute("totalPages", 2)
+        model.addAttribute("totalPages", adminLogService.getTotalPages(pageSize))
+
         return "admin"
     }
 

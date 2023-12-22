@@ -12,6 +12,10 @@ class AdminLogService(private val adminLogRepository: AdminLogRepository) {
         return adminLogRepository.findAll(PageRequest.of(page, pageSize)).toList()
     }
 
+    fun getTotalPages(pageSize: Int): Long {
+        return (adminLogRepository.count() + pageSize - 1) / pageSize
+    }
+
     fun addRow(message: String, level: LogLevels) {
         val logEntry = AdminLogRow(message = message, level = level, timestamp = java.util.Date().toInstant())
         adminLogRepository.save(logEntry)
