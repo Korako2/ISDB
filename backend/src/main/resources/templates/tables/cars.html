@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DB course work</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container col-md-auto">
+    <div class="col-md-12">
+        <div th:switch="${cars}" class="container my-5">
+            <div th:case="null">
+                <h1>Cars not found</h1>
+            </div>
+            <div th:case="*">
+                <h2 class="text-center">Автомобили</h2>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped mx-auto">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Id</th>
+                            <th scope="col">Номер</th>
+                            <th scope="col">Модель</th>
+                            <th scope="col">Год производства</th>
+                            <th scope="col">Длина</th>
+                            <th scope="col">Ширина</th>
+                            <th scope="col">Высота</th>
+                            <th scope="col">Грузоподъемность</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="car : ${cars}">
+                            <td th:text="${car.id}"></td>
+                            <td th:text="${car.plate_number}"></td>
+                            <td th:text="${car.model}"></td>
+                            <td th:text="${car.manufacture_year}"></td>
+                            <td th:text="${car.length}"></td>
+                            <td th:text="${car.width}"></td>
+                            <td th:text="${car.height}"></td>
+                            <td th:text="${car.load_capacity}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${totalPages > 1}">
+                    <ul class="pagination pagination-lg justify-content-center">
+                        <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
+                            <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/admin/cars?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
+                            <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
+                        </li>
+
+                        <li class="page-item disabled">
+                            <span class="page-link" style="cursor: default;">[[${currentPage + 1}]]</span>
+                        </li>
+
+                        <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
+                            <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/admin/cars?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
+                            <a th:unless="${currentPage != totalPages}" class="page-link disabled" href="#" style="pointer-events: none;">&raquo;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-12 text-center mb-4">
+                    <a href="/admin" class="btn btn-back btn-lg">Назад в админку</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
