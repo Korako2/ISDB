@@ -186,6 +186,8 @@ interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, Fu
 interface FuelExpensesRepository : CrudRepository<FuelExpenses, FuelExpensesPK>
 
 interface AdminLogRepository : PagingAndSortingRepository<AdminLogRow, Long> {
+    fun count(): Long
+
     fun findByLevel(level: LogLevels, pageable: Pageable): Page<AdminLogRow>
 
     fun save(logEntry: AdminLogRow): AdminLogRow
