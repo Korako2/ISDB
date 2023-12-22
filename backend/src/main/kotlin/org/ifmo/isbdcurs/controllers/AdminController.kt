@@ -21,13 +21,26 @@ class AdminController @Autowired constructor(
     ) {
     private val errorHelper = ErrorHelper(adminLogService)
 
-    @GetMapping("/logs")
-    fun showLogs(model: Model): String {
-        errorHelper.addErrorIfFailed(model) {
-            model.addAttribute("logs", adminLogService.getAdminLog(0, 100))
+    @GetMapping("/admin")
+    fun showLogs(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
+                 @RequestParam(defaultValue = "10") pageSize: Int,
+                 redirectAttributes: RedirectAttributes
+    ): String {
+        if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
+            redirectAttributes.addAttribute("pageNumber", 0)
+            redirectAttributes.addAttribute("pageSize", 10)
+            return "redirect:/admin"
         }
-        // TODO: create logs table
-        return "logs"
+        model.addAttribute("logs", adminLogService.getAdminLog(pageNumber, pageSize))
+        model.addAttribute("currentPage", pageNumber)
+        model.addAttribute("pageSize", pageSize)
+        model.addAttribute("totalPages", 2)
+        // model.addAttribute("totalPages", adminLogService.getTotalPages(pageSize)) // todo add getTotalPages to AdminLogService
+
+//        errorHelper.addErrorIfFailed(model) { // todo I don't understand what I need to do with this.
+//
+//        }
+        return "admin"
     }
 
     @GetMapping("/admin/orders")
