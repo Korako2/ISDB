@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DB course work</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+<div class="container col-md-auto">
+    <div class="col-md-12">
+        <div th:switch="${loadingUnloadingAgreements}" class="container my-5">
+            <div th:case="null">
+                <h1>Unloading and loading agreements not found</h1>
+            </div>
+            <div th:case="*">
+                <h2 class="text-center">Разгрузочно-погрузочные соглашения</h2>
+                <div class="table-responsive"> <!-- Убран класс mx-auto -->
+                    <table class="table table-bordered table-striped mx-auto"> <!-- Добавлен класс mx-auto -->
+                        <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">ID заказчика</th>
+                            <th scope="col">ID водителя</th>
+                            <th scope="col">Пункт отправления</th>
+                            <th scope="col">Пункт получения</th>
+                            <th scope="col">ID отправителя</th>
+                            <th scope="col">ID получателя</th>=
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="loadingUnloadingAgreement : ${loadingUnloadingAgreements}">
+                            <td th:text="${loadingUnloadingAgreement.order_id}"></td>
+                            <td th:text="${loadingUnloadingAgreement.driver_id}"></td>
+                            <td th:text="${loadingUnloadingAgreement.departure_point}"></td>
+                            <td th:text="${loadingUnloadingAgreement.delivery_point}"></td>
+                            <td th:text="${loadingUnloadingAgreement.sender_id}"></td>
+                            <td th:text="${loadingUnloadingAgreement.receiver_id}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${totalPages > 1}">
+                    <ul class="pagination pagination-lg justify-content-center"> <!-- Добавлен класс pagination-lg -->
+                        <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
+                            <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/admin/loading_unloading_agreement?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
+                            <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
+                        </li>
+
+                        <li class="page-item disabled">
+                            <span class="page-link" style="cursor: default;">[[${currentPage + 1}]]</span>
+                        </li>
+
+                        <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
+                            <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/admin/loading_unloading_agreement?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
+                            <a th:unless="${currentPage != totalPages}" class="page-link disabled" href="#" style="pointer-events: none;">&raquo;</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-12 text-center mb-4">
+                    <a href="/admin" class="btn btn-back btn-lg">Назад в админку</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
