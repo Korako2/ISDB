@@ -27,7 +27,7 @@ class AdminController @Autowired constructor(
             model.addAttribute("logs", adminLogService.getAdminLog(0, 100))
         }
         // TODO: create logs table
-        return "logs"
+        return "admin"
     }
 
     @GetMapping("/admin/orders")

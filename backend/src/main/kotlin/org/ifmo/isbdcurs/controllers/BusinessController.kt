@@ -82,6 +82,7 @@ class BusinessController @Autowired constructor(
     @PostMapping("/add_order")
     fun addOrder(@Valid @ModelAttribute("orderDataRequest") orderDataRequest: OrderDataRequest, result: BindingResult, model: ModelMap,
                  @AuthenticationPrincipal userDetails: UserDetails): String {
+        println(123)
         if (result.hasErrors())
         logger.info("Order data request: $orderDataRequest")
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
@@ -90,7 +91,7 @@ class BusinessController @Autowired constructor(
                 orderService.addOrder(customerId, orderDataRequest)
             }
         }
-        return "redirect:/customer-orders?pageNumber=1&pageSize=10"
+        return "redirect:/customer-orders?pageNumber=0&pageSize=10"
     }
 
     @PostMapping("/add_customer")
@@ -106,10 +107,22 @@ class BusinessController @Autowired constructor(
         return "redirect:/index"
     }
 
+    @GetMapping("/add_driver")
+    fun showAddDriverForm(model: Model): String {
+        model.addAttribute("driverRequest", DriverRequest("Иван", "Иванов", "Иванович", "Ж", "12.12.1980", "8888333444", "1234432112344321", 800, 124, "11.11.2021", "11.11.2031", "123456789", "1234432123", "Лукойл"))
+        return "add_driver"
+    }
     @PostMapping("/add_driver")
-    fun addDriver(@Valid @RequestBody addDriverRequest: AddDriverRequest, result: BindingResult, model: Model): String {
-        driverService.addDriver(addDriverRequest)
-        return "redirect:/index"
+    fun addDriver(@Valid @ModelAttribute("driverRequest") driverRequest: DriverRequest, result: BindingResult, model: Model): String {
+        //todo Распарсить driverRequest на AddDriverRequest и на AddDriverInfoRequest
+        println(123124124)
+        if (driverService.isValidData(driverRequest, result) && !result.hasErrors()) {
+            errorHelper.addErrorIfFailed(model) {
+                //driverService.addDriver(driverRequest)
+                println("Все ок")
+            }
+        }
+        return "add_driver"
     }
 
     @PostMapping("/add_driver_info")
@@ -136,6 +149,6 @@ class BusinessController @Autowired constructor(
         val userEntity = userRepository.findByUsername(userDetails.username).orElseThrow()
         logger.info("User entity: $userEntity")
         // TODO: here we assume that customer ID is the same as user ID
-        return customerRepository.findById(userEntity.id!!).orElseThrow().id!!
+        return customerRepository.findById(userEntity.id).orElseThrow().id!!
     }
 }

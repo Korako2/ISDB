@@ -133,3 +133,20 @@ data class AddNewCustomer (
     var phone: String,
     var isAdmin: Boolean = false
 )
+
+data class DriverRequest (
+    val firstName : String,
+    val lastName : String,
+    val middleName: String,
+    val gender : String,
+    val dateOfBirth : String,
+    val passport : String,
+    val bankCardNumber : String,
+    val dailyRate : Int,
+    val ratePerKm : Int,
+    val issueDate : String,
+    val expirationDate : String,
+    val licenseNumber : String,
+    val fuelCard : String,
+    val fuelStationName : String,
+)

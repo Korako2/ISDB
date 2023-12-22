@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DB course work</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}">
+</head>
+<body>
+
+<div class="container col-md-auto offset-md-1">
+    <div class="row">
+        <!-- Форма -->
+        <div class="col-md-6">
+            <div class="order-form">
+                <h2 class="text-center mt-4">Форма оформления заказа</h2>
+                <form action="/add_driver" method="post" th:object="${driverRequest}" validate>
+                    <div class="row">
+                        <div class = "col-md-8 offset-2">
+                            <div class="form-group">
+                                <label for="firstName">Имя:</label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" th:field="*{firstName}" maxlength="40">
+                                <div th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Фамилия:</label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" th:field="*{lastName}" maxlength="40" required>
+                                <div th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="middleName">Отчество:</label>
+                                <input type="text" class="form-control" id="middleName" name="middleName" th:field="*{middleName}">
+                                <div th:if="${#fields.hasErrors('middleName')}" th:errors="*{middleName}" class="error-message" style="color: red;"></div>
+
+                            </div>
+                            <div class="form-group row">
+                                <label for="gender" class="col-sm-4 col-form-label">Пол:</label>
+                                <div class="col-sm-12">
+                                    <select id="gender" name="gender" th:field="*{gender}" class="form-control" required>
+                                        <option value="М">М</option>
+                                        <option value="Ж">Ж</option>
+                                    </select>
+                                    <p th:if="${#fields.hasErrors('gender')}" class="text-danger" th:errorclass="error" th:errors="*{gender}"></p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="dateOfBirth" class="col-sm-4 col-form-label">Дата рождения:</label>
+                                <div class="col-sm-12">
+                                    <input type="date" id="dateOfBirth" name="dateOfBirth" th:field="*{dateOfBirth}" class="form-control">
+                                    <p th:if="${#fields.hasErrors('dateOfBirth')}" class="text-danger" th:errorclass="error" th:errors="*{dateOfBirth}"></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="passport">Паспорт:</label>
+                                <input type="text" class="form-control" id="passport" name="passport" th:field="*{passport}">
+                                <div th:if="${#fields.hasErrors('passport')}" th:errors="*{passport}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="bankCardNumber">Банковская карта:</label>
+                                <input type="text" class="form-control" id="bankCardNumber" name="bankCardNumber" th:field="*{bankCardNumber}">
+                                <div th:if="${#fields.hasErrors('bankCardNumber')}" th:errors="*{bankCardNumber}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="dailyRate">Суточная ставка:</label>
+                                <input type="number" class="form-control" id="dailyRate" name="dailyRate" th:field="*{dailyRate}">
+                                <div th:if="${#fields.hasErrors('dailyRate')}" th:errors="*{dailyRate}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ratePerKm">Ставка за км:</label>
+                                <input type="number" class="form-control" id="ratePerKm" name="ratePerKm" th:field="*{ratePerKm}">
+                                <div th:if="${#fields.hasErrors('ratePerKm')}" th:errors="*{ratePerKm}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="issueDate">Дата получения ВУ:</label>
+                                <input type="date" class="form-control" id="issueDate" name="issueDate" th:field="*{issueDate}">
+                                <div th:if="${#fields.hasErrors('issueDate')}" th:errors="*{issueDate}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="expirationDate">Дата окончания ВУ:</label>
+                                <input type="date" class="form-control" id="expirationDate" name="expirationDate" th:field="*{expirationDate}">
+                                <div th:if="${#fields.hasErrors('expirationDate')}" th:errors="*{expirationDate}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="licenseNumber">Номер ВУ:</label>
+                                <input type="text" class="form-control" id="licenseNumber" name="licenseNumber" th:field="*{licenseNumber}">
+                                <div th:if="${#fields.hasErrors('licenseNumber')}" th:errors="*{licenseNumber}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="fuelCard">Номер топливной карты:</label>
+                                <input type="text" class="form-control" id="fuelCard" name="fuelCard" th:field="*{fuelCard}">
+                                <div th:if="${#fields.hasErrors('fuelCard')}" th:errors="*{fuelCard}" class="error-message" style="color: red;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="fuelStationName">Название заправочной станции:</label>
+                                <input type="text" class="form-control" id="fuelStationName" name="fuelStationName" th:field="*{fuelStationName}">
+                                <div th:if="${#fields.hasErrors('fuelStationName')}" th:errors="*{fuelStationName}" class="error-message" style="color: red;"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary col-md-6 mx-auto d-block">Оформить заказ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:if="${errorMessage}" class="container col-md-auto offset-md-1">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="alert alert-danger" role="alert">
+                <p th:text="${errorMessage}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+</html>
