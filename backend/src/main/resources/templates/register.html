@@ -76,5 +76,14 @@
         </div>
     </form>
 </div>
+<div th:if="${errorMessage}" class="container col-md-auto offset-md-1">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="alert alert-danger" role="alert">
+                <p th:text="${errorMessage}"></p>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

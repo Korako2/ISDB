@@ -4,9 +4,11 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.CustomerRepository
+import org.ifmo.isbdcurs.persistence.DriverRepository
 import org.ifmo.isbdcurs.persistence.UserRepository
 import org.ifmo.isbdcurs.services.*
 import org.ifmo.isbdcurs.util.ErrorHelper
+import org.ifmo.isbdcurs.util.parseDate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
@@ -27,6 +29,7 @@ class BusinessController @Autowired constructor(
     private val userRepository: UserRepository,
     private val customerRepository: CustomerRepository,
     adminLogService: AdminLogService,
+    private val driverRepository: DriverRepository,
 ) {
     private val errorHelper = ErrorHelper(adminLogService)
     private val logger = org.slf4j.LoggerFactory.getLogger(BusinessController::class.java)
@@ -82,6 +85,7 @@ class BusinessController @Autowired constructor(
     @PostMapping("/add_order")
     fun addOrder(@Valid @ModelAttribute("orderDataRequest") orderDataRequest: OrderDataRequest, result: BindingResult, model: ModelMap,
                  @AuthenticationPrincipal userDetails: UserDetails): String {
+        println(123)
         if (result.hasErrors())
         logger.info("Order data request: $orderDataRequest")
         if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
@@ -90,7 +94,7 @@ class BusinessController @Autowired constructor(
                 orderService.addOrder(customerId, orderDataRequest)
             }
         }
-        return "redirect:/customer-orders?pageNumber=1&pageSize=10"
+        return "redirect:/customer-orders?pageNumber=0&pageSize=10"
     }
 
     @PostMapping("/add_customer")
@@ -106,20 +110,49 @@ class BusinessController @Autowired constructor(
         return "redirect:/index"
     }
 
-    @PostMapping("/add_driver")
-    fun addDriver(@Valid @RequestBody addDriverRequest: AddDriverRequest, result: BindingResult, model: Model): String {
-        driverService.addDriver(addDriverRequest)
-        return "redirect:/index"
+    @GetMapping("/add_driver")
+    fun showAddDriverPage(model: ModelMap): String {
+        model.addAttribute("driverRequest", DriverRequest("Иван", "Иванов", "Иванович", "M", "1980-12-12", "8888333444", "1234432112344321", 800, 124, "2021-10-10", "2031-10-10", "123456789", "1234432123", "Лукойл", "88005553535", "driver@mail.ru"))
+        return "add_driver"
     }
 
-    @PostMapping("/add_driver_info")
-    fun addDriverInfo(
-        @Valid @RequestBody addDriverInfoRequest: AddDriverInfoRequest,
-        result: BindingResult,
-        model: Model
-    ): String {
-        driverService.addDriverInfo(addDriverInfoRequest)
-        return "redirect:/index"
+    // admin
+    @PostMapping("/add_driver")
+    fun addDriver(@Valid @ModelAttribute("driverRequest") driverRequest: DriverRequest, result: BindingResult, model: ModelMap): ModelAndView {
+        logger.info("Add Driver request: $driverRequest")
+        val addDriverRequest = AddDriverRequest(
+            firstName = driverRequest.firstName,
+            lastName = driverRequest.lastName,
+            middleName = driverRequest.middleName,
+            gender = driverRequest.gender,
+            dateOfBirth = parseDate(driverRequest.dateOfBirth),
+            passport = driverRequest.passport,
+            bankCardNumber = driverRequest.bankCardNumber
+        )
+        if (driverService.isValidData(model, driverRequest, result) && !result.hasErrors()) {
+            errorHelper.addErrorIfFailed(model) {
+                val driverId = driverService.addDriver(addDriverRequest)
+                val personId = driverRepository.findById(driverId).orElseThrow().personId
+                driverService.addContactInfo(personId, driverRequest.phone, driverRequest.email)
+                val addDriverInfoRequest = AddDriverInfoRequest(
+                    dailyRate = driverRequest.dailyRate,
+                    ratePerKm = driverRequest.ratePerKm,
+                    issueDate = parseDate(driverRequest.issueDate),
+                    expirationDate = parseDate(driverRequest.expirationDate),
+                    licenseNumber = driverRequest.licenseNumber.toLong(),
+                    fuelCard = driverRequest.fuelCard,
+                    fuelStationName = driverRequest.fuelStationName,
+                    driverId = driverId
+                )
+                driverService.addDriverInfo(addDriverInfoRequest)
+                logger.info("Successfully added driver with id $driverId")
+            }
+            return ModelAndView("redirect:/admin/drivers?pageNumber=0&pageSize=10", model)
+        }
+        model.addAttribute("errorMessage", result.allErrors)
+        logger.warn("Failed to add driver with request $driverRequest")
+        val modelAndView =  ModelAndView("add_driver", model)
+        return modelAndView
     }
 
     @PostMapping("/add_storagepoint")
@@ -136,6 +169,6 @@ class BusinessController @Autowired constructor(
         val userEntity = userRepository.findByUsername(userDetails.username).orElseThrow()
         logger.info("User entity: $userEntity")
         // TODO: here we assume that customer ID is the same as user ID
-        return customerRepository.findById(userEntity.id!!).orElseThrow().id!!
+        return customerRepository.findById(userEntity.id).orElseThrow().id!!
     }
 }
