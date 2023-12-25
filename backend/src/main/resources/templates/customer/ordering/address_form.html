@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Address Selection Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+</head>
+<body>
+
+<form th:action="@{submitAddressForm}" method="post" th:object="${AddressDto}">
+    <div>
+        <label for="deliveryAddress">Delivery Address:</label>
+        <select id="deliveryAddress" name="deliveryAddress" th:field="*{selectedDeliveryAddress}" class="address-dropdown">
+            <option th:each="address : ${allAddresses}" th:value="${address.id}" th:text="${address.name}"></option>
+        </select>
+    </div>
+
+    <div>
+        <label for="departureAddress">Departure Address:</label>
+        <select id="departureAddress" name="departureAddress" th:field="*{selectedDepartureAddress}" class="address-dropdown">
+            <option th:each="address : ${allAddresses}" th:value="${address.id}" th:text="${address.name}"></option>
+        </select>
+    </div>
+
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    // Initialize Select2 for each dropdown with search input
+    $(document).ready(function () {
+        $('.address-dropdown').select2();
+    });
+</script>
+
+</body>
+</html>

@@ -48,6 +48,7 @@ class SecurityConfig(private val userRepository: UserRepository) {
         http {
             csrf { disable() }
             authorizeHttpRequests {
+                authorize(mvcMatcherBuilder.pattern("/**"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/error"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/login"), permitAll)
                 authorize(mvcMatcherBuilder.pattern("/logout"), permitAll)
