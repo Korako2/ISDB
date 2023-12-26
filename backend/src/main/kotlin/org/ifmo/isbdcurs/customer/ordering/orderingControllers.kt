@@ -120,11 +120,11 @@ class OrderingController @Autowired constructor(
         @Valid @ModelAttribute("cost") cost: Float,
         model: Model,
         redirectAttributes: RedirectAttributes
-    ): String {
+    ): RedirectView {
         val order = OrderDetails(selectedAddresses, cargoParams, cost)
         orderService.createOrder(order)
 
         logger.info("[submitOrder] order: $order")
-        return "customer/index"
+        return RedirectView("/customer/index")
     }
 }
