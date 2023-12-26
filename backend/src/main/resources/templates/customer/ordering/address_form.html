@@ -1,40 +1,44 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Address Selection Form</title>
+<head th:insert="~{fragments/general :: headerfiles}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 </head>
-<body>
 
-<form action="#" th:action="@{submitAddressForm}" method="post">
-    <div>
-        <label for="delivery">Delivery Address:</label>
-        <select id="delivery" name="delivery" class="address-dropdown">
-            <option th:each="address : ${allAddresses}"
-                    th:value="${address.id}"
-                    th:text="${address.name}"></option>
-        </select>
-    </div>
+<body class="d-flex flex-column min-vh-100">
+<header th:insert="~{fragments/general :: header}"></header>
 
-    <div>
-        <label for="departure">Departure Address:</label>
-        <select id="departure" name="departure" class="address-dropdown">
-            <option th:each="address : ${allAddresses}"
-                    th:value="${address.id}"
-                    th:text="${address.name}"></option>
-        </select>
-    </div>
+<main class="container mt-4 flex-grow-1">
+    <form action="#" th:action="@{submitAddressForm}" method="post">
+        <div>
+            <label for="delivery">Delivery Address:</label>
+            <select id="delivery" name="delivery" class="form-control address-dropdown mt-2">
+                <option th:each="address : ${allAddresses}"
+                        th:value="${address.id}"
+                        th:text="${address.name}"></option>
+            </select>
+        </div>
 
-    <button type="submit">Next</button>
-</form>
+        <div>
+            <label for="departure">Departure Address:</label>
+            <select id="departure" name="departure" class="form-control address-dropdown mt-2">
+                <option th:each="address : ${allAddresses}"
+                        th:value="${address.id}"
+                        th:text="${address.name}"></option>
+            </select>
+        </div>
+
+        <div th:insert="~{fragments/general :: prev-next-step-buttons ('Далее')}" class="container mt-10"></div>
+    </form>
+</main>
+
+<footer th:insert="~{fragments/general :: footer}"></footer>
 
 <script>
     $(document).ready(function () {
         $('.address-dropdown').select2();
     });
 </script>
-
 </body>
 </html>

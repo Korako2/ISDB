@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.ir.backend.js.compile
 
 plugins {
     id("org.springframework.boot") version "3.1.5"
@@ -60,6 +61,8 @@ dependencies {
     implementation("javax.mail:javax.mail-api:1.6.2")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("org.webjars:bootstrap:5.3.2")
+    implementation("org.webjars:webjars-locator-core:0.47")
 }
 //
 //configurations {
