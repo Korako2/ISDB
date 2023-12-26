@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="~{fragments/general :: headerfiles}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+<header th:insert="~{fragments/general :: header}"></header>
+
+<!-- main customer page with button to start new order and list of active orders -->
+
+<main class="container mt-4 flex-grow-1">
+    <a th:href="@{/customer/ordering/address_form.html}" class="btn btn-primary">New Order</a>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Order ID</th>
+            <th scope="col">Status</th>
+            <th scope="col">Cost</th>
+            <th scope="col">Departure Address</th>
+            <th scope="col">Delivery Address</th>
+            <th scope="col">Cargo Type</th>
+            <th scope="col">Weight</th>
+            <th scope="col">Height</th>
+            <th scope="col">Width</th>
+            <th scope="col">Length</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.cost}"></td>
+            <td th:text="${order.departureAddress.name}"></td>
+            <td th:text="${order.deliveryAddress.name}"></td>
+            <td th:text="${order.cargo.type}"></td>
+            <td th:text="${order.cargo.weight}"></td>
+            <td th:text="${order.cargo.height}"></td>
+            <td th:text="${order.cargo.width}"></td>
+            <td th:text="${order.cargo.length}"></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+</body>
+</html>

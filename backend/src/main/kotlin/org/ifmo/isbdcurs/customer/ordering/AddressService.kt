@@ -19,4 +19,8 @@ class AddressService {
             AddressDto(11, "Barcelona"),
         )
     }
+
+    fun getAddressById(id: Long): AddressDto {
+        return getAllAddresses().first { it.id == id }
+    }
 }

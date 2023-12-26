@@ -1,0 +1,18 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="costsDisplay ()" class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-primary" role="alert">
+                <label>Costs:</label>
+                <p th:text="${@costsService.calculatePrice(cargoParams)}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

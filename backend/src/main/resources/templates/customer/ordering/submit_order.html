@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/general :: headerfiles}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+<header th:insert="~{fragments/general :: header}"></header>
+
+<!--submit order: overall info about order and big submit button (or go back) -->
+<main>
+    Total cost:
+    <span th:value="${cost}"></span>
+
+    <form th:action="@{submitOrder}" method="post">
+        <button type="submit">Submit</button>
+    </form>
+</main>
+
+
+<footer th:insert="~{fragments/general :: footer}"></footer>

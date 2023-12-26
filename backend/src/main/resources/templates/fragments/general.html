@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="headerfiles">
+    <meta charset="UTF-8" />
+    <title>DB course work</title>
+
+    <!-- Bootstrap CSS Link -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+
+<div th:fragment="header" class="container mt-auto bg-dark text-white py-3">
+    <p class="display-4 mb-0 text-white">Курсовая работа по дисциплине Базы Данных</p>
+</div>
+
+<footer th:fragment="footer" class="container mt-auto bg-dark text-white py-3">
+    <div class="text-muted">
+        <a th:href="@{/fragments}" class="text-white mr-2">Fragments Index</a> |
+        <a th:href="@{/markup}" class="text-white mr-2">Markup inclusion</a> |
+        <a th:href="@{/params}" class="text-white mr-2">Fragment params</a> |
+        <a th:href="@{/other}" class="text-white">Other</a>
+    </div>
+</footer>
+</body>
+</html>

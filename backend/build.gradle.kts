@@ -59,9 +59,9 @@ dependencies {
 
     implementation("javax.mail:javax.mail-api:1.6.2")
 
-//    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
-
+//
 //configurations {
 //    developmentOnly
 //    runtimeClasspath {
