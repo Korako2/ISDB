@@ -8,7 +8,7 @@
 <!-- main customer page with button to start new order and list of active orders -->
 
 <main class="container mt-4 flex-grow-1">
-    <a th:href="@{/customer/ordering/address_form.html}" class="btn btn-primary">New Order</a>
+    <a th:href="@{/customer/addressForm}" class="btn btn-primary">New Order</a>
 
     <table class="table table-striped">
         <thead>
@@ -28,8 +28,8 @@
         <tbody>
         <tr th:each="order : ${orders}">
             <td th:text="${order.cost}"></td>
-            <td th:text="${order.departureAddress.name}"></td>
-            <td th:text="${order.deliveryAddress.name}"></td>
+            <td th:text="${order.addressesDto.departure.name}"></td>
+            <td th:text="${order.addressesDto.delivery.name}"></td>
             <td th:text="${order.cargo.type}"></td>
             <td th:text="${order.cargo.weight}"></td>
             <td th:text="${order.cargo.height}"></td>
@@ -40,5 +40,6 @@
     </table>
 </main>
 
+<footer th:insert="~{fragments/general :: footer}"></footer>
 </body>
 </html>

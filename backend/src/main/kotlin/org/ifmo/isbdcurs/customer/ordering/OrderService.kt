@@ -3,7 +3,7 @@ package org.ifmo.isbdcurs.customer.ordering
 import org.springframework.stereotype.Service
 
 @Service
-class OrderService() {
+class CustomerOrderService() {
     fun createOrder(orderDetails: OrderDetails) {
         println("OrderService.createOrder: $orderDetails")
     }

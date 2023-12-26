@@ -39,10 +39,10 @@ data class OrderDetails(
 // 2. submit departure and delivery address
 @SessionAttributes("selectedAddresses", "cargoParams", "cost")
 @Controller
-class CustomerController @Autowired constructor(
+class OrderingController @Autowired constructor(
     val addressService: AddressService,
     val costsService: CostsService,
-    private val orderService: OrderService
+    private val orderService: CustomerOrderService
 ) {
     private val logger = org.slf4j.LoggerFactory.getLogger(CustomerController::class.java)
 
