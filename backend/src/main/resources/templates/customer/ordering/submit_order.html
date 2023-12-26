@@ -5,13 +5,13 @@
 <body class="d-flex flex-column min-vh-100">
 <header th:insert="~{fragments/general :: header}"></header>
 
-<!--submit order: overall info about order and big submit button (or go back) -->
-<main>
-    Total cost:
-    <span th:value="${cost}"></span>
+<main class="container mt-4 flex-grow-1">
+    <div class="container mb-10">
+        Стоимость перевозки: <span th:text="|${cost} рублей|"></span>
+    </div>
 
-    <form th:action="@{submitOrder}" method="post">
-        <button type="submit">Submit</button>
+    <form th:action="@{submitOrder}" method="post" class="container mt-10">
+        <div th:replace="~{fragments/general :: prev-next-step-buttons ('Подтвердить')}"></div>
     </form>
 </main>
 

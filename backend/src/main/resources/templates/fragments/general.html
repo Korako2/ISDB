@@ -4,23 +4,27 @@
     <meta charset="UTF-8" />
     <title>DB course work</title>
 
-    <!-- Bootstrap CSS Link -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css} "/>
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.min.js}"></script>
 </head>
 <body>
 
-<div th:fragment="header" class="container mt-auto bg-dark text-white py-3">
-    <p class="display-4 mb-0 text-white">Курсовая работа по дисциплине Базы Данных</p>
+<div th:fragment="header" class="container mt-auto bg-dark text-white py-3 text-center">
+    <p class="mb-0">Курсовая работа по дисциплине Базы Данных</p>
 </div>
 
 <footer th:fragment="footer" class="container mt-auto bg-dark text-white py-3">
-    <div class="text-muted">
-        <a th:href="@{/fragments}" class="text-white mr-2">Fragments Index</a> |
-        <a th:href="@{/markup}" class="text-white mr-2">Markup inclusion</a> |
-        <a th:href="@{/params}" class="text-white mr-2">Fragment params</a> |
-        <a th:href="@{/other}" class="text-white">Other</a>
+    <div class="d-flex justify-content-between mx-10">
+        <span class="text-white">Выполнили: студенты группы P33302</span>
+        <span class="text-white">Соловьев Павел</span>
+        <span class="text-white">Гурьянов Кирилл</span>
     </div>
 </footer>
+
+<div th:fragment="prev-next-step-buttons (nextText)" class="container">
+    <button type="button" class="btn btn-primary" onclick="window.history.back()">Назад</button>
+    <button type="submit" class="btn btn-primary"><span th:text="${nextText}"></span></button>
+</div>
+
 </body>
 </html>
