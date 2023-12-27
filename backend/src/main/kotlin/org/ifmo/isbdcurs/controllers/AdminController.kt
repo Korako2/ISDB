@@ -39,7 +39,7 @@ class AdminController @Autowired constructor(
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", orderService.getTotalPagesForManager(pageSize).toInt())
-        model.addAttribute("ord", orderService.getTotalPagesForManager(pageSize).toInt())
+        model.addAttribute("ords", orderService.getOrdersForManager(pageNumber, pageSize))
         return "admin"
     }
 

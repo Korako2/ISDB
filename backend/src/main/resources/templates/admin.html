@@ -32,33 +32,34 @@
                 </div>
                 <div class="modal-body">
                     <p id="order">
-                    <div th:switch="${ord}" class="container my-5">
+                    <div th:switch="${ords}" class="container my-5">
                         <div th:case="null">
                             <h1>Сейчас нет новых заказов</h1>
                         </div>
-                    <div th:case="*">
-                        <table class="table ttable-borderedable-bordered table-striped">
-                            <thead class="thead-dark">
-                            <tr>
-                                <th scope="col">ID заказа</th>
-                                <th scope="col">Дата изменения статуса</th>
-                                <th scope="col">Телефон заказчика</th>
-                                <th scope="col">Пункт отправления</th>
-                                <th scope="col">Пункт получения</th>
-                                <th scope="col">Статус</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="order : ${ord}">
-                                    <td th:text="${order.id}"></td>
-                                    <td th:text="${#dates.format(order.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></td>
-                                    <td th:text="${order.phoneNumber}"></td>
-                                    <td th:text="${order.departureAddress.country + ', ' + order.departureAddress.city + ', ' + order.departureAddress.street + ', ' + order.departureAddress.building}"></td>
-                                    <td th:text="${order.deliveryAddress.country + ', ' + order.deliveryAddress.city + ', ' + order.deliveryAddress.street + ', ' + order.deliveryAddress.building}"></td>
-                                    <td th:text="${order.status}"></td>
+                        <div th:case="*">
+                            <table class="table ttable-borderedable-bordered table-striped">
+                                <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">ID заказа</th>
+                                    <th scope="col">Дата изменения статуса</th>
+                                    <th scope="col">Телефон заказчика</th>
+                                    <th scope="col">Пункт отправления</th>
+                                    <th scope="col">Пункт получения</th>
+                                    <th scope="col">Статус</th>
                                 </tr>
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                <tr th:each="ord : ${ords}">
+                                    <td th:text="${ord.id}"></td>
+                                    <td th:text="${#dates.format(ord.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></td>
+                                    <td th:text="${ord.phoneNumber}"></td>
+                                    <td th:text="${ord.departureAddress.country + ', ' + ord.departureAddress.city + ', ' + ord.departureAddress.street + ', ' + ord.departureAddress.building}"></td>
+                                    <td th:text="${ord.deliveryAddress.country + ', ' + ord.deliveryAddress.city + ', ' + ord.deliveryAddress.street + ', ' + ord.deliveryAddress.building}"></td>
+                                    <td th:text="${ord.status}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     </p>
                 </div>
@@ -112,6 +113,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <script>
