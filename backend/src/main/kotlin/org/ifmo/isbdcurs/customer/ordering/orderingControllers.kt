@@ -28,6 +28,7 @@ data class AddressesDto(
 )
 
 data class OrderDetails(
+    var id: Long = -1,
     val addressesDto: AddressesDto,
     val cargo: CargoParamsDto,
     val cost: Float,
@@ -120,11 +121,11 @@ class OrderingController @Autowired constructor(
         @Valid @ModelAttribute("cost") cost: Float,
         model: Model,
         redirectAttributes: RedirectAttributes
-    ): String {
-        val order = OrderDetails(selectedAddresses, cargoParams, cost)
+    ): RedirectView {
+        val order = OrderDetails(-1, selectedAddresses, cargoParams, cost)
         orderService.createOrder(order)
 
         logger.info("[submitOrder] order: $order")
-        return "customer/index"
+        return RedirectView("/customer/index")
     }
 }

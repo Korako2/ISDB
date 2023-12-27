@@ -40,7 +40,7 @@ class BusinessController @Autowired constructor(
         if (request.isUserInRole("ROLE_ADMIN")) {
             return "redirect:/admin"
         }
-        return "redirect:/customer-orders"
+        return "redirect:/customer/index"
     }
 
     @GetMapping("/customer-orders")
