@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Database Tables</title>
-    <!-- Include Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
 
@@ -19,15 +20,29 @@
         <li class="nav-item">
             <a class="nav-link text-dark" th:href="@{/admin/orders}" aria-selected="true">Orders</a>
         </li>
-        <!-- Добавьте другие вкладки для других таблиц -->
     </ul>
+    <div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderModalLabel">Order ID</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="orderId"></p>
+                </div>
+            </div>
+        </div>
+    </div>
     <div th:switch="${orders}" class="container my-5">
         <div th:case="null">
-            <h1>У вас еще нет заказов</h1>
+            <h1>Сейчас нет новых заказов</h1>
         </div>
         <div th:case="*">
-            <h2 class="text-center mt-4">История заказов</h2>
-            <table class="table table-bordered table-striped">
+            <h2 class="text-center mt-4">Непроверенные заказы</h2>
+            <table class="table ttable-borderedable-bordered table-striped">
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col">Дата изменения статуса</th>
@@ -35,6 +50,7 @@
                     <th scope="col">Пункт отправления</th>
                     <th scope="col">Пункт получения</th>
                     <th scope="col">Статус</th>
+                    <th scope="col">Проверить заказ</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -44,6 +60,9 @@
                     <td th:text="${order.departureAddress.country + ', ' + order.departureAddress.city + ', ' + order.departureAddress.street + ', ' + order.departureAddress.building}"></td>
                     <td th:text="${order.deliveryAddress.country + ', ' + order.deliveryAddress.city + ', ' + order.deliveryAddress.street + ', ' + order.deliveryAddress.building}"></td>
                     <td th:text="${order.status}"></td>
+                    <td>
+                        <button type="button" class="btn btn-primary" th:data-orderid="${order.phoneNumber}" onclick="showOrderID(this.getAttribute('data-orderid'))">Проверить</button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -65,6 +84,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    function showOrderID(orderID) {
+        document.getElementById('orderId').innerText = "Order ID: " + orderID;
+        $('#orderModal').modal('show');
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
 </html>
