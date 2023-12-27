@@ -2,7 +2,6 @@
 CREATE OR REPLACE FUNCTION add_order(
     var_customer_id int,
     distance float,
-    var_vehicle_id int,
     v_weight float,
     v_width float,
     v_height float,
@@ -10,24 +9,24 @@ CREATE OR REPLACE FUNCTION add_order(
     v_cargo_type cargo_type,
     v_date timestamp
 ) RETURNS int AS
-'
+$$
     DECLARE
         calculated_price float;
         ord_id           int;
     BEGIN
         calculated_price = distance * 20;
         INSERT INTO orders (customer_id, distance, price, order_date, vehicle_id)
-        VALUES (var_customer_id, distance, calculated_price, NOW(), var_vehicle_id)
+        VALUES (var_customer_id, distance, calculated_price, NOW(), NULL)
         RETURNING id INTO ord_id;
 
         INSERT INTO order_statuses (order_id, date_time, status)
-        VALUES (ord_id, v_date, ''WAITING'');
+        VALUES (ord_id, v_date, 'WAITING');
 
         INSERT INTO cargo (weight, width, height, length, order_id, cargo_type)
         VALUES (v_weight, v_width, v_height, v_length, ord_id, v_cargo_type);
         RETURN ord_id;
     END
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- Функция добавления нового заказчика
 CREATE OR REPLACE FUNCTION add_new_customer(
@@ -38,7 +37,7 @@ CREATE OR REPLACE FUNCTION add_new_customer(
     v_middle_name varchar(20) default null,
     v_organization varchar(50) default null
 ) RETURNS int AS
-'
+$$
     DECLARE
         v_person_id   int;
         v_customer_id int;
@@ -53,10 +52,10 @@ CREATE OR REPLACE FUNCTION add_new_customer(
 
         RETURN v_customer_id;
     END
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS
-'
+$$
     DECLARE
         prev_record float;
         prev_date   timestamp;
@@ -76,16 +75,16 @@ CREATE OR REPLACE FUNCTION check_speed() RETURNS TRIGGER AS
 
         IF speed > 170 THEN
             RAISE EXCEPTION USING
-              errcode=''T22A0'',
-              message=''Speed cannot be more than 170 km/h'';
+              errcode='T22A0',
+              message='Speed cannot be more than 170 km/h';
         END IF;
         RETURN NEW;
     END;
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- расходы должны сопоставляться с пробегом автомобиля
 CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS
-'
+$$
     DECLARE
         prev_pay_date   timestamp;
         prev_mileage    float;
@@ -120,15 +119,15 @@ CREATE OR REPLACE FUNCTION check_fuel_expenses() RETURNS TRIGGER AS
                            LIMIT 1);
         IF (current_mileage - prev_mileage) * 6 < NEW.AMOUNT THEN
             RAISE EXCEPTION USING
-              errcode=''T22A0'',
-              message=''Fuel expenses are too high'';
+              errcode='T22A0',
+              message='Fuel expenses are too high';
         END IF;
         RETURN NEW;
     END
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION check_cargo_size() RETURNS TRIGGER AS
-'
+$$
     DECLARE
         var_length float;
         var_width  float;
@@ -149,16 +148,16 @@ CREATE OR REPLACE FUNCTION check_cargo_size() RETURNS TRIGGER AS
            NEW.width > var_width OR
            NEW.height > var_height THEN
             RAISE EXCEPTION USING
-              errcode=''T22A0'',
-              message=''Размеры груза больше размеров автомобиля'';
+              errcode='T22A0',
+              message='Размеры груза больше размеров автомобиля';
         END IF;
 
         RETURN NEW;
     END
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION check_country_match() RETURNS TRIGGER AS
-'
+$$
     DECLARE
         departure_country text;
         delivery_country  text;
@@ -179,17 +178,17 @@ CREATE OR REPLACE FUNCTION check_country_match() RETURNS TRIGGER AS
 
         IF departure_country <> delivery_country THEN
             RAISE EXCEPTION USING
-              errcode=''T22A0'',
-              message=''Страна отправления и страна получения не совпадают'';
+              errcode='T22A0',
+              message='Страна отправления и страна получения не совпадают';
         END IF;
 
         RETURN NEW;
     END
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION check_order_status_sequence() RETURNS TRIGGER AS
-'
+$$
     DECLARE
         prev_status order_status;
     BEGIN
@@ -204,15 +203,15 @@ CREATE OR REPLACE FUNCTION check_order_status_sequence() RETURNS TRIGGER AS
 
         IF prev_status IS NOT NULL AND
            (prev_status, NEW.status) NOT IN
-           ((''WAITING'', ''ACCEPTED''), (''ACCEPTED'', ''ARRIVED_AT_LOADING_LOCATION''), (''ARRIVED_AT_LOADING_LOCATION'', ''LOADING''),
-            (''LOADING'', ''ON_THE_WAY''), (''ON_THE_WAY'', ''ARRIVED_AT_UNLOADING_LOCATION''),
-            (''ARRIVED_AT_UNLOADING_LOCATION'', ''UNLOADING''), (''UNLOADING'', ''COMPLETED'')) THEN
-            RAISE EXCEPTION ''Неверная последовательность статусов заказа: %, prev/curr: (%/%)'', NEW.order_id, prev_status, NEW.status USING ERRCODE=''T22A0'';
+           (('WAITING', 'ACCEPTED'), ('ACCEPTED', 'ARRIVED_AT_LOADING_LOCATION'), ('ARRIVED_AT_LOADING_LOCATION', 'LOADING'),
+            ('LOADING', 'ON_THE_WAY'), ('ON_THE_WAY', 'ARRIVED_AT_UNLOADING_LOCATION'),
+            ('ARRIVED_AT_UNLOADING_LOCATION', 'UNLOADING'), ('UNLOADING', 'COMPLETED')) THEN
+            RAISE EXCEPTION 'Неверная последовательность статусов заказа: %, prev/curr: (%/%)', NEW.order_id, prev_status, NEW.status USING ERRCODE='T22A0';
         END IF;
 
         RETURN NEW;
     END;
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION check_order_status_time() RETURNS TRIGGER AS
 $$
@@ -329,7 +328,7 @@ CREATE OR REPLACE FUNCTION add_driver(
     v_passport varchar(10),
     v_bank_card_number text
 ) RETURNS int AS
-'
+$$
     DECLARE
         v_person_id int;
         v_driver_id int;
@@ -346,7 +345,7 @@ CREATE OR REPLACE FUNCTION add_driver(
 
         RETURN v_driver_id;
     END;
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION add_vehicle(
     v_plate_number varchar(9),
@@ -360,7 +359,7 @@ CREATE OR REPLACE FUNCTION add_vehicle(
     v_driver_id int,
     v_ownership_start_date date
 ) RETURNS int AS
-'
+$$
     DECLARE
         v_vehicle_id int;
     BEGIN
@@ -375,7 +374,7 @@ CREATE OR REPLACE FUNCTION add_vehicle(
 
         RETURN v_vehicle_id;
     END;
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE add_driver_info(
     v_driver_id int,
@@ -388,7 +387,7 @@ CREATE OR REPLACE PROCEDURE add_driver_info(
     v_fuel_station_name text
 )
 LANGUAGE plpgsql
-AS '
+AS $$
 BEGIN
     -- Добавляем тарифную ставку
     INSERT INTO tariff_rate (driver_id, daily_rate, rate_per_km)
@@ -402,7 +401,7 @@ BEGIN
     INSERT INTO fuel_cards_for_drivers (driver_id, fuel_card_number, fuel_station_name)
     VALUES (v_driver_id, v_fuel_card, v_fuel_station_name);
 END;
-';
+$$;
 
 CREATE OR REPLACE FUNCTION find_car_to_fit_size(
     v_length float,
@@ -416,7 +415,7 @@ CREATE OR REPLACE FUNCTION find_car_to_fit_size(
                 vehicle_id int
             )
 AS
-'
+$$
     BEGIN
         RETURN QUERY
             SELECT v.id
@@ -425,14 +424,14 @@ AS
               AND v.width >= v_width
               AND v.height >= v_height
               AND (
-                    (v_cargo_type = ''BULK'' AND v.body_type = ''OPEN'') OR
-                    (v_cargo_type = ''TIPPER'' AND v.body_type = ''OPEN'') OR
-                    (v_cargo_type = ''PALLETIZED'' AND v.body_type = ''CLOSED'')
+                    (v_cargo_type = 'BULK' AND v.body_type = 'OPEN') OR
+                    (v_cargo_type = 'TIPPER' AND v.body_type = 'OPEN') OR
+                    (v_cargo_type = 'PALLETIZED' AND v.body_type = 'CLOSED')
                 )
               AND v.load_capacity >= v_weight;
 
     END
-' LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION find_suitable_vehicle(
     v_length FLOAT,

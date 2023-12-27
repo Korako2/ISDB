@@ -52,7 +52,7 @@ class OrderService @Autowired constructor(
     fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<CustomerOrderResponse> {
         val offset = page * pageSize
         return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
-            val orders = orderRepo.getExtendedResultsByCustomerId(customerId, pageSize, offset).map {
+            val orders = orderRepo.getExtendedResultsByCustomerId(customerId, pageSize.toLong(), offset.toLong()).map {
                 it.toCustomerOrderResponse()
             }
             logger.info("Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
@@ -125,7 +125,6 @@ class OrderService @Autowired constructor(
         val orderId = orderRepo.addOrder(
             customerId.toInt(),
             distance,
-            vehicleId.toInt(),
             orderDataRequest.weight,
             orderDataRequest.width,
             orderDataRequest.height,
@@ -225,7 +224,7 @@ class OrderService @Autowired constructor(
         return OrderResponse(
             id = this.id,
             customerName = this.customerName,
-            driverName = this.driverName,
+            driverName = this.driverName ?: "не назначен",
             departurePoint = this.departurePoint,
             deliveryPoint = this.deliveryPoint,
             status = this.status.translate(),
@@ -235,7 +234,7 @@ class OrderService @Autowired constructor(
     private fun CustomerOrder.toCustomerOrderResponse(): CustomerOrderResponse {
         return CustomerOrderResponse(
             statusChangedTime = this.statusChangedTime,
-            driverName = this.driverName,
+            driverName = this.driverName ?: "не назначен",
             departureAddress = this.departureAddress,
             deliveryAddress = this.deliveryAddress,
             status = this.status.translate(),

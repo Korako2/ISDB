@@ -108,11 +108,10 @@ interface VehicleMovementHistoryRepository : CrudRepository<VehicleMovementHisto
 }
 
 interface OrderRepository : JpaRepository<Order, Long> {
-    @Query("SELECT add_order(:#{#v_customer_id}, :#{#v_distance}, :#{#v_vehicle_id}, :#{#v_weight}, :#{#v_width}, :#{#v_height}, :#{#v_length}, :#{#v_cargo_type}, :#{#v_date})", nativeQuery = true)
+    @Query("SELECT add_order(:#{#v_customer_id}, :#{#v_distance}, :#{#v_weight}, :#{#v_width}, :#{#v_height}, :#{#v_length}, :#{#v_cargo_type}, :#{#v_date})", nativeQuery = true)
     fun addOrder(
         @Param("v_customer_id") customerId: Int,
         @Param("v_distance") distance: Double,
-        @Param("v_vehicle_id") vehicleId: Int,
         @Param("v_weight") weight: Double,
         @Param("v_width") width: Double,
         @Param("v_height") height: Double,
@@ -126,11 +125,11 @@ interface OrderRepository : JpaRepository<Order, Long> {
         new org.ifmo.isbdcurs.models.ExtendedOrder(o.id, customer_p.lastName, driver_p.lastName, l.departurePoint, l.deliveryPoint, s.status)
         FROM Order o
             JOIN Customer c ON o.customerId = c.id
-            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
-            JOIN Driver d ON l.driverId = d.id
+            LEFT JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            LEFT JOIN Driver d ON l.driverId = d.id
             JOIN OrderStatuses s ON s.orderId = o.id
             JOIN Person customer_p ON c.personId = customer_p.id
-            JOIN Person driver_p ON d.personId = driver_p.id
+            LEFT JOIN Person driver_p ON d.personId = driver_p.id
         WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
             AND o.id >= :minOrderId AND o.id <= :maxOrderId
         ORDER BY o.id DESC
@@ -140,6 +139,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
     @Query("""
         SELECT 
         new org.ifmo.isbdcurs.models.CustomerOrder(
+            o.id,
             s.dateTime,
             driver_p.lastName,
             departureAddress,
@@ -147,11 +147,11 @@ interface OrderRepository : JpaRepository<Order, Long> {
             s.status)
         FROM Order o
             JOIN Customer c ON o.customerId = c.id
-            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
-            JOIN Driver d ON l.driverId = d.id
+            LEFT JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            LEFT JOIN Driver d ON l.driverId = d.id
             JOIN OrderStatuses s ON s.orderId = o.id
             JOIN Person customer_p ON c.personId = customer_p.id
-            JOIN Person driver_p ON d.personId = driver_p.id
+            LEFT JOIN Person driver_p ON d.personId = driver_p.id
             JOIN Address departureAddress ON l.departurePoint = departureAddress.id
             JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
         WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
@@ -166,6 +166,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
     @Query("""
         SELECT 
         new org.ifmo.isbdcurs.models.CustomerOrder(
+            o.id,
             s.dateTime,
             driver_p.lastName,
             departureAddress,
@@ -173,11 +174,11 @@ interface OrderRepository : JpaRepository<Order, Long> {
             s.status)
         FROM Order o
             JOIN Customer c ON o.customerId = c.id
-            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
-            JOIN Driver d ON l.driverId = d.id
+            LEFT JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            LEFT JOIN Driver d ON l.driverId = d.id
             JOIN OrderStatuses s ON s.orderId = o.id
             JOIN Person customer_p ON c.personId = customer_p.id
-            JOIN Person driver_p ON d.personId = driver_p.id
+            LEFT JOIN Person driver_p ON d.personId = driver_p.id
             JOIN Address departureAddress ON l.departurePoint = departureAddress.id
             JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
         WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
@@ -187,9 +188,20 @@ interface OrderRepository : JpaRepository<Order, Long> {
     """)
     fun getIncompleteOrdersByCustomerId(customerId: Long): List<CustomerOrder>
 
-    @Query("""
+    @Query(
+        countQuery = """
+        SELECT COUNT(o.id)
+        FROM Order o
+            JOIN Customer c ON o.customerId = c.id
+            JOIN OrderStatuses s ON s.orderId = o.id
+            WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
+            AND c.id = :customerId
+            AND s.status = 'COMPLETED'
+        """,
+        value = """
         SELECT 
         new org.ifmo.isbdcurs.models.CustomerOrder(
+            o.id,
             s.dateTime,
             driver_p.lastName,
             departureAddress,
@@ -197,11 +209,35 @@ interface OrderRepository : JpaRepository<Order, Long> {
             s.status)
         FROM Order o
             JOIN Customer c ON o.customerId = c.id
-            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
-            JOIN Driver d ON l.driverId = d.id
+            LEFT JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            LEFT JOIN Driver d ON l.driverId = d.id
             JOIN OrderStatuses s ON s.orderId = o.id
             JOIN Person customer_p ON c.personId = customer_p.id
-            JOIN Person driver_p ON d.personId = driver_p.id
+            LEFT JOIN Person driver_p ON d.personId = driver_p.id
+            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+        WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
+        AND c.id = :customerId
+        AND s.status = 'COMPLETED'
+    """)
+    fun getCompletedOrdersByCustomerId(customerId: Long, pageable: Pageable): Page<CustomerOrder>
+
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.CustomerOrder(
+            o.id,
+            s.dateTime,
+            driver_p.lastName,
+            departureAddress,
+            deliveryAddress,
+            s.status)
+        FROM Order o
+            JOIN Customer c ON o.customerId = c.id
+            LEFT JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            LEFT JOIN Driver d ON l.driverId = d.id
+            JOIN OrderStatuses s ON s.orderId = o.id
+            JOIN Person customer_p ON c.personId = customer_p.id
+            LEFT JOIN Person driver_p ON d.personId = driver_p.id
             JOIN Address departureAddress ON l.departurePoint = departureAddress.id
             JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
         WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)

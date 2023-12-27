@@ -279,7 +279,11 @@ data class Address(
     val street: String,
     val building: Int,
     val corpus: Int?,
-)
+) {
+    override fun toString(): String {
+        return "$country, $city, $street, $building"
+    }
+}
 
 @Entity
 data class StoragePoint(
@@ -291,7 +295,7 @@ data class StoragePoint(
 @Entity
 data class LoadingUnloadingAgreement(
     @Id val orderId: Long,
-    val driverId: Long,
+    val driverId: Long?,
     val departurePoint: Long,
     val deliveryPoint: Long,
     val senderId: Long,
@@ -330,15 +334,16 @@ data class FuelExpenses(
 data class ExtendedOrder (
     val id: Long,
     val customerName: String,
-    val driverName: String,
+    val driverName: String?,
     val departurePoint: Long,
     val deliveryPoint: Long,
     val status: OrderStatus,
 )
 
 data class CustomerOrder (
+    val id: Long,
     val statusChangedTime: Instant,
-    val driverName: String,
+    val driverName: String?,
     val departureAddress: Address,
     val deliveryAddress: Address,
     val status: OrderStatus,

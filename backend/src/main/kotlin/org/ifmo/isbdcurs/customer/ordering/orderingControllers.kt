@@ -51,13 +51,15 @@ class OrderingController @Autowired constructor(
     @ModelAttribute("selectedAddresses")
     fun selectedAddresses(model: Model): AddressesDto {
         logger.info("[selectedAddresses] called defaults")
-        return AddressesDto(AddressDto(1, "Moscow"), AddressDto(2, "New York"))
+        val delivery = addressService.getAddressById(1)
+        val departure = addressService.getAddressById(2)
+        return AddressesDto(departure, delivery)
     }
 
     @ModelAttribute("cargoParams")
     fun cargoParams(model: Model): CargoParamsDto {
         logger.info("[cargoParams] called defaults")
-        return CargoParamsDto("OPEN", 1.0f, 1.0f, 1.0f, 1.0f)
+        return CargoParamsDto("BULK", 1.0f, 1.0f, 1.0f, 1.0f)
     }
 
     @ModelAttribute("cost")

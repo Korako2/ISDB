@@ -3,11 +3,9 @@ package org.ifmo.isbdcurs.customer
 import org.ifmo.isbdcurs.customer.data.CustomerOrderDto
 import org.ifmo.isbdcurs.customer.ordering.AddressDto
 import org.ifmo.isbdcurs.customer.ordering.AddressService
+import org.ifmo.isbdcurs.customer.ordering.AddressesDto
 import org.ifmo.isbdcurs.customer.ordering.CargoParamsDto
-import org.ifmo.isbdcurs.models.Coordinates
-import org.ifmo.isbdcurs.models.CustomerOrder
-import org.ifmo.isbdcurs.models.StoragePoint
-import org.ifmo.isbdcurs.models.translate
+import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.CargoRepository
 import org.ifmo.isbdcurs.persistence.LoadingUnloadingAgreementRepository
 import org.ifmo.isbdcurs.persistence.OrderRepository
@@ -16,6 +14,7 @@ import org.ifmo.isbdcurs.util.calculateCargoCost
 import org.ifmo.isbdcurs.util.calculateDeliveryCost
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.LocalTime
 
 @Service
 class OrderHelperService @Autowired constructor(
@@ -59,6 +58,26 @@ class OrderHelperService @Autowired constructor(
         )
     }
 
+    fun calculateDistanceBetweenAddresses(departureId: Long, deliveryId: Long): Double {
+        val departurePoint = storagePointRepository.findById(departureId).orElseThrow()
+        val deliveryPoint = storagePointRepository.findById(deliveryId).orElseThrow()
+        return departurePoint.toCoordinates().calcDistanceKm(deliveryPoint.toCoordinates())
+    }
+
+    fun createAgreement(customerId: Long, orderId: Long, addressesDto: AddressesDto) : LoadingUnloadingAgreement {
+        // create agreement
+        val loadingSeconds = 60 * 60L
+        return LoadingUnloadingAgreement(
+            orderId = orderId,
+            driverId = null,
+            unloadingTime = LocalTime.ofSecondOfDay(loadingSeconds),
+            loadingTime = LocalTime.ofSecondOfDay(loadingSeconds),
+            departurePoint = addressesDto.departure.id,
+            deliveryPoint = addressesDto.delivery.id,
+            senderId = customerId,
+            receiverId = customerId,
+        )
+    }
 }
 
 fun StoragePoint.toCoordinates(): Coordinates {
@@ -66,17 +85,15 @@ fun StoragePoint.toCoordinates(): Coordinates {
 }
 
 fun convertCustomerOrderToDto(customerOrder: CustomerOrder): CustomerOrderDto {
+    val departureAddressString = customerOrder.departureAddress.toString()
+    val deliveryAddressString = customerOrder.deliveryAddress.toString()
     return CustomerOrderDto(
-        customerOrder.id!!,
-        departurePoint.toCoordinates(),
-        deliveryPoint.toCoordinates(),
-        customerOrder.distance,
-        customerOrder.status,
-        customerOrder.cost,
-        customerOrder.cargoType.translate(),
-        customerOrder.weight,
-        customerOrder.height,
-        customerOrder.width,
-        customerOrder.length,
+        id = customerOrder.id,
+        statusChangedTime = customerOrder.statusChangedTime,
+        driverName = customerOrder.driverName ?: "не назначен",
+        departureAddress = departureAddressString,
+        deliveryAddress = deliveryAddressString,
+        status = customerOrder.status.translate(),
+
     )
 }
