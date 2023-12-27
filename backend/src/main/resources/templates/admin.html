@@ -21,34 +21,34 @@
         </li>
         <!-- Добавьте другие вкладки для других таблиц -->
     </ul>
-    <div th:switch="${logs}" class="container my-5">
+    <div th:switch="${orders}" class="container my-5">
         <div th:case="null">
-            <h1>Logs not found</h1>
+            <h1>У вас еще нет заказов</h1>
         </div>
         <div th:case="*">
-            <h2 class="text-center">Логи</h2>
-            <div class="table-responsive"> <!-- Убран класс mx-auto -->
-                <table class="table table-bordered table-striped mx-auto"> <!-- Добавлен класс mx-auto -->
-                    <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">Id</th>
-                        <th scope="col">Message</th>
-                        <th scope="col">Level</th>
-                        <th scope="col">Timestamp</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="log : ${logs}">
-                        <td th:text="${log.id}"></td>
-                        <td th:text="${log.message}"></td>
-                        <td th:text="${log.level}"></td>
-                        <td th:text="${log.timestamp}"></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            <h2 class="text-center mt-4">История заказов</h2>
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Дата изменения статуса</th>
+                    <th scope="col">Водитель</th>
+                    <th scope="col">Пункт отправления</th>
+                    <th scope="col">Пункт получения</th>
+                    <th scope="col">Статус</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${#dates.format(order.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></td>
+                    <td th:text="${order.phoneNumber}"></td>
+                    <td th:text="${order.departureAddress.country + ', ' + order.departureAddress.city + ', ' + order.departureAddress.street + ', ' + order.departureAddress.building}"></td>
+                    <td th:text="${order.deliveryAddress.country + ', ' + order.deliveryAddress.city + ', ' + order.deliveryAddress.street + ', ' + order.deliveryAddress.building}"></td>
+                    <td th:text="${order.status}"></td>
+                </tr>
+                </tbody>
+            </table>
             <div th:if="${totalPages > 1}">
-                <ul class="pagination pagination-lg justify-content-center"> <!-- Добавлен класс pagination-lg -->
+                <ul class="pagination pagination-lg justify-content-center">
                     <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
                         <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/admin?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
                         <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>

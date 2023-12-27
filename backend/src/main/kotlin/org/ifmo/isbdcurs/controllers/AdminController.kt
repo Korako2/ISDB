@@ -30,15 +30,15 @@ class AdminController @Autowired constructor(
                  @RequestParam(defaultValue = "10") pageSize: Int,
                  redirectAttributes: RedirectAttributes
     ): String {
-        if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
+        if (pageNumber < 0 || pageNumber > orderService.getTotalPagesForManager(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/admin"
         }
-        model.addAttribute("logs", adminLogService.getAdminLog(pageNumber, pageSize))
+        model.addAttribute("orders", orderService.getOrdersForManager(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
-        model.addAttribute("totalPages", adminLogService.getTotalPages(pageSize))
+        model.addAttribute("totalPages", orderService.getTotalPagesForManager(pageSize).toInt())
 
         return "admin"
     }

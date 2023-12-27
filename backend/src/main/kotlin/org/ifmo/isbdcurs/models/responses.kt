@@ -47,3 +47,11 @@ data class CustomerResponse (
     val phoneNumber: String,
     val email: String,
 )
+
+data class ManagerOrderResponse (
+    val statusChangedTime: Instant,
+    val phoneNumber: String,
+    val departureAddress: Address,
+    val deliveryAddress: Address,
+    val status: String,
+)

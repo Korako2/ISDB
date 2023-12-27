@@ -21,7 +21,7 @@ enum class CargoType {
 }
 
 enum class OrderStatus {
-    WAITING, ACCEPTED, ARRIVED_AT_LOADING_LOCATION, LOADING, ON_THE_WAY, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED,
+    WAITING, ACCEPTED, ARRIVED_AT_LOADING_LOCATION, LOADING, ON_THE_WAY, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED;
 }
 
 fun OrderStatus.translate(): String {
@@ -336,6 +336,7 @@ data class ExtendedOrder (
     val status: OrderStatus,
 )
 
+
 data class CustomerOrder (
     val statusChangedTime: Instant,
     val driverName: String,
@@ -343,6 +344,14 @@ data class CustomerOrder (
     val deliveryAddress: Address,
     val status: OrderStatus,
  )
+
+data class ManagerOrder (
+    val statusChangedTime: Instant,
+    val value: String,
+    val departureAddress: Address,
+    val deliveryAddress: Address,
+    val status: OrderStatus
+)
 
 @Entity
 @Table(name = "logs")

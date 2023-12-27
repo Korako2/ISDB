@@ -25,6 +25,7 @@ class OrderService @Autowired constructor(
     private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
     private val storagePointRepository: StoragePointRepository,
     private val addressRepository: AddressRepository,
+    private val orderStatusesRepository: OrderStatusesRepository
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(OrderService::class.java)
 
@@ -44,6 +45,10 @@ class OrderService @Autowired constructor(
         return (orderRepo.count() + pageSize - 1) / pageSize
     }
 
+    fun getTotalPagesForManager(pageSize: Int): Long {
+        return (orderStatusesRepository.countByOrderStatus() + pageSize - 1) / pageSize
+    }
+
     fun countCustomerPages(customerId: Long, pageSize: Int): Int {
         return (orderRepo.countByCustomerId(customerId) + pageSize - 1) / pageSize
     }
@@ -56,6 +61,18 @@ class OrderService @Autowired constructor(
                 it.toCustomerOrderResponse()
             }
             logger.info("Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
+                    "Orders size = ${orders.size}. Offset = $offset")
+            orders
+        }
+    }
+
+    fun getOrdersForManager(page: Int, pageSize: Int): List<ManagerOrderResponse> {
+        val offset = page * pageSize
+        return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
+            val orders = orderRepo.getResultsForManager(pageSize, offset).map {
+                it.toManagerOrderResponse()
+            }
+            logger.info("Page = $page, pageSize = $pageSize. " +
                     "Orders size = ${orders.size}. Offset = $offset")
             orders
         }
@@ -236,6 +253,16 @@ class OrderService @Autowired constructor(
         return CustomerOrderResponse(
             statusChangedTime = this.statusChangedTime,
             driverName = this.driverName,
+            departureAddress = this.departureAddress,
+            deliveryAddress = this.deliveryAddress,
+            status = this.status.translate(),
+        )
+    }
+
+    private fun ManagerOrder.toManagerOrderResponse(): ManagerOrderResponse {
+        return ManagerOrderResponse(
+            statusChangedTime = this.statusChangedTime,
+            phoneNumber = this.value,
             departureAddress = this.departureAddress,
             deliveryAddress = this.deliveryAddress,
             status = this.status.translate(),
