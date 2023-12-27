@@ -20,8 +20,10 @@
         </div>
     </div>
 
+    <hr>
+
     <!--    блок с кнопками - действия пользователя -->
-    <div>
+    <div class="container">
         <a th:href="@{/customer/addressForm}" class="btn btn-primary">Оформить новый заказ</a>
 
         <!--  посмотреть завершенные заказы -->
@@ -29,35 +31,46 @@
 
     </div>
 
+<!--    horizontal line -->
+    <hr>
+
     <!--    блок с активными заказами -->
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th scope="col">Order ID</th>
-            <th scope="col">Status</th>
-            <th scope="col">Cost</th>
-            <th scope="col">Departure Address</th>
-            <th scope="col">Delivery Address</th>
-            <th scope="col">Cargo Type</th>
-            <th scope="col">Weight</th>
-            <th scope="col">Height</th>
-            <th scope="col">Width</th>
-            <th scope="col">Length</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="order : ${orders}">
-            <td th:text="${order.cost}"></td>
-            <td th:text="${order.addressesDto.departure.name}"></td>
-            <td th:text="${order.addressesDto.delivery.name}"></td>
-            <td th:text="${order.cargo.type}"></td>
-            <td th:text="${order.cargo.weight}"></td>
-            <td th:text="${order.cargo.height}"></td>
-            <td th:text="${order.cargo.width}"></td>
-            <td th:text="${order.cargo.length}"></td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="container mt-4">
+        <h2>Активные заказы</h2>
+
+        <form action="#" th:action="@{/customer/showOrderDetails}" method="post">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Выбрать</th>
+                    <th scope="col">Стоимость (руб.)</th>
+                    <th scope="col">Адрес отправления</th>
+                    <th scope="col">Адрес доставки</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td>
+                        <input type="radio" name="selectedOrderId" th:value="${order.id}" />
+                    </td>
+                    <td th:text="${order.cost}"></td>
+                    <td th:text="${order.addressesDto.departure.name}"></td>
+                    <td th:text="${order.addressesDto.delivery.name}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <button type="submit" class="btn btn-primary" id="viewDetailsBtn" disabled>Просмотреть детали</button>
+        </form>
+        <script>
+            $(document).ready(function () {
+                // Enable or disable button based on radio button selection
+                $('input[type="radio"]').change(function () {
+                    $('#viewDetailsBtn').attr('disabled', !$('input[type="radio"]:checked').length);
+                });
+            });
+        </script>
+    </div>
 </main>
 
 <footer th:insert="~{fragments/general :: footer}"></footer>

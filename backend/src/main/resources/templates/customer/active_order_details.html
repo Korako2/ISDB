@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="~{fragments/general :: headerfiles}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+<header th:insert="~{fragments/general :: header}"></header>
+
+<main class="container mt-4 flex-grow-1">
+    <div class="container mb-10">
+        <h2>Детали по вашему заказу</h2>
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-primary" role="alert">
+                    <label>Стоимость перевозки:</label>
+                    <p th:text="${selectedOrder.cost}"></p>
+                    TODO
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/general :: prev-step-button}"></div>
+</main>
+
+<footer th:insert="~{fragments/general :: footer}"></footer>
+</body>

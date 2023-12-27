@@ -63,6 +63,7 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation("org.webjars:bootstrap:5.3.2")
     implementation("org.webjars:webjars-locator-core:0.47")
+    implementation("org.webjars:jquery:3.6.0")
 }
 //
 //configurations {
