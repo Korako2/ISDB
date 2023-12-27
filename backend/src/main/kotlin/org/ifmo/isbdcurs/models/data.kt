@@ -354,6 +354,19 @@ data class ManagerOrder (
     val status: OrderStatus
 )
 
+data class FullOrdersInfo (
+    val id: Long,
+    val statusChangedTime: Instant,
+    val value: String,
+    val customerFirstName: String,
+    val customerLastName: String,
+//    val loadingTime: String,
+//    val unloadingTime: String,
+    val departureAddress: Address,
+    val deliveryAddress: Address,
+    val status: OrderStatus
+)
+
 @Entity
 @Table(name = "logs")
 data class AdminLogRow (

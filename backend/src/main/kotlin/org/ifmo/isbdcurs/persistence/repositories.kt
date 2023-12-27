@@ -182,6 +182,30 @@ interface OrderRepository : JpaRepository<Order, Long> {
         LIMIT :limit OFFSET :offset
     """)
     fun getResultsForManager(limit: Int, offset: Int): List<ManagerOrder>
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.FullOrdersInfo(
+            o.id,
+            s.dateTime,
+            c_phone.value,
+            customer_p.firstName,
+            customer_p.lastName,
+            departureAddress,
+            deliveryAddress,
+            s.status)
+        FROM Order o
+            JOIN Customer c ON o.customerId = c.id
+            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            JOIN OrderStatuses s ON s.orderId = o.id
+            JOIN Person customer_p ON c.personId = customer_p.id
+            JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
+            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+        WHERE s.status = 'WAITING'
+        ORDER BY o.id DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    fun getFullOrdersInfoForManager(limit: Int, offset: Int): List<FullOrdersInfo>
 
     fun countByCustomerId(customerId: Long): Int
 

@@ -78,6 +78,17 @@ class OrderService @Autowired constructor(
         }
     }
 
+    fun getFullOrderInfo(page: Int, pageSize: Int): List<FullOrderInfoResponse> {
+        val offset = page * pageSize
+        return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
+            val orders = orderRepo.getFullOrdersInfoForManager(pageSize, offset).map {
+                it.toFullOrderInfoResponse()
+            }
+            logger.info("Page = $page, pageSize = $pageSize. " +
+                    "Orders size = ${orders.size}. Offset = $offset")
+            orders
+        }
+    }
     @Transactional
     fun addOrder(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {
         return exceptionHelper.wrapWithBackendException("Error while adding order") {
@@ -269,6 +280,19 @@ class OrderService @Autowired constructor(
             status = this.status.translate(),
         )
     }
+    private fun FullOrdersInfo.toFullOrderInfoResponse(): FullOrderInfoResponse {
+        return FullOrderInfoResponse(
+            id = this.id,
+            statusChangedTime = this.statusChangedTime,
+            phoneNumber = this.value,
+            customerFirstName = this.customerFirstName,
+            customerLastName = this.customerLastName,
+            departureAddress = this.departureAddress,
+            deliveryAddress = this.deliveryAddress,
+            status = this.status.translate()
+        )
+    }
+
 
     private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressDto): Address {
         val address = addressRepository.findByCountryAndCityAndStreetAndBuilding(

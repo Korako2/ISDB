@@ -56,3 +56,16 @@ data class ManagerOrderResponse (
     val deliveryAddress: Address,
     val status: String,
 )
+
+data class FullOrderInfoResponse (
+    val id: Long,
+    val statusChangedTime: Instant,
+    val phoneNumber: String,
+    val customerFirstName: String,
+    val customerLastName: String,
+    //    val loadingTime: String,
+    //    val unloadingTime: String,
+    val departureAddress: Address,
+    val deliveryAddress: Address,
+    val status: String
+)
