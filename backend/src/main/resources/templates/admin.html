@@ -43,6 +43,15 @@
                                     <small>Дата изменения: <span th:text="${#dates.format(ord.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}" ></span></small>
                                 </div>
                                 <p class="mb-1">Телефон заказчика: <span th:text="${ord.phoneNumber}"></span></p>
+                                <p class="mb-1">Имя заказчика: <span th:text="${ord.customerFirstName}"></span></p>
+                                <p class="mb-1">Фамилия заказчика: <span th:text="${ord.customerLastName}"></span></p>
+                                <p class="mb-1">Вес: <span th:text="${ord.cargo.weight}"></span></p>
+                                <p class="mb-1">Длина: <span th:text="${ord.cargo.length}"></span></p>
+                                <p class="mb-1">Ширина: <span th:text="${ord.cargo.width}"></span></p>
+                                <p class="mb-1">Высота: <span th:text="${ord.cargo.height}"></span></p>
+                                <p class="mb-1">Тип груза: <span th:text="${ord.cargo.cargoType}"></span></p>
+                                <p class="mb-1">Время загрузки: <span th:text="${ord.loadingTime}"></span></p>
+                                <p class="mb-1">Время разгрузки: <span th:text="${ord.unloadingTime}"></span></p>
                                 <p class="mb-1">Пункт отправления: <span th:text="${ord.departureAddress.country + ', ' + ord.departureAddress.city + ', ' + ord.departureAddress.street + ', ' + ord.departureAddress.building}"></span></p>
                                 <p class="mb-1">Пункт получения: <span th:text="${ord.deliveryAddress.country + ', ' + ord.deliveryAddress.city + ', ' + ord.deliveryAddress.street + ', ' + ord.deliveryAddress.building}"></span></p>
                                 <p class="mb-1">Статус: <span th:text="${ord.status}"></span></p>

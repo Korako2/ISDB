@@ -287,8 +287,11 @@ class OrderService @Autowired constructor(
             phoneNumber = this.value,
             customerFirstName = this.customerFirstName,
             customerLastName = this.customerLastName,
+            cargo = this.cargo,
             departureAddress = this.departureAddress,
             deliveryAddress = this.deliveryAddress,
+            loadingTime = this.loadingTime,
+            unloadingTime = this.unloadingTime,
             status = this.status.translate()
         )
     }

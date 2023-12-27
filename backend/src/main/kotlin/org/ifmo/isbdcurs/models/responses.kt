@@ -2,6 +2,7 @@ package org.ifmo.isbdcurs.models
 
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
 
 data class AddOrderResult(
@@ -63,8 +64,9 @@ data class FullOrderInfoResponse (
     val phoneNumber: String,
     val customerFirstName: String,
     val customerLastName: String,
-    //    val loadingTime: String,
-    //    val unloadingTime: String,
+    val cargo: Cargo,
+    val loadingTime: LocalTime,
+    val unloadingTime: LocalTime,
     val departureAddress: Address,
     val deliveryAddress: Address,
     val status: String

@@ -190,10 +190,14 @@ interface OrderRepository : JpaRepository<Order, Long> {
             c_phone.value,
             customer_p.firstName,
             customer_p.lastName,
+            cargo,
+            l.loadingTime,
+            l.unloadingTime,
             departureAddress,
             deliveryAddress,
             s.status)
         FROM Order o
+            JOIN Cargo cargo ON o.id = cargo.orderId
             JOIN Customer c ON o.customerId = c.id
             JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
             JOIN OrderStatuses s ON s.orderId = o.id

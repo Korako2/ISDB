@@ -360,8 +360,9 @@ data class FullOrdersInfo (
     val value: String,
     val customerFirstName: String,
     val customerLastName: String,
-//    val loadingTime: String,
-//    val unloadingTime: String,
+    val cargo: Cargo,
+    val loadingTime: LocalTime,
+    val unloadingTime: LocalTime,
     val departureAddress: Address,
     val deliveryAddress: Address,
     val status: OrderStatus
