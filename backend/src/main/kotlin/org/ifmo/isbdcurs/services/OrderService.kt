@@ -288,6 +288,7 @@ class OrderService @Autowired constructor(
             customerFirstName = this.customerFirstName,
             customerLastName = this.customerLastName,
             cargo = this.cargo,
+            cargoType = this.cargo.cargoType.translate(),
             departureAddress = this.departureAddress,
             deliveryAddress = this.deliveryAddress,
             loadingTime = this.loadingTime,

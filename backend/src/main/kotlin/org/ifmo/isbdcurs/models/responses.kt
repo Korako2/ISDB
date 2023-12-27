@@ -65,6 +65,7 @@ data class FullOrderInfoResponse (
     val customerFirstName: String,
     val customerLastName: String,
     val cargo: Cargo,
+    val cargoType: String,
     val loadingTime: LocalTime,
     val unloadingTime: LocalTime,
     val departureAddress: Address,

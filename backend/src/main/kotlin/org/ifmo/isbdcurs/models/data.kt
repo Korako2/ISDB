@@ -37,6 +37,15 @@ fun OrderStatus.translate(): String {
     }
 }
 
+// delete when merge PR
+fun CargoType.translate(): String {
+    return when (this) {
+        CargoType.BULK -> "Сыпучий"
+        CargoType.TIPPER -> "Сиповоз"
+        CargoType.PALLETIZED -> "Паллеты"
+    }
+}
+
 fun DriverStatus.translate(): String {
     return when (this) {
         DriverStatus.OFF_DUTY -> "Не работает"

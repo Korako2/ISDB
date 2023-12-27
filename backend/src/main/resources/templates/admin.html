@@ -25,7 +25,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="orderModalLabel">Order ID</h5>
+                    <h5 class="modal-title" id="orderModalLabel">Карточка заказа</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -49,7 +49,7 @@
                                 <p class="mb-1">Длина: <span th:text="${ord.cargo.length}"></span></p>
                                 <p class="mb-1">Ширина: <span th:text="${ord.cargo.width}"></span></p>
                                 <p class="mb-1">Высота: <span th:text="${ord.cargo.height}"></span></p>
-                                <p class="mb-1">Тип груза: <span th:text="${ord.cargo.cargoType}"></span></p>
+                                <p class="mb-1">Тип груза: <span th:text="${ord.cargoType}"></span></p>
                                 <p class="mb-1">Время загрузки: <span th:text="${ord.loadingTime}"></span></p>
                                 <p class="mb-1">Время разгрузки: <span th:text="${ord.unloadingTime}"></span></p>
                                 <p class="mb-1">Пункт отправления: <span th:text="${ord.departureAddress.country + ', ' + ord.departureAddress.city + ', ' + ord.departureAddress.street + ', ' + ord.departureAddress.building}"></span></p>
