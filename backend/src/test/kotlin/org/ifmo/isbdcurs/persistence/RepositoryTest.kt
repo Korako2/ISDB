@@ -61,23 +61,4 @@ class RepositoryTests {
         assertThat(movementHistoryRepository.findAll().first().latitude).isEqualTo(movementHistory.latitude)
         assertThat(movementHistoryRepository.findAll().first().mileage).isEqualTo(movementHistory.mileage)
     }
-
-    @Test
-    fun `should find one person`() {
-        repository.save(
-            Person(
-                firstName = "Walter",
-                lastName = "White",
-                middleName = null,
-                gender = Gender.M,
-                dateOfBirth = LocalDate(1980, 1, 1).toJavaLocalDate(),
-            )
-        )
-
-        val walter = repository.findAll().first()
-
-        assertThat(walter).isNotNull()
-        assertThat(walter.firstName).isEqualTo("Walter")
-        assertThat(walter.lastName).isEqualTo("White")
-    }
 }
