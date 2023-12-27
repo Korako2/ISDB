@@ -31,37 +31,25 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p id="order">
                     <div th:switch="${ords}" class="container my-5">
                         <div th:case="null">
-                            <h1>Сейчас нет новых заказов</h1>
+                            <h1>Сейчас нет новых заказов</h1>orderID
                         </div>
-                        <div th:case="*">
-                            <table class="table ttable-borderedable-bordered table-striped">
-                                <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">ID заказа</th>
-                                    <th scope="col">Дата изменения статуса</th>
-                                    <th scope="col">Телефон заказчика</th>
-                                    <th scope="col">Пункт отправления</th>
-                                    <th scope="col">Пункт получения</th>
-                                    <th scope="col">Статус</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="ord : ${ords}">
-                                    <td th:text="${ord.id}"></td>
-                                    <td th:text="${#dates.format(ord.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></td>
-                                    <td th:text="${ord.phoneNumber}"></td>
-                                    <td th:text="${ord.departureAddress.country + ', ' + ord.departureAddress.city + ', ' + ord.departureAddress.street + ', ' + ord.departureAddress.building}"></td>
-                                    <td th:text="${ord.deliveryAddress.country + ', ' + ord.deliveryAddress.city + ', ' + ord.deliveryAddress.street + ', ' + ord.deliveryAddress.building}"></td>
-                                    <td th:text="${ord.status}"></td>
-                                </tr>
-                                </tbody>
-                            </table>
+                    <div class="orders" th:case="*">
+                        <div class="list-group">
+                            <div th:id="${ord.id}" class="list-group-item-action flex-column align-items-start" th:each="ord : ${ords}">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">ID заказа: <span th:text="${ord.id}"></span></h5>
+                                    <small>Дата изменения: <span th:text="${#dates.format(ord.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}" ></span></small>
+                                </div>
+                                <p class="mb-1">Телефон заказчика: <span th:text="${ord.phoneNumber}"></span></p>
+                                <p class="mb-1">Пункт отправления: <span th:text="${ord.departureAddress.country + ', ' + ord.departureAddress.city + ', ' + ord.departureAddress.street + ', ' + ord.departureAddress.building}"></span></p>
+                                <p class="mb-1">Пункт получения: <span th:text="${ord.deliveryAddress.country + ', ' + ord.deliveryAddress.city + ', ' + ord.deliveryAddress.street + ', ' + ord.deliveryAddress.building}"></span></p>
+                                <p class="mb-1">Статус: <span th:text="${ord.status}"></span></p>
+                            </div>
                         </div>
                     </div>
-                    </p>
+                </div>
                 </div>
             </div>
         </div>
@@ -118,10 +106,20 @@
 
 <script>
     function showOrderID(orderID) {
-        document.getElementById('order').innerText = "Order ID: " + orderID;
+        var modalDiv = document.querySelectorAll('.modal-body .orders .list-group div');
+        modalDiv.forEach(function(div) {
+            if (div.getAttribute('id') === orderID) {
+                div.style.display = 'block';
+            } else {
+                div.style.display = 'none';
+            }
+        });
+
         $('#orderModal').modal('show');
     }
+
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
