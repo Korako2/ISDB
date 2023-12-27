@@ -1,6 +1,5 @@
 package org.ifmo.isbdcurs.controllers
 
-import org.ifmo.isbdcurs.models.DriverRequest
 import org.ifmo.isbdcurs.services.AdminLogService
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
@@ -39,7 +38,7 @@ class AdminController @Autowired constructor(
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", orderService.getTotalPagesForManager(pageSize).toInt())
-        model.addAttribute("ords", orderService.getFullOrderInfo(pageNumber, pageSize))
+        model.addAttribute("ords", orderService.getFullOrdersInfo(pageNumber, pageSize))
         return "admin"
     }
 

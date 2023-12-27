@@ -78,7 +78,7 @@ class OrderService @Autowired constructor(
         }
     }
 
-    fun getFullOrderInfo(page: Int, pageSize: Int): List<FullOrderInfoResponse> {
+    fun getFullOrdersInfo(page: Int, pageSize: Int): List<FullOrdersInfoResponse> {
         val offset = page * pageSize
         return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
             val orders = orderRepo.getFullOrdersInfoForManager(pageSize, offset).map {
@@ -282,8 +282,8 @@ class OrderService @Autowired constructor(
             status = this.status.translate(),
         )
     }
-    private fun FullOrdersInfo.toFullOrderInfoResponse(): FullOrderInfoResponse {
-        return FullOrderInfoResponse(
+    private fun FullOrdersInfo.toFullOrderInfoResponse(): FullOrdersInfoResponse {
+        return FullOrdersInfoResponse(
             id = this.id,
             statusChangedTime = this.statusChangedTime,
             phoneNumber = this.value,

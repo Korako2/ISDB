@@ -1,7 +1,6 @@
 package org.ifmo.isbdcurs.models
 
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
@@ -58,7 +57,7 @@ data class ManagerOrderResponse (
     val status: String,
 )
 
-data class FullOrderInfoResponse (
+data class FullOrdersInfoResponse (
     val id: Long,
     val statusChangedTime: Instant,
     val phoneNumber: String,
