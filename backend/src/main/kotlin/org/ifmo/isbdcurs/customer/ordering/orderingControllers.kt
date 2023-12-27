@@ -27,7 +27,7 @@ data class AddressesDto(
     var delivery: AddressDto = AddressDto(-1, ""),
 )
 
-data class OrderDetails(
+data class OrderUserInput(
     var id: Long = -1,
     val addressesDto: AddressesDto,
     val cargo: CargoParamsDto,
@@ -123,7 +123,7 @@ class OrderingController @Autowired constructor(
         redirectAttributes: RedirectAttributes
     ): RedirectView {
         // TODO: remove hardcode
-        val order = OrderDetails(-1, selectedAddresses, cargoParams, cost)
+        val order = OrderUserInput(-1, selectedAddresses, cargoParams, cost)
         orderService.createOrder(order)
 
         logger.info("[submitOrder] order: $order")

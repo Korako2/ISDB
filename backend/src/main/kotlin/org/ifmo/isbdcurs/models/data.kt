@@ -52,6 +52,14 @@ fun DriverStatus.translate(): String {
     }
 }
 
+fun CargoType.translate(): String {
+    return when (this) {
+        CargoType.BULK -> "Сыпучие"
+        CargoType.TIPPER -> "Самосвал"
+        CargoType.PALLETIZED -> "Паллеты"
+    }
+}
+
 enum class ContactInfoType {
     PHONE_NUMBER, TELEGRAM, EMAIL;
 
@@ -280,18 +288,10 @@ data class StoragePoint(
     val longitude: Float,
 )
 
-@Serializable
-data class LoadingUnloadingAgreementPK(
-    val orderId: Long? = null,
-    val driverId: Long? = null
-) : java.io.Serializable
-
 @Entity
-@IdClass(LoadingUnloadingAgreementPK::class)
 data class LoadingUnloadingAgreement(
-//    @EmbeddedId val id: LoadingUnloadingAgreementPK,
     @Id val orderId: Long,
-    @Id val driverId: Long,
+    val driverId: Long,
     val departurePoint: Long,
     val deliveryPoint: Long,
     val senderId: Long,

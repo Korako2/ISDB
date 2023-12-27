@@ -154,18 +154,67 @@ interface OrderRepository : JpaRepository<Order, Long> {
             JOIN Person driver_p ON d.personId = driver_p.id
             JOIN Address departureAddress ON l.departurePoint = departureAddress.id
             JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+        WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
         AND c.id = :customerId
         ORDER BY o.id DESC
         LIMIT :limit OFFSET :offset
     """)
-    fun getExtendedResultsByCustomerId(customerId: Long, limit: Int, offset: Int): List<CustomerOrder>
+    fun getExtendedResultsByCustomerId(customerId: Long, limit: Long, offset: Long): List<CustomerOrder>
 
     fun countByCustomerId(customerId: Long): Int
+
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.CustomerOrder(
+            s.dateTime,
+            driver_p.lastName,
+            departureAddress,
+            deliveryAddress,
+            s.status)
+        FROM Order o
+            JOIN Customer c ON o.customerId = c.id
+            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            JOIN Driver d ON l.driverId = d.id
+            JOIN OrderStatuses s ON s.orderId = o.id
+            JOIN Person customer_p ON c.personId = customer_p.id
+            JOIN Person driver_p ON d.personId = driver_p.id
+            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+        WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
+        AND c.id = :customerId
+        AND s.status <> 'COMPLETED'
+        ORDER BY o.id DESC
+    """)
+    fun getIncompleteOrdersByCustomerId(customerId: Long): List<CustomerOrder>
+
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.CustomerOrder(
+            s.dateTime,
+            driver_p.lastName,
+            departureAddress,
+            deliveryAddress,
+            s.status)
+        FROM Order o
+            JOIN Customer c ON o.customerId = c.id
+            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            JOIN Driver d ON l.driverId = d.id
+            JOIN OrderStatuses s ON s.orderId = o.id
+            JOIN Person customer_p ON c.personId = customer_p.id
+            JOIN Person driver_p ON d.personId = driver_p.id
+            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+        WHERE s.dateTime = (SELECT MAX(s2.dateTime) FROM OrderStatuses s2 WHERE s2.orderId = o.id)
+        AND c.id = :customerId AND o.id = :id
+    """)
+    fun findCustomerOrderByCustomerIdAndId(customerId: Long, id: Long): Optional<CustomerOrder>
 }
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK>
 
-interface CargoRepository : CrudRepository<Cargo, Long>
+interface CargoRepository : CrudRepository<Cargo, Long> {
+    fun findByOrderId(orderId: Long): Optional<Cargo>
+}
 
 interface AddressRepository : CrudRepository<Address, Long> {
     fun findByCountryAndCityAndStreetAndBuilding(country: String, city: String, street: String, building: Int): Optional<Address>
@@ -173,7 +222,7 @@ interface AddressRepository : CrudRepository<Address, Long> {
 
 interface StoragePointRepository : CrudRepository<StoragePoint, Long>
 
-interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, LoadingUnloadingAgreementPK> {
+interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, Long> {
     fun findByOrderIdAndDriverId(orderId: Long, driverId: Long): LoadingUnloadingAgreement?
 }
 
