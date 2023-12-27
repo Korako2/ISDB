@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Find suitable driver</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderModalLabel">Карточка заказа</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div th:switch="${ords}" class="container my-5">
+                    <div th:case="null">
+                        <h1>Сейчас нет новых заказов</h1>orderID
+                    </div>
+                    <div class="orders" th:case="*">
+                        <div class="list-group">
+                            <div th:id="${ord.id}" class=" flex-column align-items-start" th:each="ord : ${ords}">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">ID заказа: <span th:text="${ord.id}"></span></h5>
+                                    <small>Дата создания: <span th:text="${#dates.format(ord.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}" ></span></small>
+                                </div>
+                                <!-- Блок с информацией о заказчике -->
+                                <div th:id="${ord.id}" class="customer-info list-group-item">
+                                    <p class="mb-1">Телефон заказчика: <span th:text="${ord.phoneNumber}"></span></p>
+                                    <p class="mb-1">Имя заказчика: <span th:text="${ord.customerFirstName}"></span></p>
+                                    <p class="mb-1">Фамилия заказчика: <span th:text="${ord.customerLastName}"></span></p>
+                                </div>
+
+                                <!-- Блок с информацией о грузе -->
+                                <div th:id="${ord.id}" class="cargo-info list-group-item">
+                                    <p class="mb-1">Вес: <span th:text="${ord.cargo.weight}"></span></p>
+                                    <p class="mb-1">Длина: <span th:text="${ord.cargo.length}"></span></p>
+                                    <p class="mb-1">Ширина: <span th:text="${ord.cargo.width}"></span></p>
+                                    <p class="mb-1">Высота: <span th:text="${ord.cargo.height}"></span></p>
+                                    <p class="mb-1">Тип груза: <span th:text="${ord.cargoType}"></span></p>
+                                </div>
+
+                                <!-- Блок с информацией о времени -->
+                                <div th:id="${ord.id}" class="time-info list-group-item">
+                                    <p class="mb-1">Время загрузки: <span th:text="${ord.loadingTime}"></span></p>
+                                    <p class="mb-1">Время разгрузки: <span th:text="${ord.unloadingTime}"></span></p>
+                                </div>
+
+                                <!-- Блоки с информацией о пунктах -->
+                                <div th:id="${ord.id}" class="address-info list-group-item">
+                                    <p class="mb-1">Пункт отправления: <span th:text="${ord.departureAddress.country + ', ' + ord.departureAddress.city + ', ' + ord.departureAddress.street + ', ' + ord.departureAddress.building}"></span></p>
+                                    <p class="mb-1">Пункт получения: <span th:text="${ord.deliveryAddress.country + ', ' + ord.deliveryAddress.city + ', ' + ord.deliveryAddress.street + ', ' + ord.deliveryAddress.building}"></span></p>
+                                </div>
+
+                                <!-- Блок с информацией о статусе -->
+                                <div th:id="${ord.id}" class="status-info list-group-item">
+                                    <p class="mb-1">Статус: <span th:text="${ord.status}"></span></p>
+                                </div>
+
+                                <div th:id="${ord.id}" class="mt-4 d-flex justify-content-between">
+                                    <button class="btn btn-success mr-auto" onclick="approveOrder()">Одобрить заказ</button>
+                                    <button class="btn btn-danger ml-auto" onclick="rejectOrder()">Отклонить заказ</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

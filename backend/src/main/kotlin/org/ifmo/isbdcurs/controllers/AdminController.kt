@@ -98,4 +98,10 @@ class AdminController @Autowired constructor(
         return "tables/customers"
     }
 
+    @GetMapping("/admin/find_suitable_driver")
+    fun showFindSuitableDriverPage(model: Model, @RequestParam orderId: Int): String {
+
+        return "find_suitable_driver"
+    }
+
 }
