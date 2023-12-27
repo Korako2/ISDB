@@ -1,15 +1,21 @@
 package org.ifmo.isbdcurs.customer.ordering
 
+import org.ifmo.isbdcurs.persistence.OrderRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class CustomerOrderService() {
+class CustomerOrderService @Autowired constructor(
+    private val orderRepository: OrderRepository
+) {
     fun createOrder(orderDetails: OrderDetails) {
+        // TODO: save order to database
         println("OrderService.createOrder: $orderDetails")
     }
 
     fun getOrder(orderId: Long): OrderDetails {
-        println("OrderService.getOrder: $orderId")
+        val order = orderRepository.findById(orderId).orElseThrow()
+        order.
         return OrderDetails(
             1,
             AddressesDto(

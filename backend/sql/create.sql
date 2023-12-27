@@ -196,7 +196,7 @@ CREATE TABLE IF NOT EXISTS storage_point
 CREATE TABLE IF NOT EXISTS loading_unloading_agreement
 (
     order_id        int REFERENCES orders (id) ON DELETE CASCADE PRIMARY KEY,
-    driver_id       int  NOT NULL REFERENCES driver (id) ON DELETE CASCADE,
+    driver_id       int REFERENCES driver (id) ON DELETE CASCADE,
     departure_point int  NOT NULL REFERENCES storage_point (address_id) ON DELETE CASCADE,
     delivery_point  int  NOT NULL REFERENCES storage_point (address_id) ON DELETE CASCADE,
     sender_id       int  NOT NULL REFERENCES person (id) ON DELETE CASCADE,

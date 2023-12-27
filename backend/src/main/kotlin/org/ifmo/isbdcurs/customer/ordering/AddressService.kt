@@ -1,26 +1,24 @@
 package org.ifmo.isbdcurs.customer.ordering
 
+import org.ifmo.isbdcurs.models.Address
+import org.ifmo.isbdcurs.persistence.AddressRepository
+import org.ifmo.isbdcurs.services.BackendException
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrNull
 
 @Service
-class AddressService {
+class AddressService(private val addressRepository: AddressRepository) {
     fun getAllAddresses(): List<AddressDto> {
-        return listOf(
-            AddressDto(1, "Moscow"),
-            AddressDto(2, "New York"),
-            AddressDto(3, "London"),
-            AddressDto(4, "Paris"),
-            AddressDto(5, "Berlin"),
-            AddressDto(6, "Tokyo"),
-            AddressDto(7, "Beijing"),
-            AddressDto(8, "Seoul"),
-            AddressDto(9, "Rome"),
-            AddressDto(10, "Madrid"),
-            AddressDto(11, "Barcelona"),
-        )
+        return addressRepository.findAll().map { it.mapAddressToDto() }
     }
 
     fun getAddressById(id: Long): AddressDto {
-        return getAllAddresses().first { it.id == id }
+        return addressRepository.findById(id).getOrNull()?.mapAddressToDto() ?: throw BackendException("Address not found")
+    }
+
+    private fun Address.mapAddressToDto(): AddressDto {
+        val address = this
+        val name = "${address.country}, ${address.city}, ${address.street}, ${address.building}"
+        return AddressDto(address.id!!, name)
     }
 }
