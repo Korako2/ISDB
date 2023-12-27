@@ -346,6 +346,7 @@ data class CustomerOrder (
  )
 
 data class ManagerOrder (
+    val id: Long,
     val statusChangedTime: Instant,
     val value: String,
     val departureAddress: Address,

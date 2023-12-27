@@ -49,6 +49,7 @@ data class CustomerResponse (
 )
 
 data class ManagerOrderResponse (
+    val id: Long,
     val statusChangedTime: Instant,
     val phoneNumber: String,
     val departureAddress: Address,

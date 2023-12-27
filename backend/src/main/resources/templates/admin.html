@@ -22,7 +22,7 @@
         </li>
     </ul>
     <div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="orderModalLabel">Order ID</h5>
@@ -31,7 +31,36 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p id="orderId"></p>
+                    <p id="order">
+                    <div th:switch="${ord}" class="container my-5">
+                        <div th:case="null">
+                            <h1>Сейчас нет новых заказов</h1>
+                        </div>
+                    <div th:case="*">
+                        <table class="table ttable-borderedable-bordered table-striped">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">ID заказа</th>
+                                <th scope="col">Дата изменения статуса</th>
+                                <th scope="col">Телефон заказчика</th>
+                                <th scope="col">Пункт отправления</th>
+                                <th scope="col">Пункт получения</th>
+                                <th scope="col">Статус</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="order : ${ord}">
+                                    <td th:text="${order.id}"></td>
+                                    <td th:text="${#dates.format(order.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></td>
+                                    <td th:text="${order.phoneNumber}"></td>
+                                    <td th:text="${order.departureAddress.country + ', ' + order.departureAddress.city + ', ' + order.departureAddress.street + ', ' + order.departureAddress.building}"></td>
+                                    <td th:text="${order.deliveryAddress.country + ', ' + order.deliveryAddress.city + ', ' + order.deliveryAddress.street + ', ' + order.deliveryAddress.building}"></td>
+                                    <td th:text="${order.status}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    </p>
                 </div>
             </div>
         </div>
@@ -46,7 +75,7 @@
                 <thead class="thead-dark">
                 <tr>
                     <th scope="col">Дата изменения статуса</th>
-                    <th scope="col">Водитель</th>
+                    <th scope="col">Телефон заказчика</th>
                     <th scope="col">Пункт отправления</th>
                     <th scope="col">Пункт получения</th>
                     <th scope="col">Статус</th>
@@ -61,7 +90,7 @@
                     <td th:text="${order.deliveryAddress.country + ', ' + order.deliveryAddress.city + ', ' + order.deliveryAddress.street + ', ' + order.deliveryAddress.building}"></td>
                     <td th:text="${order.status}"></td>
                     <td>
-                        <button type="button" class="btn btn-primary" th:data-orderid="${order.phoneNumber}" onclick="showOrderID(this.getAttribute('data-orderid'))">Проверить</button>
+                        <button type="button" class="btn btn-primary" th:data-orderid="${order.id}" onclick="showOrderID(this.getAttribute('data-orderid'))">Проверить</button>
                     </td>
                 </tr>
                 </tbody>
@@ -87,7 +116,7 @@
 
 <script>
     function showOrderID(orderID) {
-        document.getElementById('orderId').innerText = "Order ID: " + orderID;
+        document.getElementById('order').innerText = "Order ID: " + orderID;
         $('#orderModal').modal('show');
     }
 </script>

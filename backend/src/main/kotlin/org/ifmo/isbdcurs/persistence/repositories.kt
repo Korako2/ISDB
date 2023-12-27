@@ -163,6 +163,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
     @Query("""
         SELECT 
         new org.ifmo.isbdcurs.models.ManagerOrder(
+            o.id,
             s.dateTime,
             c_phone.value,
             departureAddress,

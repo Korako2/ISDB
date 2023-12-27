@@ -261,6 +261,7 @@ class OrderService @Autowired constructor(
 
     private fun ManagerOrder.toManagerOrderResponse(): ManagerOrderResponse {
         return ManagerOrderResponse(
+            id = this.id,
             statusChangedTime = this.statusChangedTime,
             phoneNumber = this.value,
             departureAddress = this.departureAddress,
