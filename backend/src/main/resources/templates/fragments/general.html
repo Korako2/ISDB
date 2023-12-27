@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="headerfiles">
+    <meta charset="UTF-8" />
+    <title>DB course work</title>
+
+    <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.2/css/bootstrap.min.css} "/>
+    <script th:src="@{/webjars/bootstrap/5.3.2/js/bootstrap.min.js}"></script>
+</head>
+<body>
+
+<div th:fragment="header" class="container mt-auto bg-dark text-white py-3 text-center">
+    <p class="mb-0">Курсовая работа по дисциплине Базы Данных</p>
+</div>
+
+<footer th:fragment="footer" class="container mt-auto bg-dark text-white py-3">
+    <div class="d-flex justify-content-between mx-10">
+        <span class="text-white">Выполнили: студенты группы P33302</span>
+        <span class="text-white">Соловьев Павел</span>
+        <span class="text-white">Гурьянов Кирилл</span>
+    </div>
+</footer>
+
+<div th:fragment="prev-next-step-buttons (nextText)" class="container">
+    <button type="button" class="btn btn-primary" onclick="window.history.back()">Назад</button>
+    <button type="submit" class="btn btn-primary"><span th:text="${nextText}"></span></button>
+</div>
+
+</body>
+</html>
