@@ -149,7 +149,7 @@ class OrderService @Autowired constructor(
             )
             val vehicleId = vehicleService.findSuitableVehicle(orderDataForVehicle)
             if (vehicleId == -1L) {
-                throw BackendException("Водитель под ваш заказ не найден. Попробуйте изменить параметры груза")
+                throw BackendException("Водитель для заказа ${orderId} не найден. Попробуйте позже или обратитесь к старшему менеджеру")
             }
             val driverId = vehicleOwnershipRepository.findByVehicleId(vehicleId).driverId
             driverId
