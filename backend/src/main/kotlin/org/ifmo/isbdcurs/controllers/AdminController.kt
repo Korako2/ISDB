@@ -1,6 +1,8 @@
 package org.ifmo.isbdcurs.controllers
 
-import org.ifmo.isbdcurs.models.DriverRequest
+import org.ifmo.isbdcurs.models.BodyType
+import org.ifmo.isbdcurs.models.SuitableDriver
+import org.ifmo.isbdcurs.models.Vehicle
 import org.ifmo.isbdcurs.services.AdminLogService
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
@@ -14,13 +16,14 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
+import java.time.Instant
 
 @Controller
 class AdminController @Autowired constructor(
     private val adminLogService: AdminLogService,
     private val orderService: OrderService,
     private val driverService: DriverService,
-    private val customerService: CustomerService
+    private val customerService: CustomerService,
     ) {
     private val errorHelper = ErrorHelper(adminLogService)
     private val logger = org.slf4j.LoggerFactory.getLogger(AdminController::class.java)
@@ -30,16 +33,16 @@ class AdminController @Autowired constructor(
                  @RequestParam(defaultValue = "10") pageSize: Int,
                  redirectAttributes: RedirectAttributes
     ): String {
-        if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
+        if (pageNumber < 0 || pageNumber > orderService.getTotalPagesForManager(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
             return "redirect:/admin"
         }
-        model.addAttribute("logs", adminLogService.getAdminLog(pageNumber, pageSize))
+        model.addAttribute("orders", orderService.getOrdersForManager(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
-        model.addAttribute("totalPages", adminLogService.getTotalPages(pageSize))
-
+        model.addAttribute("totalPages", orderService.getTotalPagesForManager(pageSize).toInt())
+        model.addAttribute("ords", orderService.getFullOrdersInfo(pageNumber, pageSize))
         return "admin"
     }
 
@@ -97,5 +100,20 @@ class AdminController @Autowired constructor(
         model.addAttribute("totalPages", customerService.getTotalPages(pageSize))
         return "tables/customers"
     }
+
+    @GetMapping("/admin/find_suitable_driver")
+    fun showFindSuitableDriverPage(model: Model, @RequestParam orderId: Long): String {
+        model.addAttribute("orderById", orderService.getFullOrderInfoById(orderId))
+        return "find_suitable_driver"
+    }
+
+    @GetMapping("/admin/suitable_driver")
+    fun showFindSuitableDriver(model: Model, @RequestParam orderId: Long): String {
+        model.addAttribute("orderById", orderService.getFullOrderInfoById(orderId))
+        model.addAttribute("driver", driverService.getSuitableDriver(orderId))
+       // model.addAttribute("driver", SuitableDriver("Иван", "Иванов", "8-800-555-35-35", "A123AA", 123123, "2021-12-23", "2021-12-23", Vehicle(111, "A123AA", "ГАЗ", Instant.now(), 12.2, 1.0, 1.0, 1.0, BodyType.CLOSED)))
+        return "suitable_driver"
+    }
+
 
 }

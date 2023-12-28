@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Database Tables</title>
-    <!-- Include Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
 
@@ -19,36 +20,104 @@
         <li class="nav-item">
             <a class="nav-link text-dark" th:href="@{/admin/orders}" aria-selected="true">Orders</a>
         </li>
-        <!-- Добавьте другие вкладки для других таблиц -->
     </ul>
-    <div th:switch="${logs}" class="container my-5">
+    <div class="modal fade" id="orderModal" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderModalLabel">Карточка заказа</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div th:switch="${ords}" class="container my-5">
+                        <div th:case="null">
+                            <h1>Сейчас нет новых заказов</h1>orderID
+                        </div>
+                    <div class="orders" th:case="*">
+                        <div class="list-group">
+                            <div th:id="${ord.id}" class=" flex-column align-items-start" th:each="ord : ${ords}">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">ID заказа: <span th:text="${ord.id}"></span></h5>
+                                    <small>Дата создания: <span th:text="${#dates.format(ord.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}" ></span></small>
+                                </div>
+                                <!-- Блок с информацией о заказчике -->
+                                <div th:id="${ord.id}" class="customer-info list-group-item">
+                                    <p class="mb-1">Телефон заказчика: <span th:text="${ord.phoneNumber}"></span></p>
+                                    <p class="mb-1">Имя заказчика: <span th:text="${ord.customerFirstName}"></span></p>
+                                    <p class="mb-1">Фамилия заказчика: <span th:text="${ord.customerLastName}"></span></p>
+                                </div>
+
+                                <!-- Блок с информацией о грузе -->
+                                <div th:id="${ord.id}" class="cargo-info list-group-item">
+                                    <p class="mb-1">Вес: <span th:text="${ord.cargo.weight}"></span></p>
+                                    <p class="mb-1">Длина: <span th:text="${ord.cargo.length}"></span></p>
+                                    <p class="mb-1">Ширина: <span th:text="${ord.cargo.width}"></span></p>
+                                    <p class="mb-1">Высота: <span th:text="${ord.cargo.height}"></span></p>
+                                    <p class="mb-1">Тип груза: <span th:text="${ord.cargoType}"></span></p>
+                                </div>
+
+                                <!-- Блок с информацией о времени -->
+                                <div th:id="${ord.id}" class="time-info list-group-item">
+                                    <p class="mb-1">Время загрузки: <span th:text="${ord.loadingTime}"></span></p>
+                                    <p class="mb-1">Время разгрузки: <span th:text="${ord.unloadingTime}"></span></p>
+                                </div>
+
+                                <!-- Блоки с информацией о пунктах -->
+                                <div th:id="${ord.id}" class="address-info list-group-item">
+                                    <p class="mb-1">Пункт отправления: <span th:text="${ord.departureAddress.country + ', ' + ord.departureAddress.city + ', ' + ord.departureAddress.street + ', ' + ord.departureAddress.building}"></span></p>
+                                    <p class="mb-1">Пункт получения: <span th:text="${ord.deliveryAddress.country + ', ' + ord.deliveryAddress.city + ', ' + ord.deliveryAddress.street + ', ' + ord.deliveryAddress.building}"></span></p>
+                                </div>
+
+                                <!-- Блок с информацией о статусе -->
+                                <div th:id="${ord.id}" class="status-info list-group-item">
+                                    <p class="mb-1">Статус: <span th:text="${ord.status}"></span></p>
+                                </div>
+                                <div th:id="${ord.id}" class="mt-4 d-flex justify-content-between">
+                                    <button class="btn btn-success mr-auto"  th:data-orderid="${ord.id}" onclick="approveOrder(this.getAttribute('data-orderid'))">Одобрить заказ</button>
+                                    <button class="btn btn-danger ml-auto" onclick="rejectOrder()">Отклонить заказ</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:switch="${orders}" class="container my-5">
         <div th:case="null">
-            <h1>Logs not found</h1>
+            <h1>Сейчас нет новых заказов</h1>
         </div>
         <div th:case="*">
-            <h2 class="text-center">Логи</h2>
-            <div class="table-responsive"> <!-- Убран класс mx-auto -->
-                <table class="table table-bordered table-striped mx-auto"> <!-- Добавлен класс mx-auto -->
-                    <thead class="thead-dark">
-                    <tr>
-                        <th scope="col">Id</th>
-                        <th scope="col">Message</th>
-                        <th scope="col">Level</th>
-                        <th scope="col">Timestamp</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="log : ${logs}">
-                        <td th:text="${log.id}"></td>
-                        <td th:text="${log.message}"></td>
-                        <td th:text="${log.level}"></td>
-                        <td th:text="${log.timestamp}"></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            <h2 class="text-center mt-4">Непроверенные заказы</h2>
+            <table class="table ttable-borderedable-bordered table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Дата создания</th>
+                    <th scope="col">Телефон заказчика</th>
+                    <th scope="col">Пункт отправления</th>
+                    <th scope="col">Пункт получения</th>
+                    <th scope="col">Статус</th>
+                    <th scope="col">Проверить заказ</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${#dates.format(order.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></td>
+                    <td th:text="${order.phoneNumber}"></td>
+                    <td th:text="${order.departureAddress.country + ', ' + order.departureAddress.city + ', ' + order.departureAddress.street + ', ' + order.departureAddress.building}"></td>
+                    <td th:text="${order.deliveryAddress.country + ', ' + order.deliveryAddress.city + ', ' + order.deliveryAddress.street + ', ' + order.deliveryAddress.building}"></td>
+                    <td th:text="${order.status}"></td>
+                    <td>
+                        <button type="button" class="btn btn-primary" th:data-orderid="${order.id}" onclick="showOrderID(this.getAttribute('data-orderid'))">Проверить</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
             <div th:if="${totalPages > 1}">
-                <ul class="pagination pagination-lg justify-content-center"> <!-- Добавлен класс pagination-lg -->
+                <ul class="pagination pagination-lg justify-content-center">
                     <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
                         <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/admin?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
                         <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
@@ -64,7 +133,36 @@
             </div>
         </div>
     </div>
+
 </div>
+
+<script>
+    function showOrderID(orderID) {
+        var modalDiv = document.querySelectorAll('.modal-body .orders .list-group div');
+        modalDiv.forEach(function(div) {
+            if (div.getAttribute('id') === orderID) {
+                div.style.display = 'block';
+            } else {
+                div.style.display = 'none';
+            }
+        });
+
+        $('#orderModal').modal('show');
+    }
+
+
+    function approveOrder(orderID) {
+        window.location.href = 'admin/find_suitable_driver?orderId=' + orderID;
+    }
+
+    // Функция для отклонения заказа
+    function rejectOrder() {
+        // Добавьте здесь логику для отклонения заказа
+        console.log('Заказ отклонен');
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
 </html>

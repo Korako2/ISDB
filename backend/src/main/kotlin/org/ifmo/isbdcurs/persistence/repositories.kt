@@ -12,11 +12,15 @@ import org.springframework.data.repository.query.Param
 import java.time.Instant
 import java.util.*
 
-interface PersonRepository : CrudRepository<Person, Long>
+interface PersonRepository : CrudRepository<Person, Long> {
+    fun findPersonById(id: Long): Person?
+}
 
 interface ContactInfoRepository : CrudRepository<ContactInfo, Long> {
     @Query("SELECT add_contacts(:personId, :phone, :email)", nativeQuery = true)
     fun addContactInfo(personId: Long, phone: String, email: String)
+
+    fun findContactInfoByPersonId(personId: Long): List<ContactInfo>
 }
 
 interface DriverRepository : CrudRepository<Driver, Long> {
@@ -54,6 +58,8 @@ interface DriverRepository : CrudRepository<Driver, Long> {
     fun getExtendedDriversPaged(limit: Int, offset: Int): List<DriverResponse>
 
     fun existsByPassport(passport: String): Boolean
+
+    fun findDriverById(id: Long): Driver?
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
@@ -79,7 +85,9 @@ interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Lo
 
 interface TariffRateRepository : CrudRepository<TariffRate, Long>
 
-interface DriverLicenseRepository : CrudRepository<DriverLicense, Long>
+interface DriverLicenseRepository : CrudRepository<DriverLicense, Long> {
+    fun findDriverLicensesByDriverId(driverId: Long): List<DriverLicense>
+}
 
 interface VehicleRepository : CrudRepository<Vehicle, Long> {
     @Query(value = """
@@ -95,6 +103,8 @@ interface VehicleRepository : CrudRepository<Vehicle, Long> {
         ) 
     """, nativeQuery = true)
     fun findSuitableVehicle(@Param("request") request: OrderDataForVehicle): Long
+
+    fun findVehicleById(id: Long): Vehicle?
 }
 
 
@@ -161,7 +171,86 @@ interface OrderRepository : JpaRepository<Order, Long> {
     """)
     fun getExtendedResultsByCustomerId(customerId: Long, limit: Long, offset: Long): List<CustomerOrder>
 
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.ManagerOrder(
+            o.id,
+            s.dateTime,
+            c_phone.value,
+            departureAddress,
+            deliveryAddress,
+            s.status)
+        FROM Order o
+            JOIN Customer c ON o.customerId = c.id
+            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            JOIN OrderStatuses s ON s.orderId = o.id
+            JOIN Person customer_p ON c.personId = customer_p.id
+            JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
+            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+        WHERE s.status = 'WAITING'
+        ORDER BY o.id DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    fun getResultsForManager(limit: Int, offset: Int): List<ManagerOrder>
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.FullOrdersInfo(
+            o.id,
+            s.dateTime,
+            c_phone.value,
+            customer_p.firstName,
+            customer_p.lastName,
+            cargo,
+            l.loadingTime,
+            l.unloadingTime,
+            departureAddress,
+            deliveryAddress,
+            s.status)
+        FROM Order o
+            JOIN Cargo cargo ON o.id = cargo.orderId
+            JOIN Customer c ON o.customerId = c.id
+            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            JOIN OrderStatuses s ON s.orderId = o.id
+            JOIN Person customer_p ON c.personId = customer_p.id
+            JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
+            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+        WHERE s.status = 'WAITING'
+        ORDER BY o.id DESC
+        LIMIT :limit OFFSET :offset
+    """)
+    fun getFullOrdersInfoForManager(limit: Int, offset: Int): List<FullOrdersInfo>
+    @Query("""
+        SELECT 
+        new org.ifmo.isbdcurs.models.FullOrdersInfo(
+            o.id,
+            s.dateTime,
+            c_phone.value,
+            customer_p.firstName,
+            customer_p.lastName,
+            cargo,
+            l.loadingTime,
+            l.unloadingTime,
+            departureAddress,
+            deliveryAddress,
+            s.status)
+        FROM Order o
+            JOIN Cargo cargo ON o.id = cargo.orderId
+            JOIN Customer c ON o.customerId = c.id
+            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            JOIN OrderStatuses s ON s.orderId = o.id
+            JOIN Person customer_p ON c.personId = customer_p.id
+            JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
+            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+        WHERE o.id = :id
+    """)
+    fun getFullOrderInfoById(id: Long): FullOrdersInfo
+
     fun countByCustomerId(customerId: Long): Int
+
+    fun findOrderById(id: Long): Order?
 
     @Query("""
         SELECT 
@@ -246,7 +335,10 @@ interface OrderRepository : JpaRepository<Order, Long> {
     fun findCustomerOrderByCustomerIdAndId(customerId: Long, id: Long): Optional<CustomerOrder>
 }
 
-interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK>
+interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK> {
+    @Query("SELECT COUNT(*) FROM (SELECT order_id FROM order_statuses GROUP BY order_id HAVING COUNT(*) = 1) AS count", nativeQuery = true)
+    fun countByOrderStatus(): Long
+}
 
 interface CargoRepository : CrudRepository<Cargo, Long> {
     fun findByOrderId(orderId: Long): Optional<Cargo>
@@ -260,6 +352,8 @@ interface StoragePointRepository : CrudRepository<StoragePoint, Long>
 
 interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, Long> {
     fun findByOrderIdAndDriverId(orderId: Long, driverId: Long): LoadingUnloadingAgreement?
+
+    fun findByOrderId(orderId: Long): LoadingUnloadingAgreement?
 }
 
 interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, FuelCardsForDriversPK> {
