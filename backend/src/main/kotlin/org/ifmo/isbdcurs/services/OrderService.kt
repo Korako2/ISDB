@@ -25,6 +25,7 @@ class OrderService @Autowired constructor(
     private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
     private val storagePointRepository: StoragePointRepository,
     private val addressRepository: AddressRepository,
+    private val orderStatusesRepository: OrderStatusesRepository
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(OrderService::class.java)
 
@@ -44,6 +45,10 @@ class OrderService @Autowired constructor(
         return (orderRepo.count() + pageSize - 1) / pageSize
     }
 
+    fun getTotalPagesForManager(pageSize: Int): Long {
+        return (orderStatusesRepository.countByOrderStatus() + pageSize - 1) / pageSize
+    }
+
     fun countCustomerPages(customerId: Long, pageSize: Int): Int {
         return (orderRepo.countByCustomerId(customerId) + pageSize - 1) / pageSize
     }
@@ -58,6 +63,39 @@ class OrderService @Autowired constructor(
             logger.info("Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
                     "Orders size = ${orders.size}. Offset = $offset")
             orders
+        }
+    }
+
+    fun getOrdersForManager(page: Int, pageSize: Int): List<ManagerOrderResponse> {
+        val offset = page * pageSize
+        return exceptionHelper.wrapWithBackendException("Error while getting orders by for manager's page") {
+            val orders = orderRepo.getResultsForManager(pageSize, offset).map {
+                it.toManagerOrderResponse()
+            }
+            logger.info("Page = $page, pageSize = $pageSize. " +
+                    "Orders size = ${orders.size}. Offset = $offset")
+            orders
+        }
+    }
+
+    fun getFullOrdersInfo(page: Int, pageSize: Int): List<FullOrdersInfoResponse> {
+        val offset = page * pageSize
+        return exceptionHelper.wrapWithBackendException("Error while getting full information about orders") {
+            val orders = orderRepo.getFullOrdersInfoForManager(pageSize, offset).map {
+                it.toFullOrderInfoResponse()
+            }
+            logger.info("Page = $page, pageSize = $pageSize. " +
+                    "Orders size = ${orders.size}. Offset = $offset")
+            orders
+        }
+    }
+
+    fun getFullOrderInfoById(orderId: Long): FullOrdersInfoResponse {
+        return exceptionHelper.wrapWithBackendException("Error while getting full information about order") {
+            var order = orderRepo.getFullOrderInfoById(orderId).toFullOrderInfoResponse()
+            logger.info("Order id = $orderId. " +
+                    "Order = $order")
+            order
         }
     }
 
@@ -241,6 +279,34 @@ class OrderService @Autowired constructor(
             status = this.status.translate(),
         )
     }
+
+    private fun ManagerOrder.toManagerOrderResponse(): ManagerOrderResponse {
+        return ManagerOrderResponse(
+            id = this.id,
+            statusChangedTime = this.statusChangedTime,
+            phoneNumber = this.value,
+            departureAddress = this.departureAddress,
+            deliveryAddress = this.deliveryAddress,
+            status = this.status.translate(),
+        )
+    }
+    private fun FullOrdersInfo.toFullOrderInfoResponse(): FullOrdersInfoResponse {
+        return FullOrdersInfoResponse(
+            id = this.id,
+            statusChangedTime = this.statusChangedTime,
+            phoneNumber = this.value,
+            customerFirstName = this.customerFirstName,
+            customerLastName = this.customerLastName,
+            cargo = this.cargo,
+            cargoType = this.cargo.cargoType.translate(),
+            departureAddress = this.departureAddress,
+            deliveryAddress = this.deliveryAddress,
+            loadingTime = this.loadingTime,
+            unloadingTime = this.unloadingTime,
+            status = this.status.translate()
+        )
+    }
+
 
     private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressDto): Address {
         val address = addressRepository.findByCountryAndCityAndStreetAndBuilding(

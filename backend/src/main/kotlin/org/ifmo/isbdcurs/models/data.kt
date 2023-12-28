@@ -21,7 +21,7 @@ enum class CargoType {
 }
 
 enum class OrderStatus {
-    WAITING, ACCEPTED, ARRIVED_AT_LOADING_LOCATION, LOADING, ON_THE_WAY, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED,
+    WAITING, ACCEPTED, ARRIVED_AT_LOADING_LOCATION, LOADING, ON_THE_WAY, ARRIVED_AT_UNLOADING_LOCATION, UNLOADING, COMPLETED;
 }
 
 fun OrderStatus.translate(): String {
@@ -34,6 +34,15 @@ fun OrderStatus.translate(): String {
         OrderStatus.ARRIVED_AT_UNLOADING_LOCATION -> "Прибыл на разгрузку"
         OrderStatus.UNLOADING -> "Разгрузка"
         OrderStatus.COMPLETED -> "Завершен"
+    }
+}
+
+// delete when merge PR
+fun CargoType.translate(): String {
+    return when (this) {
+        CargoType.BULK -> "Сыпучий"
+        CargoType.TIPPER -> "Сиповоз"
+        CargoType.PALLETIZED -> "Паллеты"
     }
 }
 
@@ -336,6 +345,7 @@ data class ExtendedOrder (
     val status: OrderStatus,
 )
 
+
 data class CustomerOrder (
     val statusChangedTime: Instant,
     val driverName: String,
@@ -343,6 +353,41 @@ data class CustomerOrder (
     val deliveryAddress: Address,
     val status: OrderStatus,
  )
+
+data class ManagerOrder (
+    val id: Long,
+    val statusChangedTime: Instant,
+    val value: String,
+    val departureAddress: Address,
+    val deliveryAddress: Address,
+    val status: OrderStatus
+)
+
+data class FullOrdersInfo (
+    val id: Long,
+    val statusChangedTime: Instant,
+    val value: String,
+    val customerFirstName: String,
+    val customerLastName: String,
+    val cargo: Cargo,
+    val loadingTime: LocalTime,
+    val unloadingTime: LocalTime,
+    val departureAddress: Address,
+    val deliveryAddress: Address,
+    val status: OrderStatus
+)
+
+data class SuitableDriver (
+    val firstName: String,
+    val lastName: String,
+    val phoneNumber: String,
+    val status: String,
+    val licenseNumber: Int,
+    val issueDate: String,
+    val expirationDate: String,
+    val vehicle: Vehicle
+)
+
 
 @Entity
 @Table(name = "logs")

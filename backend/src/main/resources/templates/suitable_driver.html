@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Find suitable driver</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<div class="modal-content">
+    <div class="modal-body">
+        <div class="orders">
+            <div class="list-group">
+                <div class=" flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">ID заказа: <span th:text="${orderById.id}"></span></h5>
+                        <small>Дата создания: <span
+                                th:text="${#dates.format(orderById.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></span></small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Блок с информацией о заказчике -->
+                            <div class="customer-info list-group-item">
+                                <p class="mb-1">Телефон заказчика: <span th:text="${orderById.phoneNumber}"></span></p>
+                                <p class="mb-1">Имя заказчика: <span th:text="${orderById.customerFirstName}"></span></p>
+                                <p class="mb-1">Фамилия заказчика: <span th:text="${orderById.customerLastName}"></span></p>
+                            </div>
+
+                            <!-- Блок с информацией о грузе -->
+                            <div class="cargo-info list-group-item">
+                                <p class="mb-1">Вес: <span th:text="${orderById.cargo.weight}"></span></p>
+                                <p class="mb-1">Длина: <span th:text="${orderById.cargo.length}"></span></p>
+                                <p class="mb-1">Ширина: <span th:text="${orderById.cargo.width}"></span></p>
+                                <p class="mb-1">Высота: <span th:text="${orderById.cargo.height}"></span></p>
+                                <p class="mb-1">Тип груза: <span th:text="${orderById.cargoType}"></span></p>
+                            </div>
+
+                            <!-- Блок с информацией о времени -->
+                            <div class="time-info list-group-item">
+                                <p class="mb-1">Время загрузки: <span th:text="${orderById.loadingTime}"></span></p>
+                                <p class="mb-1">Время разгрузки: <span th:text="${orderById.unloadingTime}"></span></p>
+                            </div>
+
+                            <!-- Блоки с информацией о пунктах -->
+                            <div class="address-info list-group-item">
+                                <p class="mb-1">Пункт отправления: <span
+                                        th:text="${orderById.departureAddress.country + ', ' + orderById.departureAddress.city + ', ' + orderById.departureAddress.street + ', ' + orderById.departureAddress.building}"></span>
+                                </p>
+                                <p class="mb-1">Пункт получения: <span
+                                        th:text="${orderById.deliveryAddress.country + ', ' + orderById.deliveryAddress.city + ', ' + orderById.deliveryAddress.street + ', ' + orderById.deliveryAddress.building}"></span>
+                                </p>
+                            </div>
+
+                            <!-- Блок с информацией о статусе -->
+                            <div class="status-info list-group-item">
+                                <p class="mb-1">Статус: <span th:text="${orderById.status}"></span></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Блок с информацией о водятиле -->
+                            <div class="suitable_driver list-group-item">
+                                <p class="mb-1">Имя водителя: <span th:text="${driver.firstName}"></span></p>
+                                <p class="mb-1">Фамилия водителя: <span th:text="${driver.lastName}"></span></p>
+                                <p class="mb-1">Телефон: <span th:text="${driver.phoneNumber}"></span></p>
+                                <p class="mb-1">Текущий статус: <span th:text="${driver.status}"></span></p>
+                                <p class="mb-1">Номер ВУ: <span th:text="${driver.licenseNumber}"></span></p>
+                                <p class="mb-1">Дата получения ВУ: <span th:text="${driver.issueDate}"></span></p>
+                                <p class="mb-1">Дата окончания ВУ: <span th:text="${driver.expirationDate}"></span></p>
+                                <p class="mb-1">Номер автомобиля: <span th:text="${driver.vehicle.plateNumber}"></span></p>
+                                <p class="mb-1">Модель: <span th:text="${driver.vehicle.model}"></span></p>
+                                <p class="mb-1">Дата производства: <span th:text="${driver.vehicle.manufactureYear}"></span></p>
+                                <p class="mb-1">Длина: <span th:text="${driver.vehicle.length}"></span></p>
+                                <p class="mb-1">Ширина: <span th:text="${driver.vehicle.width}"></span></p>
+                                <p class="mb-1">Высота: <span th:text="${driver.vehicle.height}"></span></p>
+                                <p class="mb-1">Грузоподъемность: <span th:text="${driver.vehicle.loadCapacity}"></span></p>
+                                <p class="mb-1">Тип кузова: <span th:text="${driver.vehicle.bodyType}"></span></p>
+                            </div>
+                            <div class="mt-4 d-flex justify-content-between">
+                                <button class="btn btn-success mr-auto">Одобрить водителя</button>
+                                <button class="btn btn-danger ml-auto">Отклонить водителя</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

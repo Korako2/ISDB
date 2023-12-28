@@ -19,6 +19,10 @@ class DriverService @Autowired constructor(
     private val contactInfoRepository: ContactInfoRepository,
     private val vehicleRepository: VehicleRepository,
     private val vehicleOwnershipRepository: VehicleOwnershipRepository,
+    private val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
+    private val orderRepository: OrderRepository,
+    private val personRepository: PersonRepository,
+    private val driverLicenseRepository: DriverLicenseRepository
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(DriverService::class.java)
     private val exceptionHelper = ExceptionHelper(logger)
@@ -35,6 +39,33 @@ class DriverService @Autowired constructor(
         return nRandRusLetters(1) + nRandRusDigits(3) + nRandRusLetters(2) + nRandRusDigits(2);
     }
 
+    fun getSuitableDriver(orderId: Long): SuitableDriverResponse {
+        val loadingUnloadingAgreement = loadingUnloadingAgreementRepository.findByOrderId(orderId)
+        val driver = driverRepository.findDriverById(loadingUnloadingAgreement!!.driverId)
+        val person = personRepository.findPersonById(driver?.personId!!)
+        var contactInfo = contactInfoRepository.findContactInfoByPersonId(person?.id!!)
+        var license = driverLicenseRepository.findDriverLicensesByDriverId(driver.id!!)
+        var phone = ""
+        for (contact in contactInfo) {
+            if (contact.contactType == "PHONE NUMBER") {
+                phone = contact.value
+                break
+            }
+        }
+        val order = orderRepository.findOrderById(orderId)
+        val vehicle = vehicleRepository.findVehicleById(order?.vehicleId!!)
+        val suitableDriverResponse = SuitableDriverResponse(
+            firstName = person!!.firstName,
+            lastName = person!!.lastName,
+            phoneNumber = phone,
+            status = "Готов к новому заказу",
+            licenseNumber = license[license.size - 1].licenseNumber,
+            issueDate = license[license.size - 1].issueDate.toString(),
+            expirationDate = license[license.size - 1].expirationDate.toString(),
+            vehicle = vehicle!!
+        )
+        return suitableDriverResponse
+    }
 
     fun addDriver(addDriverRequest: AddDriverRequest) : Long {
         val vehicle = Vehicle(
