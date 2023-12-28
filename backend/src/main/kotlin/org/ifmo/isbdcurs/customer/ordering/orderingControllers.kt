@@ -27,7 +27,7 @@ data class AddressesDto(
     var delivery: AddressDto = AddressDto(-1, ""),
 )
 
-data class OrderDetails(
+data class OrderUserInput(
     var id: Long = -1,
     val addressesDto: AddressesDto,
     val cargo: CargoParamsDto,
@@ -51,13 +51,15 @@ class OrderingController @Autowired constructor(
     @ModelAttribute("selectedAddresses")
     fun selectedAddresses(model: Model): AddressesDto {
         logger.info("[selectedAddresses] called defaults")
-        return AddressesDto(AddressDto(1, "Moscow"), AddressDto(2, "New York"))
+        val delivery = addressService.getAddressById(1)
+        val departure = addressService.getAddressById(2)
+        return AddressesDto(departure, delivery)
     }
 
     @ModelAttribute("cargoParams")
     fun cargoParams(model: Model): CargoParamsDto {
         logger.info("[cargoParams] called defaults")
-        return CargoParamsDto("OPEN", 1.0f, 1.0f, 1.0f, 1.0f)
+        return CargoParamsDto("BULK", 1.0f, 1.0f, 1.0f, 1.0f)
     }
 
     @ModelAttribute("cost")
@@ -122,7 +124,8 @@ class OrderingController @Autowired constructor(
         model: Model,
         redirectAttributes: RedirectAttributes
     ): RedirectView {
-        val order = OrderDetails(-1, selectedAddresses, cargoParams, cost)
+        // TODO: remove hardcode
+        val order = OrderUserInput(-1, selectedAddresses, cargoParams, cost)
         orderService.createOrder(order)
 
         logger.info("[submitOrder] order: $order")

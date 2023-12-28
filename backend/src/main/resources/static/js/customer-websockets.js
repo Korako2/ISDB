@@ -1,5 +1,3 @@
-// on orderApproval, alert the user
-
 const POPUP_NOTIFICATION_TIMEOUT = 3000;
 
 const onOrderApproval = (approvalMessage) => {
@@ -20,7 +18,7 @@ $(document).ready(function () {
 
     stompClient.onConnect = (frame) => {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/orderApproval', (message) => {
+        stompClient.subscribe('/topic/customer', (message) => {
             onOrderApproval(message.body);
         });
     }

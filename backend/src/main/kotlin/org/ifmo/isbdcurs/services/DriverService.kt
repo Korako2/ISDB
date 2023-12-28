@@ -39,30 +39,29 @@ class DriverService @Autowired constructor(
         return nRandRusLetters(1) + nRandRusDigits(3) + nRandRusLetters(2) + nRandRusDigits(2);
     }
 
-    fun getSuitableDriver(orderId: Long): SuitableDriverResponse {
-        val loadingUnloadingAgreement = loadingUnloadingAgreementRepository.findByOrderId(orderId)
-        val driver = driverRepository.findDriverById(loadingUnloadingAgreement!!.driverId)
-        val person = personRepository.findPersonById(driver?.personId!!)
-        var contactInfo = contactInfoRepository.findContactInfoByPersonId(person?.id!!)
-        var license = driverLicenseRepository.findDriverLicensesByDriverId(driver.id!!)
-        var phone = ""
+    fun getSuitableDriverResponseByDriverId(driverId: Long) : SuitableDriverResponse {
+        val driver = driverRepository.findDriverById(driverId) ?: throw BackendException("Driver not found by id $driverId")
+        val person = personRepository.findPersonById(driver.personId) ?: throw BackendException("Person not found by id ${driver.personId}")
+        val contactInfo = contactInfoRepository.findContactInfoByPersonId(person.id!!)
+        val license = driverLicenseRepository.findDriverLicensesByDriverId(driver.id!!)
+        var phone = "88005555335" // if we fail to find phone
         for (contact in contactInfo) {
             if (contact.contactType == "PHONE NUMBER") {
                 phone = contact.value
                 break
             }
         }
-        val order = orderRepository.findOrderById(orderId)
-        val vehicle = vehicleRepository.findVehicleById(order?.vehicleId!!)
+        val ownership = vehicleOwnershipRepository.findByDriverId(driverId).firstOrNull() ?: throw BackendException("Vehicle not found by driver id $driverId")
+        val vehicle = vehicleRepository.findVehicleById(ownership.vehicleId) ?: throw BackendException("Vehicle not found by id ${ownership.vehicleId}")
         val suitableDriverResponse = SuitableDriverResponse(
-            firstName = person!!.firstName,
-            lastName = person!!.lastName,
+            firstName = person.firstName,
+            lastName = person.lastName,
             phoneNumber = phone,
             status = "Готов к новому заказу",
             licenseNumber = license[license.size - 1].licenseNumber,
             issueDate = license[license.size - 1].issueDate.toString(),
             expirationDate = license[license.size - 1].expirationDate.toString(),
-            vehicle = vehicle!!
+            vehicle = vehicle
         )
         return suitableDriverResponse
     }

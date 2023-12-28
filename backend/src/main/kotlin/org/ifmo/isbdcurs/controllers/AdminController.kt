@@ -1,31 +1,28 @@
 package org.ifmo.isbdcurs.controllers
 
-import org.ifmo.isbdcurs.models.BodyType
-import org.ifmo.isbdcurs.models.SuitableDriver
-import org.ifmo.isbdcurs.models.Vehicle
-import org.ifmo.isbdcurs.services.AdminLogService
+import org.ifmo.isbdcurs.manager.OrderApprovalService
+import org.ifmo.isbdcurs.persistence.VehicleOwnershipRepository
+import org.ifmo.isbdcurs.services.BackendException
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
 import org.ifmo.isbdcurs.services.OrderService
-import org.ifmo.isbdcurs.util.ErrorHelper
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.ui.ModelMap
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
-import java.time.Instant
 
 @Controller
-class AdminController @Autowired constructor(
-    private val adminLogService: AdminLogService,
+class AdminController(
     private val orderService: OrderService,
     private val driverService: DriverService,
     private val customerService: CustomerService,
+    private val approvalService: OrderApprovalService,
+    private val vehicleOwnershipRepository: VehicleOwnershipRepository,
     ) {
-    private val errorHelper = ErrorHelper(adminLogService)
     private val logger = org.slf4j.LoggerFactory.getLogger(AdminController::class.java)
 
     @GetMapping("/admin")
@@ -109,11 +106,18 @@ class AdminController @Autowired constructor(
 
     @GetMapping("/admin/suitable_driver")
     fun showFindSuitableDriver(model: Model, @RequestParam orderId: Long): String {
+        val driverId = orderService.findSuitableDriver(orderId)
         model.addAttribute("orderById", orderService.getFullOrderInfoById(orderId))
-        model.addAttribute("driver", driverService.getSuitableDriver(orderId))
-       // model.addAttribute("driver", SuitableDriver("Иван", "Иванов", "8-800-555-35-35", "A123AA", 123123, "2021-12-23", "2021-12-23", Vehicle(111, "A123AA", "ГАЗ", Instant.now(), 12.2, 1.0, 1.0, 1.0, BodyType.CLOSED)))
+        model.addAttribute("driver", driverService.getSuitableDriverResponseByDriverId(driverId))
         return "suitable_driver"
     }
 
-
+    // TODO: replace with POST and add params
+    @GetMapping("/admin/approve_driver")
+    fun approveSuitableDriver(model: Model, @RequestParam orderId: Long, @RequestParam driverId: Long): String {
+        val vehicleId = vehicleOwnershipRepository.findByDriverId(driverId).firstOrNull()?.vehicleId ?: throw BackendException("No vehicle for driver $driverId")
+        orderService.updateOrderWhenVehicleFound(orderId, vehicleId = vehicleId, driverId = driverId)
+        approvalService.approve(orderId)
+        return "redirect:/admin"
+    }
 }

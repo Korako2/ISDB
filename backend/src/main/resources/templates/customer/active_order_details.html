@@ -11,9 +11,21 @@
         <div class="row">
             <div class="col-12">
                 <div class="alert alert-primary" role="alert">
-                    <label>Стоимость перевозки:</label>
-                    <p th:text="${selectedOrder.cost}"></p>
-                    TODO
+                    <label>Последнее время обновления:</label>
+                    <p th:text="${selectedOrder.statusChangedTime}"></p>
+
+                    <label>Статус заказа:</label>
+                    <p th:text="${selectedOrder.status}"></p>
+
+                    <label>Ваш водитель</label>
+                    <p th:if="${selectedOrder.driverName == null}" th:text="ещё не назначен"></p>
+                    <p th:if="${selectedOrder.driverName != null}" th:text="${selectedOrder.driverName}"></p>
+
+                    <label>Пункт отправления</label>
+                    <p th:text="${selectedOrder.departureAddress}"></p>
+
+                    <label>Пункт назначения</label>
+                    <p th:text="${selectedOrder.deliveryAddress}"></p>
                 </div>
             </div>
         </div>

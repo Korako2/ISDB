@@ -1,5 +1,6 @@
 package org.ifmo.isbdcurs.services
 
+import org.ifmo.isbdcurs.customer.OrderHelperService
 import org.ifmo.isbdcurs.internal.DriverWorker
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.*
@@ -25,7 +26,8 @@ class OrderService @Autowired constructor(
     private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
     private val storagePointRepository: StoragePointRepository,
     private val addressRepository: AddressRepository,
-    private val orderStatusesRepository: OrderStatusesRepository
+    private val orderStatusesRepository: OrderStatusesRepository,
+    private val orderHelperService: OrderHelperService
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(OrderService::class.java)
 
@@ -57,7 +59,7 @@ class OrderService @Autowired constructor(
     fun getOrdersByCustomerId(customerId: Long, page: Int, pageSize: Int): List<CustomerOrderResponse> {
         val offset = page * pageSize
         return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
-            val orders = orderRepo.getExtendedResultsByCustomerId(customerId, pageSize, offset).map {
+            val orders = orderRepo.getExtendedResultsByCustomerId(customerId, pageSize.toLong(), offset.toLong()).map {
                 it.toCustomerOrderResponse()
             }
             logger.info("Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
@@ -106,6 +108,34 @@ class OrderService @Autowired constructor(
         }
     }
 
+    fun findSuitableDriver(orderId: Long): Long {
+        return exceptionHelper.wrapWithBackendException("Error while finding suitable driver") {
+            val cargo = orderHelperService.getCargoParamsByOrderId(orderId)
+            val departureCoordinates = orderHelperService.getDepartureCoordinatesByOrderId(orderId)
+            val orderDataForVehicle = OrderDataForVehicle(
+                weight = cargo.weight.toDouble(),
+                width = cargo.width.toDouble(),
+                height = cargo.height.toDouble(),
+                length = cargo.length.toDouble(),
+                cargoType = valueFrom(cargo.type),
+                latitude = departureCoordinates.latitude,
+                longitude = departureCoordinates.longitude,
+            )
+            val vehicleId = vehicleService.findSuitableVehicle(orderDataForVehicle)
+            if (vehicleId == -1L) {
+                throw BackendException("Водитель под ваш заказ не найден. Попробуйте изменить параметры груза")
+            }
+            val driverId = vehicleOwnershipRepository.findByVehicleId(vehicleId).driverId
+            driverId
+        }
+    }
+
+    @Transactional
+    fun updateOrderWhenVehicleFound(orderId: Long, vehicleId: Long, driverId: Long) {
+        orderRepo.updateVehicleIdById(id = orderId, vehicleId = vehicleId)
+        loadingUnloadingAgreementRepository.updateDriverIdByOrderId(orderId = orderId, driverId = driverId)
+    }
+
     private fun addOrderOrThrow(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {
         val departureAddressDto = StorageAddressDto(
             country = orderDataRequest.departureCountry,
@@ -136,7 +166,7 @@ class OrderService @Autowired constructor(
             width = orderDataRequest.width,
             height = orderDataRequest.height,
             length = orderDataRequest.length,
-            cargoType = orderDataRequest.cargoType,
+            cargoType = valueFrom(orderDataRequest.cargoType),
             latitude = orderCoordinates.latitude,
             longitude = orderCoordinates.longitude,
         )
@@ -163,7 +193,6 @@ class OrderService @Autowired constructor(
         val orderId = orderRepo.addOrder(
             customerId.toInt(),
             distance,
-            vehicleId.toInt(),
             orderDataRequest.weight,
             orderDataRequest.width,
             orderDataRequest.height,
@@ -263,7 +292,7 @@ class OrderService @Autowired constructor(
         return OrderResponse(
             id = this.id,
             customerName = this.customerName,
-            driverName = this.driverName,
+            driverName = this.driverName ?: "не назначен",
             departurePoint = this.departurePoint,
             deliveryPoint = this.deliveryPoint,
             status = this.status.translate(),
@@ -273,7 +302,7 @@ class OrderService @Autowired constructor(
     private fun CustomerOrder.toCustomerOrderResponse(): CustomerOrderResponse {
         return CustomerOrderResponse(
             statusChangedTime = this.statusChangedTime,
-            driverName = this.driverName,
+            driverName = this.driverName ?: "не назначен",
             departureAddress = this.departureAddress,
             deliveryAddress = this.deliveryAddress,
             status = this.status.translate(),

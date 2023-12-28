@@ -37,15 +37,6 @@ fun OrderStatus.translate(): String {
     }
 }
 
-// delete when merge PR
-fun CargoType.translate(): String {
-    return when (this) {
-        CargoType.BULK -> "Сыпучий"
-        CargoType.TIPPER -> "Сиповоз"
-        CargoType.PALLETIZED -> "Паллеты"
-    }
-}
-
 fun DriverStatus.translate(): String {
     return when (this) {
         DriverStatus.OFF_DUTY -> "Не работает"
@@ -58,6 +49,23 @@ fun DriverStatus.translate(): String {
         DriverStatus.COMPLETED_ORDER -> "Завершил заказ"
         DriverStatus.WEEKEND -> "Выходной"
         DriverStatus.READY_FOR_NEW_ORDER -> "Готов к новому заказу"
+    }
+}
+
+fun CargoType.translate(): String {
+    return when (this) {
+        CargoType.BULK -> "Сыпучие"
+        CargoType.TIPPER -> "Самосвал"
+        CargoType.PALLETIZED -> "Паллеты"
+    }
+}
+
+fun valueFrom(value: String): CargoType {
+    return when (value) {
+        "Сыпучие" -> CargoType.BULK
+        "Самосвал" -> CargoType.TIPPER
+        "Паллеты" -> CargoType.PALLETIZED
+        else -> CargoType.BULK
     }
 }
 
@@ -280,7 +288,11 @@ data class Address(
     val street: String,
     val building: Int,
     val corpus: Int?,
-)
+) {
+    override fun toString(): String {
+        return "$country, $city, $street, $building"
+    }
+}
 
 @Entity
 data class StoragePoint(
@@ -289,18 +301,10 @@ data class StoragePoint(
     val longitude: Float,
 )
 
-@Serializable
-data class LoadingUnloadingAgreementPK(
-    val orderId: Long? = null,
-    val driverId: Long? = null
-) : java.io.Serializable
-
 @Entity
-@IdClass(LoadingUnloadingAgreementPK::class)
 data class LoadingUnloadingAgreement(
-//    @EmbeddedId val id: LoadingUnloadingAgreementPK,
     @Id val orderId: Long,
-    @Id val driverId: Long,
+    val driverId: Long?,
     val departurePoint: Long,
     val deliveryPoint: Long,
     val senderId: Long,
@@ -339,7 +343,7 @@ data class FuelExpenses(
 data class ExtendedOrder (
     val id: Long,
     val customerName: String,
-    val driverName: String,
+    val driverName: String?,
     val departurePoint: Long,
     val deliveryPoint: Long,
     val status: OrderStatus,
@@ -347,8 +351,9 @@ data class ExtendedOrder (
 
 
 data class CustomerOrder (
+    val id: Long,
     val statusChangedTime: Instant,
-    val driverName: String,
+    val driverName: String?,
     val departureAddress: Address,
     val deliveryAddress: Address,
     val status: OrderStatus,

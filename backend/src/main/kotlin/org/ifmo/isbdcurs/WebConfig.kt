@@ -31,5 +31,6 @@ class WebConfig : WebMvcConfigurer {
         registry.addViewController("/login").setViewName("login")
         registry.addViewController("/admin").setViewName("admin")
         registry.addRedirectViewController("/", "/index")
+        registry.addRedirectViewController("/customer", "customer/index")
     }
 }
