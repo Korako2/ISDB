@@ -2,65 +2,68 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/general :: headerfiles}"></head>
 
-<body>
-
+<body class="d-flex flex-column vh-100">
+<header th:insert="~{fragments/general :: header}"></header>
 <div th:replace="~{fragments/general :: notification-modal}"></div>
+<div class="container mt-5 pt-5">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div class="orders">
+                <div class="list-group">
+                    <div class=" flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">ID заказа: <span th:text="${orderById.id}"></span></h5>
+                            <small>Дата создания: <span
+                                    th:text="${#dates.format(orderById.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></span></small>
+                        </div>
+                        <!-- Блок с информацией о заказчике -->
+                        <div class="customer-info list-group-item lead">
+                            <p class="mb-1">Телефон заказчика: <span th:text="${orderById.phoneNumber}"></span></p>
+                            <p class="mb-1">Имя заказчика: <span th:text="${orderById.customerFirstName}"></span></p>
+                            <p class="mb-1">Фамилия заказчика: <span th:text="${orderById.customerLastName}"></span></p>
+                        </div>
 
-<div class="modal-content">
-    <div class="modal-body">
-        <div class="orders">
-            <div class="list-group">
-                <div class=" flex-column align-items-start">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">ID заказа: <span th:text="${orderById.id}"></span></h5>
-                        <small>Дата создания: <span
-                                th:text="${#dates.format(orderById.statusChangedTime, 'HH:mm:ss dd.MM.yyyy')}"></span></small>
-                    </div>
-                    <!-- Блок с информацией о заказчике -->
-                    <div class="customer-info list-group-item">
-                        <p class="mb-1">Телефон заказчика: <span th:text="${orderById.phoneNumber}"></span></p>
-                        <p class="mb-1">Имя заказчика: <span th:text="${orderById.customerFirstName}"></span></p>
-                        <p class="mb-1">Фамилия заказчика: <span th:text="${orderById.customerLastName}"></span></p>
-                    </div>
+                        <!-- Блок с информацией о грузе -->
+                        <div class="cargo-info list-group-item lead">
+                            <p class="mb-1">Вес: <span th:text="${orderById.cargo.weight}"></span></p>
+                            <p class="mb-1">Длина: <span th:text="${orderById.cargo.length}"></span></p>
+                            <p class="mb-1">Ширина: <span th:text="${orderById.cargo.width}"></span></p>
+                            <p class="mb-1">Высота: <span th:text="${orderById.cargo.height}"></span></p>
+                            <p class="mb-1">Тип груза: <span th:text="${orderById.cargoType}"></span></p>
+                        </div>
 
-                    <!-- Блок с информацией о грузе -->
-                    <div class="cargo-info list-group-item">
-                        <p class="mb-1">Вес: <span th:text="${orderById.cargo.weight}"></span></p>
-                        <p class="mb-1">Длина: <span th:text="${orderById.cargo.length}"></span></p>
-                        <p class="mb-1">Ширина: <span th:text="${orderById.cargo.width}"></span></p>
-                        <p class="mb-1">Высота: <span th:text="${orderById.cargo.height}"></span></p>
-                        <p class="mb-1">Тип груза: <span th:text="${orderById.cargoType}"></span></p>
-                    </div>
+                        <!-- Блок с информацией о времени -->
+                        <div class="time-info list-group-item lead">
+                            <p class="mb-1">Время загрузки: <span th:text="${orderById.loadingTime}"></span></p>
+                            <p class="mb-1">Время разгрузки: <span th:text="${orderById.unloadingTime}"></span></p>
+                        </div>
 
-                    <!-- Блок с информацией о времени -->
-                    <div class="time-info list-group-item">
-                        <p class="mb-1">Время загрузки: <span th:text="${orderById.loadingTime}"></span></p>
-                        <p class="mb-1">Время разгрузки: <span th:text="${orderById.unloadingTime}"></span></p>
-                    </div>
+                        <!-- Блоки с информацией о пунктах -->
+                        <div class="address-info list-group-item lead">
+                            <p class="mb-1">Пункт отправления: <span
+                                    th:text="${orderById.departureAddress.country + ', ' + orderById.departureAddress.city + ', ' + orderById.departureAddress.street + ', ' + orderById.departureAddress.building}"></span>
+                            </p>
+                            <p class="mb-1">Пункт получения: <span
+                                    th:text="${orderById.deliveryAddress.country + ', ' + orderById.deliveryAddress.city + ', ' + orderById.deliveryAddress.street + ', ' + orderById.deliveryAddress.building}"></span>
+                            </p>
+                        </div>
 
-                    <!-- Блоки с информацией о пунктах -->
-                    <div class="address-info list-group-item">
-                        <p class="mb-1">Пункт отправления: <span
-                                th:text="${orderById.departureAddress.country + ', ' + orderById.departureAddress.city + ', ' + orderById.departureAddress.street + ', ' + orderById.departureAddress.building}"></span>
-                        </p>
-                        <p class="mb-1">Пункт получения: <span
-                                th:text="${orderById.deliveryAddress.country + ', ' + orderById.deliveryAddress.city + ', ' + orderById.deliveryAddress.street + ', ' + orderById.deliveryAddress.building}"></span>
-                        </p>
-                    </div>
+                        <!-- Блок с информацией о статусе -->
+                        <div class="status-info list-group-item lead">
+                            <p class="mb-1">Статус: <span th:text="${orderById.status}"></span></p>
+                        </div>
 
-                    <!-- Блок с информацией о статусе -->
-                    <div class="status-info list-group-item">
-                        <p class="mb-1">Статус: <span th:text="${orderById.status}"></span></p>
-                    </div>
-
-                    <div class="mt-4 d-flex justify-content-between">
-                        <button type="button" class="btn btn-primary" th:data-orderid="${orderById.id}" onclick="find_suitable_driver(this.getAttribute('data-orderid'))">Найти водителя</button>
+                        <div class="mt-5 d-flex justify-content-center">
+                            <button type="button" class="btn btn-primary btn-lg" th:data-orderid="${orderById.id}" onclick="find_suitable_driver(this.getAttribute('data-orderid'))">Найти водителя</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<footer th:insert="~{fragments/general :: footer}" class="mt-auto"></footer>
+
 <script>
     function find_suitable_driver(orderId) {
         window.location.href = '/admin/suitable_driver?orderId=' + orderId;
