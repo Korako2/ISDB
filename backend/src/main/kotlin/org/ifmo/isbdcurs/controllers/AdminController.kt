@@ -31,7 +31,7 @@ class AdminController(
     fun name(@AuthenticationPrincipal userDetails: UserDetails): String {
         return userDetails.username
     }
-    @GetMapping("/admin")
+    @GetMapping("/manager")
     fun showLogs(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
                  @RequestParam(defaultValue = "10") pageSize: Int,
                  redirectAttributes: RedirectAttributes
@@ -39,17 +39,17 @@ class AdminController(
         if (pageNumber < 0 || pageNumber > orderService.getTotalPagesForManager(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
-            return "redirect:/admin"
+            return "redirect:/manager"
         }
         model.addAttribute("orders", orderService.getOrdersForManager(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", orderService.getTotalPagesForManager(pageSize).toInt())
         model.addAttribute("ords", orderService.getFullOrdersInfo(pageNumber, pageSize))
-        return "admin"
+        return "manager"
     }
 
-    @GetMapping("/admin/orders")
+    @GetMapping("/manager/orders")
     fun showOrdersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
                            @RequestParam(defaultValue = "10") pageSize: Int,
                            redirectAttributes: RedirectAttributes
@@ -57,7 +57,7 @@ class AdminController(
         if (pageNumber < 0 || pageNumber > orderService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
-            return "redirect:/admin/orders"
+            return "redirect:/manager/orders"
         }
         model.addAttribute("orders", orderService.getOrdersPaged(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
@@ -67,7 +67,7 @@ class AdminController(
         return "tables/orders"
     }
 
-    @GetMapping("/admin/drivers")
+    @GetMapping("/manager/drivers")
     fun showDriversListPage(model: ModelMap, @RequestParam(defaultValue = "0") pageNumber: Int,
                             @RequestParam(defaultValue = "10") pageSize: Int,
                             redirectAttributes: RedirectAttributes
@@ -75,8 +75,8 @@ class AdminController(
         if (pageNumber < 0 || pageNumber > driverService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
-            logger.info("Redirecting to /admin/drivers")
-            return ModelAndView("redirect:/admin/drivers", model)
+            logger.info("Redirecting to /manager/drivers")
+            return ModelAndView("redirect:/manager/drivers", model)
         }
         model.addAttribute("drivers", driverService.getDriversPaged(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
@@ -86,7 +86,7 @@ class AdminController(
         return ModelAndView("tables/drivers", model)
     }
 
-    @GetMapping("/admin/customers")
+    @GetMapping("/manager/customers")
     fun showCustomersListPage(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
                             @RequestParam(defaultValue = "10") pageSize: Int,
                             redirectAttributes: RedirectAttributes
@@ -94,7 +94,7 @@ class AdminController(
         if (pageNumber < 0 || pageNumber > customerService.getTotalPages(pageSize) || pageSize != 10) {
             redirectAttributes.addAttribute("pageNumber", 0)
             redirectAttributes.addAttribute("pageSize", 10)
-            return "redirect:/admin/customers"
+            return "redirect:/manager/customers"
         }
         model.addAttribute("customers", customerService.getCustomersPaged(pageNumber, pageSize))
         model.addAttribute("currentPage", pageNumber)
@@ -104,13 +104,13 @@ class AdminController(
         return "tables/customers"
     }
 
-    @GetMapping("/admin/find_suitable_driver")
+    @GetMapping("/manager/find_suitable_driver")
     fun showFindSuitableDriverPage(model: Model, @RequestParam orderId: Long): String {
         model.addAttribute("orderById", orderService.getFullOrderInfoById(orderId))
         return "find_suitable_driver"
     }
 
-    @GetMapping("/admin/suitable_driver")
+    @GetMapping("/manager/suitable_driver")
     fun showFindSuitableDriver(model: Model, @RequestParam orderId: Long): String {
         model.addAttribute("orderById", orderService.getFullOrderInfoById(orderId))
         try {
@@ -123,21 +123,21 @@ class AdminController(
         }
     }
 
-    @GetMapping("/admin/approve_driver")
+    @GetMapping("/manager/approve_driver")
     fun approveSuitableDriver(model: Model, @RequestParam orderId: Long, @RequestParam driverId: Long): String {
         logger.info("Approving driver $driverId for order $orderId")
         val vehicleId = vehicleOwnershipRepository.findByDriverId(driverId).firstOrNull()?.vehicleId ?: throw BackendException("No vehicle for driver $driverId")
         orderService.updateOrderWhenVehicleFound(orderId, vehicleId = vehicleId, driverId = driverId)
         approvalService.approve(orderId)
         orderService.startDriverWorker(driverId = driverId, orderId = orderId)
-        return "redirect:/admin"
+        return "redirect:/manager"
     }
 
-    @GetMapping("/admin/reject_order")
+    @GetMapping("/manager/reject_order")
     fun rejectOrder(model: Model, @RequestParam orderId: Long): String {
         orderService.rejectOrder(orderId)
         approvalService.reject(orderId)
-        return "redirect:/admin"
+        return "redirect:/manager"
     }
 
 }

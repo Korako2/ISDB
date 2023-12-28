@@ -10,13 +10,13 @@
 <div class="container">
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link text-dark" th:href="@{/admin/drivers}" aria-selected="false">Driver</a>
+            <a class="nav-link text-dark" th:href="@{/manager/drivers}" aria-selected="false">Driver</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" th:href="@{/admin/customers}" aria-selected="false">Customer</a>
+            <a class="nav-link text-dark" th:href="@{/manager/customers}" aria-selected="false">Customer</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" th:href="@{/admin/orders}" aria-selected="true">Orders</a>
+            <a class="nav-link text-dark" th:href="@{/manager/orders}" aria-selected="true">Orders</a>
         </li>
     </ul>
     <div class="row justify-content-between align-items-center">
@@ -126,14 +126,14 @@
             <div th:if="${totalPages > 1}">
                 <ul class="pagination pagination-lg justify-content-center">
                     <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
-                        <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/admin?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
+                        <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/manager?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
                         <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
                     </li>
                     <li class="page-item disabled">
                         <span class="page-link" style="cursor: default;">[[${currentPage + 1}]]</span>
                     </li>
                     <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
-                        <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/admin?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
+                        <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/manager?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
                         <a th:unless="${currentPage != totalPages}" class="page-link disabled" href="#" style="pointer-events: none;">&raquo;</a>
                     </li>
                 </ul>
@@ -160,12 +160,12 @@
 
 
     function approveOrder(orderID) {
-        window.location.href = 'admin/find_suitable_driver?orderId=' + orderID;
+        window.location.href = 'manager/find_suitable_driver?orderId=' + orderID;
     }
 
     // Функция для отклонения заказа
     function rejectOrder(orderID) {
-        window.location.href = 'admin/reject_order?orderId=' + orderID;
+        window.location.href = 'manager/reject_order?orderId=' + orderID;
     }
 </script>
 </html>

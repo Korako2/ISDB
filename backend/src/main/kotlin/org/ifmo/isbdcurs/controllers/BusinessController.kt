@@ -38,7 +38,7 @@ class BusinessController @Autowired constructor(
     fun showOrdersList(request: HttpServletRequest): String {
         // redirects to appropriate page depending on user role
         if (request.isUserInRole("ROLE_ADMIN")) {
-            return "redirect:/admin"
+            return "redirect:/manager"
         }
         return "redirect:/customer/index"
     }
@@ -101,7 +101,7 @@ class BusinessController @Autowired constructor(
         return "add_driver"
     }
 
-    // admin
+    // manager
     @PostMapping("/add_driver")
     fun addDriver(@Valid @ModelAttribute("driverRequest") driverRequest: DriverRequest, result: BindingResult, model: ModelMap): ModelAndView {
         logger.info("Add Driver request: $driverRequest")
@@ -132,7 +132,7 @@ class BusinessController @Autowired constructor(
                 driverService.addDriverInfo(addDriverInfoRequest)
                 logger.info("Successfully added driver with id $driverId")
             }
-            return ModelAndView("redirect:/admin/drivers?pageNumber=0&pageSize=10", model)
+            return ModelAndView("redirect:/manager/drivers?pageNumber=0&pageSize=10", model)
         }
         model.addAttribute("errorMessage", result.allErrors)
         logger.warn("Failed to add driver with request $driverRequest")

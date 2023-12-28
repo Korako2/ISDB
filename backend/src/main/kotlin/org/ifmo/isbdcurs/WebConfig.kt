@@ -28,7 +28,7 @@ class WebConfig : WebMvcConfigurer {
 
     override fun addViewControllers(registry: ViewControllerRegistry) {
         registry.addViewController("/login").setViewName("login")
-        registry.addViewController("/admin").setViewName("admin")
+        registry.addViewController("/manager").setViewName("manager")
         registry.addViewController("/customer/user-agreement").setViewName("customer/user-agreement")
         registry.addViewController("/customer/confidential-policy").setViewName("customer/confidential-policy")
         registry.addRedirectViewController("/", "/index")

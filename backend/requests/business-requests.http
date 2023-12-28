@@ -127,4 +127,4 @@ Content-Disposition: form-data; name="password"
 qwert5
 
 ###
-GET http://localhost:8080/admin/drivers
+GET http://localhost:8080/manager/drivers
