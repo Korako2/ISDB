@@ -28,6 +28,42 @@
                 </div>
             </div>
 
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="agreement1" required>
+                <label class="form-check-label" for="agreement1">
+                    Я соглашаюсь с <a href="/customer/user-agreement" target="_blank">условиями компании</a>
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="agreement2" required>
+                <label class="form-check-label" for="agreement2">
+                    Я подтверждаю, что ознакомлен(а) с <a href="/customer/confidential-policy" target="_blank">политикой конфиденциальности</a>
+                </label>
+            </div>
+
+            <!-- Добавленный блок script -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var submitButton = document.querySelector('.submit-button');
+                    var agreementCheckboxes = document.querySelectorAll('.form-check-input');
+
+                    function toggleSubmitButton() {
+                        var allChecked = Array.from(agreementCheckboxes).every(function (checkbox) {
+                            return checkbox.checked;
+                        });
+
+                        submitButton.disabled = !allChecked;
+                    }
+
+                    agreementCheckboxes.forEach(function (checkbox) {
+                        checkbox.addEventListener('change', toggleSubmitButton);
+                    });
+
+                    toggleSubmitButton(); // Вызываем функцию один раз при загрузке страницы
+                });
+            </script>
+
             <form th:action="@{submitOrder}" method="post" class="container mt-2">
                 <div th:replace="~{fragments/general :: prev-next-step-buttons ('Подтвердить оформление')}"></div>
             </form>
