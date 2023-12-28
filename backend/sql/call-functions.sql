@@ -44,23 +44,15 @@ CALL add_driver_info(v_driver_id,
   v_fuel_station_name => 'Gazprom'
 );
 
-
-SELECT find_car_to_fit_size(
-    v_length => 9,
-    v_width => 1,
-    v_height => 1,
-    v_cargo_type => 'BULK',
-    v_weight => 100
-);
 SELECT closest_vehicle_id FROM find_suitable_vehicle(
-  v_length => 9,
+
   v_width => 1,
   v_height => 1,
   v_cargo_type => 'BULK',
   v_weight => 100,
   cargo_latitude => 47.5,
   cargo_longitude => 23.54
-) ;
+) INTO v_vehicle_id;
 
 
 SELECT plate_number, body_type INTO ve_plate_number, ve_body_type FROM vehicle WHERE id = v_vehicle_id;
