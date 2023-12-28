@@ -5,6 +5,8 @@
 <body class="d-flex flex-column min-vh-100">
 <header th:insert="~{fragments/general :: header}"></header>
 
+<div th:replace="~{fragments/general :: notification-modal}"></div>
+
 <main class="container mt-4 flex-grow-1">
     <div class="container mb-10">
         Стоимость перевозки: <span th:text="|${cost} рублей|"></span>

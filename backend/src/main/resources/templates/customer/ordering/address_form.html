@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:insert="~{fragments/general :: headerfiles}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-</head>
+<head th:replace="~{fragments/general :: headerfiles}"></head>
 
 <body class="d-flex flex-column min-vh-100">
 <header th:insert="~{fragments/general :: header}"></header>
+
+<div th:replace="~{fragments/general :: notification-modal}"></div>
 
 <main class="container mt-4 flex-grow-1">
     <form action="#" th:action="@{submitAddressForm}" method="post">

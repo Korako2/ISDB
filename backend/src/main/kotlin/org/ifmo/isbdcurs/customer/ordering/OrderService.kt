@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import kotlin.jvm.optionals.getOrNull
 
@@ -27,6 +28,8 @@ class CustomerOrderService @Autowired constructor(
     private val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
 ) {
     private val logger = org.slf4j.LoggerFactory.getLogger(CustomerOrderService::class.java)
+
+    @Transactional
     fun createOrder(orderUserInput: OrderUserInput) {
         logger.info("[createOrder] called with $orderUserInput")
         val orderId = persistOrder(orderUserInput)
