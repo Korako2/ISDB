@@ -89,8 +89,10 @@ class OrderService @Autowired constructor(
             val orders = orderRepo.getExtendedResultsByCustomerId(customerId, pageSize.toLong(), offset.toLong()).map {
                 it.toCustomerOrderResponse()
             }
-            logger.info("Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
-                    "Orders size = ${orders.size}. Offset = $offset")
+            logger.info(
+                "Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
+                        "Orders size = ${orders.size}. Offset = $offset"
+            )
             orders
         }
     }
@@ -101,8 +103,10 @@ class OrderService @Autowired constructor(
             val orders = orderRepo.getResultsForManager(pageSize, offset).map {
                 it.toManagerOrderResponse()
             }
-            logger.info("Page = $page, pageSize = $pageSize. " +
-                    "Orders size = ${orders.size}. Offset = $offset")
+            logger.info(
+                "Page = $page, pageSize = $pageSize. " +
+                        "Orders size = ${orders.size}. Offset = $offset"
+            )
             orders
         }
     }
@@ -113,8 +117,10 @@ class OrderService @Autowired constructor(
             val orders = orderRepo.getFullOrdersInfoForManager(pageSize, offset).map {
                 it.toFullOrderInfoResponse()
             }
-            logger.info("Page = $page, pageSize = $pageSize. " +
-                    "Orders size = ${orders.size}. Offset = $offset")
+            logger.info(
+                "Page = $page, pageSize = $pageSize. " +
+                        "Orders size = ${orders.size}. Offset = $offset"
+            )
             orders
         }
     }
@@ -122,8 +128,10 @@ class OrderService @Autowired constructor(
     fun getFullOrderInfoById(orderId: Long): FullOrdersInfoResponse {
         return exceptionHelper.wrapWithBackendException("Error while getting full information about order") {
             var order = orderRepo.getFullOrderInfoById(orderId).toFullOrderInfoResponse()
-            logger.info("Order id = $orderId. " +
-                    "Order = $order")
+            logger.info(
+                "Order id = $orderId. " +
+                        "Order = $order"
+            )
             order
         }
     }
@@ -243,6 +251,7 @@ class OrderService @Autowired constructor(
             status = this.status.translate(),
         )
     }
+
     private fun FullOrdersInfo.toFullOrderInfoResponse(): FullOrdersInfoResponse {
         return FullOrdersInfoResponse(
             id = this.id,
