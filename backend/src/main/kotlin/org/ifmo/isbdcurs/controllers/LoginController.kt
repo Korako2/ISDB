@@ -1,6 +1,7 @@
 package org.ifmo.isbdcurs.controllers
 
 import jakarta.validation.Valid
+import kotlinx.datetime.LocalDate
 import org.ifmo.isbdcurs.models.AddCustomerRequest
 import org.ifmo.isbdcurs.models.AddNewCustomer
 import org.ifmo.isbdcurs.models.UserDto
@@ -26,7 +27,8 @@ class LoginController(
 
     @GetMapping("/register")
     fun showRegisterForm(model: Model): String {
-        model.addAttribute("addNewCustomer", AddNewCustomer("Happy", "VeryHappy", "F", "12.12.2002", "happy","password", "Happy@mail.ru", "88005553535", false))
+        val date = SimpleDateFormat("yyyy-MM-dd").parse("2000-01-01")
+        model.addAttribute("addNewCustomer", AddNewCustomer("Happy", "VeryHappy", "F", date, "happy","password", "Happy@mail.ru", "88005553535", false))
         return "register"
     }
 
@@ -49,7 +51,8 @@ class LoginController(
 
     private fun addCustomer(customer: AddNewCustomer): Long {
         val sdf = SimpleDateFormat("yyyy-MM-dd")
-        val date: Date = sdf.parse(customer.dateOfBirth)
+//        val date: Date = sdf.parse(customer.dateOfBirth)
+        val date = customer.dateOfBirth!!
         val customerObj = AddCustomerRequest(
             firstName = customer.firstName,
             lastName = customer.lastName,
