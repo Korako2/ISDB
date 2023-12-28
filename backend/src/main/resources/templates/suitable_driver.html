@@ -76,8 +76,8 @@
                                     <p class="mb-1">Тип кузова: <span th:text="${driver.vehicle.bodyType}"></span></p>
                                 </div>
                                 <div class="mt-4 d-flex justify-content-between">
-                                    <button class="btn btn-success mr-auto btn-lg">Одобрить водителя</button>
-                                    <button class="btn btn-danger ml-auto btn-lg">Отклонить водителя</button>
+                                    <button class="btn btn-success mr-auto btn-lg" th:data-orderid="${orderById.id}" th:data-driverid="${driver.id}" onclick="approveDriver(this.getAttribute('data-orderid'), this.getAttribute('data-driverid'))">Одобрить водителя</button>
+                                    <a href="/admin" class="btn btn-danger ml-auto btn-lg">Отклонить водителя</a>
                                 </div>
                             </div>
                         </div>
@@ -88,5 +88,11 @@
     </div>
 </div>
 <footer th:insert="~{fragments/general :: footer}" class="mt-auto"></footer>
+
+<script>
+    function approveDriver(orderID, driverID) {
+        window.location.href = '/admin/approve_driver?orderId=' + orderID + '&driverId=' + driverID;
+    }
+</script>
 </body>
 </html>

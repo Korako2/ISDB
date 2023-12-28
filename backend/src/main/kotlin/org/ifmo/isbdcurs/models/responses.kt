@@ -73,6 +73,7 @@ data class FullOrdersInfoResponse (
 )
 
 data class SuitableDriverResponse (
+    val id: Long,
     val firstName: String,
     val lastName: String,
     val phoneNumber: String,
