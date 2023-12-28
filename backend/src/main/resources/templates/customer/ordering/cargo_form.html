@@ -8,33 +8,38 @@
 <div th:replace="~{fragments/general :: notification-modal}"></div>
 
 <main class="container mt-4 flex-grow-1">
-    <form th:action="@{submitCargoForm}" th:object="${cargoParams}" method="post">
-        <div class="form-group">
+    <form th:action="@{cargoForm}" th:object="${cargoParams}" method="post">
+        <div class="form-group mt-2">
             <label for="type">Тип груза: </label>
             <select id="type" th:field="*{type}" class="form-control" required>
                 <option th:each="type : ${T(org.ifmo.isbdcurs.models.CargoType).values()}"
                         th:value="${type}" th:text="${type.getTranslatedName()}"></option>
             </select>
+            <div th:if="${#fields.hasErrors('type')}" th:errors="*{type}" class="error-message" style="color: red;"></div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mt-2">
             <label for="weight">Вес груза: </label>
             <input id="weight" type="number" th:field="*{weight}" class="form-control" required>
+            <div th:if="${#fields.hasErrors('weight')}" th:errors="*{weight}" class="error-message" style="color: red;"></div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mt-2">
             <label for="height">Высота груза: </label>
             <input id="height" type="number" th:field="*{height}" class="form-control" required>
+            <div th:if="${#fields.hasErrors('height')}" th:errors="*{height}" class="error-message" style="color: red;"></div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mt-2">
             <label for="width">Ширина груза: </label>
             <input id="width" type="number" th:field="*{width}" class="form-control" required>
+            <div th:if="${#fields.hasErrors('width')}" th:errors="*{width}" class="error-message" style="color: red;"></div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group mt-2">
             <label for="length">Длина груза:</label>
             <input id="length" type="number" th:field="*{length}" class="form-control" required>
+            <div th:if="${#fields.hasErrors('length')}" th:errors="*{length}" class="error-message" style="color: red;"></div>
         </div>
 
         <div th:replace="~{fragments/general :: prev-next-step-buttons ('Далее')}"></div>
