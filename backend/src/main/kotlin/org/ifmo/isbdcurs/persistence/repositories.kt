@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.query.Procedure
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.PagingAndSortingRepository
 import org.springframework.data.repository.query.Param
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.*
 
@@ -353,6 +354,10 @@ interface OrderRepository : JpaRepository<Order, Long> {
     @Modifying
     @Query("UPDATE Order o SET o.vehicleId = :vehicleId WHERE o.id = :id")
     fun updateVehicleIdById(id: Long, vehicleId: Long)
+
+    @Transactional
+    @Modifying
+    fun deleteOrderById(id: Long)
 }
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK> {
