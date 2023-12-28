@@ -23,7 +23,7 @@ class AdminController @Autowired constructor(
     private val adminLogService: AdminLogService,
     private val orderService: OrderService,
     private val driverService: DriverService,
-    private val customerService: CustomerService
+    private val customerService: CustomerService,
     ) {
     private val errorHelper = ErrorHelper(adminLogService)
     private val logger = org.slf4j.LoggerFactory.getLogger(AdminController::class.java)
@@ -110,7 +110,8 @@ class AdminController @Autowired constructor(
     @GetMapping("/admin/suitable_driver")
     fun showFindSuitableDriver(model: Model, @RequestParam orderId: Long): String {
         model.addAttribute("orderById", orderService.getFullOrderInfoById(orderId))
-        model.addAttribute("driver", SuitableDriver("Иван", "Иванов", "8-800-555-35-35", "A123AA", 123123, "2021-12-23", "2021-12-23", Vehicle(111, "A123AA", "ГАЗ", Instant.now(), 12.2, 1.0, 1.0, 1.0, BodyType.CLOSED)))
+        model.addAttribute("driver", driverService.getSuitableDriver(orderId))
+       // model.addAttribute("driver", SuitableDriver("Иван", "Иванов", "8-800-555-35-35", "A123AA", 123123, "2021-12-23", "2021-12-23", Vehicle(111, "A123AA", "ГАЗ", Instant.now(), 12.2, 1.0, 1.0, 1.0, BodyType.CLOSED)))
         return "suitable_driver"
     }
 

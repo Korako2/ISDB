@@ -12,11 +12,15 @@ import org.springframework.data.repository.query.Param
 import java.time.Instant
 import java.util.*
 
-interface PersonRepository : CrudRepository<Person, Long>
+interface PersonRepository : CrudRepository<Person, Long> {
+    fun findPersonById(id: Long): Person?
+}
 
 interface ContactInfoRepository : CrudRepository<ContactInfo, Long> {
     @Query("SELECT add_contacts(:personId, :phone, :email)", nativeQuery = true)
     fun addContactInfo(personId: Long, phone: String, email: String)
+
+    fun findContactInfoByPersonId(personId: Long): List<ContactInfo>
 }
 
 interface DriverRepository : CrudRepository<Driver, Long> {
@@ -54,6 +58,8 @@ interface DriverRepository : CrudRepository<Driver, Long> {
     fun getExtendedDriversPaged(limit: Int, offset: Int): List<DriverResponse>
 
     fun existsByPassport(passport: String): Boolean
+    
+    fun findDriverById(id: Long): Driver?
 }
 
 interface CustomerRepository : CrudRepository<Customer, Long> {
@@ -79,7 +85,9 @@ interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Lo
 
 interface TariffRateRepository : CrudRepository<TariffRate, Long>
 
-interface DriverLicenseRepository : CrudRepository<DriverLicense, Long>
+interface DriverLicenseRepository : CrudRepository<DriverLicense, Long> {
+    fun findDriverLicensesByDriverId(driverId: Long): List<DriverLicense>
+}
 
 interface VehicleRepository : CrudRepository<Vehicle, Long> {
     @Query(value = """
@@ -95,6 +103,8 @@ interface VehicleRepository : CrudRepository<Vehicle, Long> {
         ) 
     """, nativeQuery = true)
     fun findSuitableVehicle(@Param("request") request: OrderDataForVehicle): Long
+    
+    fun findVehicleById(id: Long): Vehicle?
 }
 
 
@@ -239,7 +249,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
 
     fun countByCustomerId(customerId: Long): Int
 
-
+    fun findOrderById(id: Long): Order?
 }
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK> {
@@ -257,6 +267,8 @@ interface StoragePointRepository : CrudRepository<StoragePoint, Long>
 
 interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, LoadingUnloadingAgreementPK> {
     fun findByOrderIdAndDriverId(orderId: Long, driverId: Long): LoadingUnloadingAgreement?
+    
+    fun findByOrderId(orderId: Long): LoadingUnloadingAgreement?
 }
 
 interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, FuelCardsForDriversPK> {
