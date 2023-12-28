@@ -166,7 +166,6 @@ class OrderingController @Autowired constructor(
         model: Model,
         redirectAttributes: RedirectAttributes
     ): RedirectView {
-        // TODO: remove hardcode
         val order = OrderUserInput(-1, selectedAddresses, cargoParams, cost)
         orderService.createOrder(order)
 
