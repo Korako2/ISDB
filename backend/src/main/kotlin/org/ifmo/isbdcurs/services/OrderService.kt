@@ -103,6 +103,12 @@ class OrderService @Autowired constructor(
         }
     }
 
+    fun rejectOrder(orderId: Long) {
+        exceptionHelper.wrapWithBackendException("Error while rejecting order") {
+            orderRepo.deleteOrderById(orderId)
+        }
+    }
+
     fun findSuitableDriver(orderId: Long): Long {
         return exceptionHelper.wrapWithBackendException("Error while finding suitable driver") {
             val cargo = orderHelperService.getCargoParamsByOrderId(orderId)

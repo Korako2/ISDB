@@ -127,4 +127,12 @@ class AdminController(
         orderService.startDriverWorker(driverId = driverId, orderId = orderId)
         return "redirect:/admin"
     }
+
+    @GetMapping("/admin/reject_order")
+    fun rejectOrder(model: Model, @RequestParam orderId: Long): String {
+        orderService.rejectOrder(orderId)
+        approvalService.reject(orderId)
+        return "redirect:/admin"
+    }
+
 }
