@@ -42,7 +42,7 @@ class OrderHelperService @Autowired constructor(
     fun getCargoParamsByOrderId(orderId: Long): CargoParamsDto {
         val cargo = cargoRepository.findByOrderId(orderId).orElseThrow()
         return CargoParamsDto(
-            cargo.cargoType.translate(),
+            cargo.cargoType,
             cargo.weight,
             cargo.height,
             cargo.width,

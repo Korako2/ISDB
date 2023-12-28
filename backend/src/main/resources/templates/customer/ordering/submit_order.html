@@ -8,13 +8,31 @@
 <div th:replace="~{fragments/general :: notification-modal}"></div>
 
 <main class="container mt-4 flex-grow-1">
-    <div class="container mb-10">
-        Стоимость перевозки: <span th:text="|${cost} рублей|"></span>
-    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-6"> <!-- Set width to col-md-6 for 50% of the page width -->
+            <div class="list-group flex-column align-items-start">
+                <div class="list-group-item w-100">
+                    Отправляем из: <span th:text="|${selectedAddresses.departure.name} |"></span>
+                </div>
 
-    <form th:action="@{submitOrder}" method="post" class="container mt-10">
-        <div th:replace="~{fragments/general :: prev-next-step-buttons ('Подтвердить')}"></div>
-    </form>
+                <div class="list-group-item w-100">
+                    Груз прибудет в: <span th:text="|${selectedAddresses.delivery.name} |"></span>
+                </div>
+
+                <div class="list-group-item w-100">
+                    С вашего счета спишется: <span th:text="|${cost} рублей|"></span>
+                </div>
+
+                <div class="alert alert-info mt-4" role="alert">
+                    В течение нескольких минут после оформления, вам придет подтверждение заказа от нашего менеджера. Приятных заказов!
+                </div>
+            </div>
+
+            <form th:action="@{submitOrder}" method="post" class="container mt-2">
+                <div th:replace="~{fragments/general :: prev-next-step-buttons ('Подтвердить оформление')}"></div>
+            </form>
+        </div>
+    </div>
 </main>
 
 

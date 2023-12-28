@@ -1,12 +1,9 @@
 package org.ifmo.isbdcurs.util
 
-
-//CargoType.BULK -> "Сыпучие"
-//CargoType.TIPPER -> "Самосвал"
-//CargoType.PALLETIZED -> "Паллеты"
+import org.ifmo.isbdcurs.models.CargoType
 
 fun calculateCargoCost(
-    cargoType: String,
+    cargoType: CargoType,
     weight: Float,
     height: Float,
     width: Float,
@@ -14,10 +11,9 @@ fun calculateCargoCost(
 ): Float {
     val volume = height * width * length + weight
     return when (cargoType) {
-        "Сыпучие" -> volume * 1218
-        "Самосвал" -> volume * 800
-        "Паллеты" -> volume * 348
-        else -> volume * 200
+        CargoType.BULK -> volume * 100
+        CargoType.TIPPER -> volume * 150
+        CargoType.PALLETIZED -> volume * 200
     }
 }
 

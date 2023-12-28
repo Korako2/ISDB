@@ -1,30 +1,47 @@
 package org.ifmo.isbdcurs.customer.ordering
 
 import jakarta.validation.Valid
+import jakarta.validation.constraints.DecimalMax
+import jakarta.validation.constraints.DecimalMin
 import org.ifmo.isbdcurs.customer.CustomerController
+import org.ifmo.isbdcurs.models.CargoType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.SessionAttributes
+import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 import org.springframework.web.servlet.view.RedirectView
 
 
 data class CargoParamsDto(
-    val type: String,
-    val weight: Float,
-    val height: Float,
-    val width: Float,
-    val length: Float,
+    val type: CargoType,
+    @field:DecimalMin(value = "0.1", message = "Вес должен быть не менее 0.1")
+    @field:DecimalMax(value = "20000", message = "Вес должен быть не более 20000")
+    var weight: Float,
+    @field:DecimalMin(value = "0.1", message = "Высота должна быть не менее 0.1")
+    @field:DecimalMax(value = "4", message = "Высота должна быть не более 4")
+    var height: Float,
+    @field:DecimalMin(value = "0.1", message = "Ширина должна быть не менее 0.1")
+    @field:DecimalMax(value = "2.5", message = "Ширина должна быть не более 2.5")
+    var width: Float,
+    @field:DecimalMin(value = "0.1", message = "Длина должна быть не менее 0.1")
+    @field:DecimalMax(value = "15", message = "Длина должна быть не более 15")
+    var length: Float,
 )
 
 data class AddressesDto(
     var departure: AddressDto = AddressDto(-1, ""),
     var delivery: AddressDto = AddressDto(-1, ""),
+)
+
+data class AddressesDtoRequest(
+    var departure: Long = -1,
+    var delivery: Long = -1,
 )
 
 data class OrderUserInput(
@@ -38,7 +55,7 @@ data class OrderUserInput(
 // 1.1 return all addresses in list
 // 1.2 return addresses by prefix letters filter
 // 2. submit departure and delivery address
-@SessionAttributes("selectedAddresses", "cargoParams", "cost")
+@SessionAttributes("selectedAddresses", "selectedAddressesInput", "allAddresses", "cargoParams", "cost")
 @Controller
 class OrderingController @Autowired constructor(
     val addressService: AddressService,
@@ -56,10 +73,22 @@ class OrderingController @Autowired constructor(
         return AddressesDto(departure, delivery)
     }
 
+    @ModelAttribute("selectedAddressesInput")
+    fun selectedAddressesInput(model: Model): AddressesDtoRequest {
+        logger.info("[selectedAddressesInput] called defaults")
+        return AddressesDtoRequest(1, 2)
+    }
+
+    @ModelAttribute("allAddresses")
+    fun allAddresses(model: Model): List<AddressDto> {
+        logger.info("[allAddresses] called defaults")
+        return addressService.getAllAddresses()
+    }
+
     @ModelAttribute("cargoParams")
     fun cargoParams(model: Model): CargoParamsDto {
         logger.info("[cargoParams] called defaults")
-        return CargoParamsDto("BULK", 1.0f, 1.0f, 1.0f, 1.0f)
+        return CargoParamsDto(CargoType.BULK, 1F, 1.5F, 0.7F, 9F)
     }
 
     @ModelAttribute("cost")
@@ -70,26 +99,34 @@ class OrderingController @Autowired constructor(
 
     @GetMapping("customer/addressForm")
     fun showAddressList(model: Model): String {
-        val addresses = addressService.getAllAddresses()
-        model.addAttribute("allAddresses", addresses)
         return "customer/ordering/address_form"
     }
 
-    @PostMapping("customer/submitAddressForm")
+    @PostMapping("customer/addressForm")
     fun submitAddressForm(
-        @RequestParam("delivery") deliveryId: Long,
-        @RequestParam("departure") departureId: Long,
+        @ModelAttribute("selectedAddressesInput") selectedAddressesInput: AddressesDtoRequest,
+        result: BindingResult,
         model: Model,
-        redirectAttributes: RedirectAttributes
-    ): RedirectView {
-        val delivery = addressService.getAddressById(deliveryId)
-        val departure = addressService.getAddressById(departureId)
-        val selectedAddresses = AddressesDto(departure, delivery)
+        redirectAttributes: RedirectAttributes,
+    ): String {
+        val selectedAddresses = AddressesDto(
+            addressService.getAddressById(selectedAddressesInput.departure),
+            addressService.getAddressById(selectedAddressesInput.delivery),
+        )
+        if (selectedAddresses.delivery.id == selectedAddresses.departure.id) {
+            result.rejectValue("delivery", "delivery", "Адреса отправления и получения должны быть разными")
+            result.rejectValue("departure", "departure", "Адреса отправления и получения должны быть разными")
+        }
+        if (result.hasErrors()) {
+            logger.info("[submitAddressForm] errors: ${result.allErrors}")
+            return "customer/ordering/address_form"
+        }
+
         model.addAttribute("selectedAddresses", selectedAddresses)
         logger.info("[submitAddressForm] addresses: $selectedAddresses")
         // very important to use RedirectView, otherwise attributes will be lost
         redirectAttributes.addFlashAttribute("selectedAddresses", selectedAddresses)
-        return RedirectView("/customer/cargoForm")
+        return "redirect:/customer/cargoForm"
     }
 
     @GetMapping("customer/cargoForm")
@@ -97,18 +134,23 @@ class OrderingController @Autowired constructor(
         return "customer/ordering/cargo_form"
     }
 
-    @PostMapping("customer/submitCargoForm")
+    @PostMapping("customer/cargoForm")
     fun submitCargoForm(
-        @Valid cargoParams: CargoParamsDto,
+        @Valid @ModelAttribute("cargoParams") cargoParams: CargoParamsDto,
+        result: BindingResult,
         model: Model,
         redirectAttributes: RedirectAttributes
-    ): RedirectView {
+    ): ModelAndView {
+        if (result.hasErrors()) {
+            logger.info("[submitCargoForm] errors: ${result.allErrors}")
+            return ModelAndView("/customer/ordering/cargo_form")
+        }
         val costs = costsService.calculatePrice(cargoParams)
         model.addAttribute("cargoParams", cargoParams)
         model.addAttribute("cost", costs)
         redirectAttributes.addFlashAttribute("cargoParams", cargoParams)
         redirectAttributes.addFlashAttribute("cost", costs)
-        return RedirectView("/customer/submitOrder")
+        return ModelAndView(RedirectView("/customer/submitOrder"))
     }
 
     @GetMapping("customer/submitOrder")
@@ -124,7 +166,6 @@ class OrderingController @Autowired constructor(
         model: Model,
         redirectAttributes: RedirectAttributes
     ): RedirectView {
-        // TODO: remove hardcode
         val order = OrderUserInput(-1, selectedAddresses, cargoParams, cost)
         orderService.createOrder(order)
 

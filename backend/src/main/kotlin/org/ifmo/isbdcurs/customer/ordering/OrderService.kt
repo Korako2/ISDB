@@ -51,7 +51,7 @@ class CustomerOrderService @Autowired constructor(
             cargo.width.toDouble(),
             cargo.height.toDouble(),
             cargo.length.toDouble(),
-            cargo.type,
+            cargo.type.toString(),
             persistTime,
         )
     }
