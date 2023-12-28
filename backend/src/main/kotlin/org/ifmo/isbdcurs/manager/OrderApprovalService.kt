@@ -25,6 +25,9 @@ class OrderApprovalService(
     fun approve(orderId: Long) {
         logger.info("[approve] called with $orderId")
 
-        websocketMessaging.convertAndSend("/topic/customer", "Ваш заказ $orderId одобрен!")
+        thread {
+            sleep(3500)
+            websocketMessaging.convertAndSend("/topic/customer", "Ваш заказ $orderId одобрен!")
+        }
     }
 }

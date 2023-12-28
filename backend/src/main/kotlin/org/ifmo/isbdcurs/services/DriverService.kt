@@ -125,10 +125,6 @@ class DriverService @Autowired constructor(
         return drivers
     }
 
-    fun startWork(driverId: Long, orderId: Long) {
-        // slowly move to order address
-    }
-
     fun isValidData(model: ModelMap, driverRequest: DriverRequest, result: BindingResult): Boolean{
         var isValid = true
         isValid = isValidName(driverRequest, result) && isValid
