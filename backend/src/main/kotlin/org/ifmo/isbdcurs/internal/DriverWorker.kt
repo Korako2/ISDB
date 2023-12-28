@@ -41,8 +41,8 @@ class DriverWorker(
         return Coordinates(storagePoint.latitude.toDouble(), storagePoint.longitude.toDouble())
     }
 
-    private fun getDeparturePoint(orderId: Long, driverId: Long): Coordinates {
-        val addressId = loadingUnloadingAgreementRepository.findByOrderIdAndDriverId(orderId = orderId, driverId = driverId)!!.departurePoint
+    private fun getDeparturePoint(orderId: Long): Coordinates {
+        val addressId = loadingUnloadingAgreementRepository.findByOrderId(orderId = orderId)!!.departurePoint
         return getAddressById(addressId)
     }
 
@@ -71,7 +71,7 @@ class DriverWorker(
     }
 
     private fun moveToDeparturePoint(driverState: DriverState) {
-        val destination = getDeparturePoint(driverState.orderId, driverState.driverId)
+        val destination = getDeparturePoint(driverState.orderId)
         move(driverState, destination)
         logger.debug("Driver is at departure point {}", destination)
     }
@@ -105,7 +105,7 @@ class DriverWorker(
 
         val vehicleId = vehicleOwnershipRepository.findByDriverId(driverId).last().vehicleId
         val vehicle = vehicleRepository.findById(vehicleId).get()
-        val departureCord = getDeparturePoint(orderId, driverId)
+        val departureCord = getDeparturePoint(orderId)
         val mileage = vehicleMovementHistoryRepository.findByVehicleIdOrderByDateDesc(vehicle.id!!).firstOrNull()?.mileage ?: 0.0f
         val driverStatus = driverStatusHistoryRepository.findByDriverIdOrderByDateDesc(driverId).firstOrNull()?.status ?: DriverStatus.READY_FOR_NEW_ORDER
         val defaultDriverState = DriverState(driverId=driverId, orderId=orderId, vehicle=vehicle, currentDriverStatus = driverStatus, currentPosition = departureCord, mileage = mileage)

@@ -34,6 +34,11 @@ class OrderHelperService @Autowired constructor(
         return addressService.getAddressById(agreement.departurePoint)
     }
 
+    fun getDepartureCoordinatesByOrderId(orderId: Long): Coordinates {
+        val agreement = loadingUnloadingAgreementRepository.findById(orderId).orElseThrow()
+        return storagePointRepository.findById(agreement.departurePoint).orElseThrow().toCoordinates()
+    }
+
     fun getCargoParamsByOrderId(orderId: Long): CargoParamsDto {
         val cargo = cargoRepository.findByOrderId(orderId).orElseThrow()
         return CargoParamsDto(

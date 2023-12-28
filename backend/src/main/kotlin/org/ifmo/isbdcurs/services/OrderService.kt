@@ -1,5 +1,6 @@
 package org.ifmo.isbdcurs.services
 
+import org.ifmo.isbdcurs.customer.OrderHelperService
 import org.ifmo.isbdcurs.internal.DriverWorker
 import org.ifmo.isbdcurs.models.*
 import org.ifmo.isbdcurs.persistence.*
@@ -25,7 +26,8 @@ class OrderService @Autowired constructor(
     private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
     private val storagePointRepository: StoragePointRepository,
     private val addressRepository: AddressRepository,
-    private val orderStatusesRepository: OrderStatusesRepository
+    private val orderStatusesRepository: OrderStatusesRepository,
+    private val orderHelperService: OrderHelperService
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(OrderService::class.java)
 
@@ -104,6 +106,35 @@ class OrderService @Autowired constructor(
         return exceptionHelper.wrapWithBackendException("Error while adding order") {
             addOrderOrThrow(customerId, orderDataRequest)
         }
+    }
+
+    fun findSuitableDriverAndUpdateOrder(orderId: Long): Long {
+        return exceptionHelper.wrapWithBackendException("Error while finding suitable driver") {
+            val order = orderRepo.findById(orderId).orElseThrow { BackendException("Order not found") }
+            val cargo = orderHelperService.getCargoParamsByOrderId(orderId)
+            val departureCoordinates = orderHelperService.getDepartureCoordinatesByOrderId(orderId)
+            val orderDataForVehicle = OrderDataForVehicle(
+                weight = cargo.weight.toDouble(),
+                width = cargo.width.toDouble(),
+                height = cargo.height.toDouble(),
+                length = cargo.length.toDouble(),
+                cargoType = cargo.type,
+                latitude = departureCoordinates.latitude,
+                longitude = departureCoordinates.longitude,
+            )
+            val vehicleId = vehicleService.findSuitableVehicle(orderDataForVehicle)
+            if (vehicleId == -1L) {
+                throw BackendException("Водитель под ваш заказ не найден. Попробуйте изменить параметры груза")
+            }
+            val driverId = vehicleOwnershipRepository.findByVehicleId(vehicleId).driverId
+            updateOrderWhenVehicleFound(orderId, vehicleId, driverId = driverId)
+            driverId
+        }
+    }
+
+    private fun updateOrderWhenVehicleFound(orderId: Long, vehicleId: Long, driverId: Long) {
+        orderRepo.updateVehicleIdById(id = orderId, vehicleId = vehicleId)
+        loadingUnloadingAgreementRepository.updateDriverIdByOrderId(orderId = orderId, driverId = driverId)
     }
 
     private fun addOrderOrThrow(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {

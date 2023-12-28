@@ -4,6 +4,7 @@ import org.ifmo.isbdcurs.models.*
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Page
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.query.Procedure
 import org.springframework.data.repository.CrudRepository
@@ -181,13 +182,13 @@ interface OrderRepository : JpaRepository<Order, Long> {
             deliveryAddress,
             s.status)
         FROM Order o
-            JOIN Customer c ON o.customerId = c.id
-            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
-            JOIN OrderStatuses s ON s.orderId = o.id
-            JOIN Person customer_p ON c.personId = customer_p.id
-            JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
-            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
-            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+            LEFT JOIN Customer c ON o.customerId = c.id
+            LEFT JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            LEFT JOIN OrderStatuses s ON s.orderId = o.id
+            LEFT JOIN Person customer_p ON c.personId = customer_p.id
+            LEFT JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
+            LEFT JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            LEFT JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
         WHERE s.status = 'WAITING'
         ORDER BY o.id DESC
         LIMIT :limit OFFSET :offset
@@ -208,14 +209,14 @@ interface OrderRepository : JpaRepository<Order, Long> {
             deliveryAddress,
             s.status)
         FROM Order o
-            JOIN Cargo cargo ON o.id = cargo.orderId
-            JOIN Customer c ON o.customerId = c.id
-            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
-            JOIN OrderStatuses s ON s.orderId = o.id
-            JOIN Person customer_p ON c.personId = customer_p.id
-            JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
-            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
-            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+            LEFT JOIN Cargo cargo ON o.id = cargo.orderId
+            LEFT JOIN Customer c ON o.customerId = c.id
+            LEFT JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            LEFT JOIN OrderStatuses s ON s.orderId = o.id
+            LEFT JOIN Person customer_p ON c.personId = customer_p.id
+            LEFT JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
+            LEFT JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            LEFT JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
         WHERE s.status = 'WAITING'
         ORDER BY o.id DESC
         LIMIT :limit OFFSET :offset
@@ -236,14 +237,14 @@ interface OrderRepository : JpaRepository<Order, Long> {
             deliveryAddress,
             s.status)
         FROM Order o
-            JOIN Cargo cargo ON o.id = cargo.orderId
-            JOIN Customer c ON o.customerId = c.id
-            JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
-            JOIN OrderStatuses s ON s.orderId = o.id
-            JOIN Person customer_p ON c.personId = customer_p.id
-            JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
-            JOIN Address departureAddress ON l.departurePoint = departureAddress.id
-            JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
+            LEFT JOIN Cargo cargo ON o.id = cargo.orderId
+            LEFT JOIN Customer c ON o.customerId = c.id
+            LEFT JOIN LoadingUnloadingAgreement l ON o.id = l.orderId
+            LEFT JOIN OrderStatuses s ON s.orderId = o.id
+            LEFT JOIN Person customer_p ON c.personId = customer_p.id
+            LEFT JOIN ContactInfo c_phone ON c_phone.personId = customer_p.id AND c_phone.contactType = 'PHONE NUMBER'
+            LEFT JOIN Address departureAddress ON l.departurePoint = departureAddress.id
+            LEFT JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
         WHERE o.id = :id
     """)
     fun getFullOrderInfoById(id: Long): FullOrdersInfo
@@ -333,6 +334,10 @@ interface OrderRepository : JpaRepository<Order, Long> {
         AND c.id = :customerId AND o.id = :id
     """)
     fun findCustomerOrderByCustomerIdAndId(customerId: Long, id: Long): Optional<CustomerOrder>
+
+    @Modifying
+    @Query("UPDATE Order o SET o.vehicleId = :vehicleId WHERE o.id = :id")
+    fun updateVehicleIdById(id: Long, vehicleId: Long)
 }
 
 interface OrderStatusesRepository : CrudRepository<OrderStatuses, OrderStatusesPK> {
@@ -351,9 +356,11 @@ interface AddressRepository : CrudRepository<Address, Long> {
 interface StoragePointRepository : CrudRepository<StoragePoint, Long>
 
 interface LoadingUnloadingAgreementRepository : CrudRepository<LoadingUnloadingAgreement, Long> {
-    fun findByOrderIdAndDriverId(orderId: Long, driverId: Long): LoadingUnloadingAgreement?
-
     fun findByOrderId(orderId: Long): LoadingUnloadingAgreement?
+
+    @Modifying
+    @Query("UPDATE LoadingUnloadingAgreement l SET l.driverId = :driverId WHERE l.orderId = :orderId")
+    fun updateDriverIdByOrderId(orderId: Long, driverId: Long)
 }
 
 interface FuelCardsForDriversRepository : CrudRepository<FuelCardsForDrivers, FuelCardsForDriversPK> {
