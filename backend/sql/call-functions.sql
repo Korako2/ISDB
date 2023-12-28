@@ -45,7 +45,7 @@ CALL add_driver_info(v_driver_id,
 );
 
 SELECT closest_vehicle_id FROM find_suitable_vehicle(
-
+  v_length => cargo_length,
   v_width => 1,
   v_height => 1,
   v_cargo_type => 'BULK',
