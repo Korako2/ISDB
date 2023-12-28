@@ -10,30 +10,30 @@
 <main class="container mt-4 flex-grow-1">
     <form th:action="@{submitCargoForm}" th:object="${cargoParams}" method="post">
         <div class="form-group">
-            <label for="type">Cargo Type:</label>
+            <label for="type">Тип груза: </label>
             <select id="type" th:field="*{type}" class="form-control" required>
                 <option th:each="type : ${T(org.ifmo.isbdcurs.models.CargoType).values()}"
-                        th:value="${type}" th:text="${type}"></option>
+                        th:value="${type}" th:text="${type.getTranslatedName()}"></option>
             </select>
         </div>
 
         <div class="form-group">
-            <label for="weight">Weight:</label>
+            <label for="weight">Вес груза: </label>
             <input id="weight" type="number" th:field="*{weight}" class="form-control" required>
         </div>
 
         <div class="form-group">
-            <label for="height">Height:</label>
+            <label for="height">Высота груза: </label>
             <input id="height" type="number" th:field="*{height}" class="form-control" required>
         </div>
 
         <div class="form-group">
-            <label for="width">Width:</label>
+            <label for="width">Ширина груза: </label>
             <input id="width" type="number" th:field="*{width}" class="form-control" required>
         </div>
 
         <div class="form-group">
-            <label for="length">Length:</label>
+            <label for="length">Длина груза:</label>
             <input id="length" type="number" th:field="*{length}" class="form-control" required>
         </div>
 

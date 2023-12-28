@@ -1,7 +1,11 @@
 package org.ifmo.isbdcurs.customer.ordering
 
 import jakarta.validation.Valid
+import jakarta.validation.constraints.DecimalMax
+import jakarta.validation.constraints.DecimalMin
+import jakarta.validation.constraints.NotEmpty
 import org.ifmo.isbdcurs.customer.CustomerController
+import org.ifmo.isbdcurs.models.CargoType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -15,10 +19,19 @@ import org.springframework.web.servlet.view.RedirectView
 
 
 data class CargoParamsDto(
-    val type: String,
+    @NotEmpty(message = "Поле не может быть пустым")
+    val type: CargoType,
+    @DecimalMin(value = "0.5", message = "Вес должен быть не менее 0.5")
+    @DecimalMax(value = "150", message = "Вес должен быть не более 150")
     val weight: Float,
+    @DecimalMin(value = "0.1", message = "Высота должна быть не менее 0.1")
+    @DecimalMax(value = "4", message = "Высота должна быть не более 4")
     val height: Float,
+    @DecimalMin(value = "0.1", message = "Ширина должна быть не менее 0.1")
+    @DecimalMax(value = "2.5", message = "Ширина должна быть не более 2.5")
     val width: Float,
+    @DecimalMin(value = "0.1", message = "Длина должна быть не менее 0.1")
+    @DecimalMax(value = "15", message = "Длина должна быть не более 15")
     val length: Float,
 )
 
@@ -59,7 +72,7 @@ class OrderingController @Autowired constructor(
     @ModelAttribute("cargoParams")
     fun cargoParams(model: Model): CargoParamsDto {
         logger.info("[cargoParams] called defaults")
-        return CargoParamsDto("BULK", 1.0f, 1.0f, 1.0f, 1.0f)
+        return CargoParamsDto(CargoType.BULK, 1.0f, 1.0f, 1.0f, 1.0f)
     }
 
     @ModelAttribute("cost")

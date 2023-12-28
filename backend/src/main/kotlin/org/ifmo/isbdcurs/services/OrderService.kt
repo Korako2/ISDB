@@ -117,7 +117,7 @@ class OrderService @Autowired constructor(
                 width = cargo.width.toDouble(),
                 height = cargo.height.toDouble(),
                 length = cargo.length.toDouble(),
-                cargoType = valueFrom(cargo.type),
+                cargoType = cargo.type,
                 latitude = departureCoordinates.latitude,
                 longitude = departureCoordinates.longitude,
             )
@@ -327,7 +327,7 @@ class OrderService @Autowired constructor(
             customerFirstName = this.customerFirstName,
             customerLastName = this.customerLastName,
             cargo = this.cargo,
-            cargoType = this.cargo.cargoType.translate(),
+            cargoType = this.cargo.cargoType.translatedName,
             departureAddress = this.departureAddress,
             deliveryAddress = this.deliveryAddress,
             loadingTime = this.loadingTime,

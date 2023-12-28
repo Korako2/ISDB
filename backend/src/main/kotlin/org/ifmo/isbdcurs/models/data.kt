@@ -16,8 +16,10 @@ enum class BodyType {
     OPEN, CLOSED,
 }
 
-enum class CargoType {
-    BULK, TIPPER, PALLETIZED,
+enum class CargoType(val translatedName: String) {
+    BULK("Сыпучие"),
+    TIPPER("Самосвал"),
+    PALLETIZED("Паллеты");
 }
 
 enum class OrderStatus {
@@ -49,14 +51,6 @@ fun DriverStatus.translate(): String {
         DriverStatus.COMPLETED_ORDER -> "Завершил заказ"
         DriverStatus.WEEKEND -> "Выходной"
         DriverStatus.READY_FOR_NEW_ORDER -> "Готов к новому заказу"
-    }
-}
-
-fun CargoType.translate(): String {
-    return when (this) {
-        CargoType.BULK -> "Сыпучие"
-        CargoType.TIPPER -> "Самосвал"
-        CargoType.PALLETIZED -> "Паллеты"
     }
 }
 
