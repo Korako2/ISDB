@@ -2,6 +2,8 @@ package org.ifmo.isbdcurs.manager
 
 import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
+import java.lang.Thread.sleep
+import kotlin.concurrent.thread
 
 @Service
 class OrderApprovalService(
@@ -12,8 +14,12 @@ class OrderApprovalService(
     fun requestApproval(orderId: Long) {
         logger.info("[requestApproval] called with $orderId")
 
-        websocketMessaging.convertAndSend("/topic/customer", "Заказ $orderId оформлен!")
-        websocketMessaging.convertAndSend("/topic/manager", "Заказ $orderId ожидает одобрения!")
+        thread {
+            sleep(3500)
+            logger.info("[requestApproval] sending message to /topic/customer")
+            websocketMessaging.convertAndSend("/topic/customer", "Заказ $orderId оформлен!")
+            websocketMessaging.convertAndSend("/topic/manager", "Заказ $orderId ожидает одобрения!")
+        }
     }
 
     fun approve(orderId: Long) {
