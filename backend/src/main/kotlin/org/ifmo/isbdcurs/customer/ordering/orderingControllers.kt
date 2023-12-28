@@ -20,16 +20,16 @@ import org.springframework.web.servlet.view.RedirectView
 
 data class CargoParamsDto(
     val type: CargoType,
-    @field:DecimalMin(value = "0.5", message = "Вес должен быть не менее 0.5")
-    @field:DecimalMax(value = "150", message = "Вес должен быть не более 150")
+    @field:DecimalMin(value = "0.1", message = "Вес должен быть не менее 0.1")
+    @field:DecimalMax(value = "20000", message = "Вес должен быть не более 20000")
     var weight: Float,
-    @field:DecimalMin(value = "0.5", message = "Высота должна быть не менее 0.5")
+    @field:DecimalMin(value = "0.1", message = "Высота должна быть не менее 0.1")
     @field:DecimalMax(value = "4", message = "Высота должна быть не более 4")
     var height: Float,
-    @field:DecimalMin(value = "0.5", message = "Ширина должна быть не менее 0.5")
+    @field:DecimalMin(value = "0.1", message = "Ширина должна быть не менее 0.1")
     @field:DecimalMax(value = "2.5", message = "Ширина должна быть не более 2.5")
     var width: Float,
-    @field:DecimalMin(value = "1", message = "Длина должна быть не менее 1")
+    @field:DecimalMin(value = "0.1", message = "Длина должна быть не менее 0.1")
     @field:DecimalMax(value = "15", message = "Длина должна быть не более 15")
     var length: Float,
 )
