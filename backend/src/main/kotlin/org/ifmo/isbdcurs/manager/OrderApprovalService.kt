@@ -24,4 +24,10 @@ class OrderApprovalService(
 
         websocketMessaging.convertAndSend("/topic/customer", "Ваш заказ $orderId одобрен!")
     }
+
+    fun reject(orderId: Long) {
+        logger.info("[reject] called with $orderId")
+
+        websocketMessaging.convertAndSend("/topic/customer", "Ваш заказ $orderId отклонен!")
+    }
 }
