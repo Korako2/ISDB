@@ -108,9 +108,8 @@ class OrderService @Autowired constructor(
         }
     }
 
-    fun findSuitableDriverAndUpdateOrder(orderId: Long): Long {
+    fun findSuitableDriver(orderId: Long): Long {
         return exceptionHelper.wrapWithBackendException("Error while finding suitable driver") {
-            val order = orderRepo.findById(orderId).orElseThrow { BackendException("Order not found") }
             val cargo = orderHelperService.getCargoParamsByOrderId(orderId)
             val departureCoordinates = orderHelperService.getDepartureCoordinatesByOrderId(orderId)
             val orderDataForVehicle = OrderDataForVehicle(
@@ -118,7 +117,7 @@ class OrderService @Autowired constructor(
                 width = cargo.width.toDouble(),
                 height = cargo.height.toDouble(),
                 length = cargo.length.toDouble(),
-                cargoType = cargo.type,
+                cargoType = valueFrom(cargo.type),
                 latitude = departureCoordinates.latitude,
                 longitude = departureCoordinates.longitude,
             )
@@ -127,12 +126,12 @@ class OrderService @Autowired constructor(
                 throw BackendException("Водитель под ваш заказ не найден. Попробуйте изменить параметры груза")
             }
             val driverId = vehicleOwnershipRepository.findByVehicleId(vehicleId).driverId
-            updateOrderWhenVehicleFound(orderId, vehicleId, driverId = driverId)
             driverId
         }
     }
 
-    private fun updateOrderWhenVehicleFound(orderId: Long, vehicleId: Long, driverId: Long) {
+    @Transactional
+    fun updateOrderWhenVehicleFound(orderId: Long, vehicleId: Long, driverId: Long) {
         orderRepo.updateVehicleIdById(id = orderId, vehicleId = vehicleId)
         loadingUnloadingAgreementRepository.updateDriverIdByOrderId(orderId = orderId, driverId = driverId)
     }
@@ -167,7 +166,7 @@ class OrderService @Autowired constructor(
             width = orderDataRequest.width,
             height = orderDataRequest.height,
             length = orderDataRequest.length,
-            cargoType = orderDataRequest.cargoType,
+            cargoType = valueFrom(orderDataRequest.cargoType),
             latitude = orderCoordinates.latitude,
             longitude = orderCoordinates.longitude,
         )

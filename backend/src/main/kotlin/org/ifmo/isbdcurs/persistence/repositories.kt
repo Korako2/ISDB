@@ -97,7 +97,7 @@ interface VehicleRepository : CrudRepository<Vehicle, Long> {
           v_length => :#{#request.length},
           v_width => :#{#request.width},
           v_height => :#{#request.height},
-          v_cargo_type => :#{#request.cargoType},
+          v_cargo_type => :#{#request.cargoType.toString()},
           v_weight => :#{#request.weight},
           cargo_latitude => :#{#request.latitude},
           cargo_longitude => :#{#request.longitude}

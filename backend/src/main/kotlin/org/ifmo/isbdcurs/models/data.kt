@@ -60,6 +60,15 @@ fun CargoType.translate(): String {
     }
 }
 
+fun valueFrom(value: String): CargoType {
+    return when (value) {
+        "Сыпучие" -> CargoType.BULK
+        "Самосвал" -> CargoType.TIPPER
+        "Паллеты" -> CargoType.PALLETIZED
+        else -> CargoType.BULK
+    }
+}
+
 enum class ContactInfoType {
     PHONE_NUMBER, TELEGRAM, EMAIL;
 
