@@ -112,10 +112,15 @@ class AdminController(
 
     @GetMapping("/admin/suitable_driver")
     fun showFindSuitableDriver(model: Model, @RequestParam orderId: Long): String {
-        val driverId = orderService.findSuitableDriver(orderId)
         model.addAttribute("orderById", orderService.getFullOrderInfoById(orderId))
-        model.addAttribute("driver", driverService.getSuitableDriverResponseByDriverId(driverId))
-        return "suitable_driver"
+        try {
+            val driverId = orderService.findSuitableDriver(orderId)
+            model.addAttribute("driver", driverService.getSuitableDriverResponseByDriverId(driverId))
+            return "suitable_driver"
+        } catch (e: BackendException) {
+            model.addAttribute("error", e.message)
+            return "find_suitable_driver"
+        }
     }
 
     @GetMapping("/admin/approve_driver")

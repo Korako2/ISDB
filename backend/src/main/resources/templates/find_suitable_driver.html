@@ -56,6 +56,11 @@
                         <div class="mt-5 d-flex justify-content-center">
                             <button type="button" class="btn btn-primary btn-lg" th:data-orderid="${orderById.id}" onclick="find_suitable_driver(this.getAttribute('data-orderid'))">Найти водителя</button>
                         </div>
+
+                        <div th:if="${error}" class="mt-5 d-flex justify-content-center alert alert-danger" role="alert">
+                            <p class="fw-bold font-size-large" th:text="${error}"></p>
+                            <a href="/admin" class="btn btn-primary ms-5">Вернуться на главную</a>
+                        </div>
                     </div>
                 </div>
             </div>

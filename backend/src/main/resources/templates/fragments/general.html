@@ -31,8 +31,8 @@
     <button type="submit" class="submit-button btn btn-primary mx-3"><span th:text="${nextText}"></span></button>
 </div>
 
-<div th:fragment="prev-step-button" class="container">
-    <button type="button" class="btn btn-primary" onclick="window.history.back()">Назад</button>
+<div th:fragment="go-to-main-button" class="container">
+    <a type="button" class="btn btn-primary" th:href="@{/customer/index}">Назад</a>
 </div>
 
 <div th:fragment="notification-modal">
