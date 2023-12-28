@@ -34,7 +34,7 @@ class DriverService @Autowired constructor(
     }
 
     private fun randomPlateNumber(): String {
-        return nRandRusLetters(1) + nRandRusDigits(3) + nRandRusLetters(2) + nRandRusDigits(2);
+        return nRandRusLetters(1) + nRandRusDigits(3) + nRandRusLetters(2) + nRandRusDigits(2)
     }
 
     fun getSuitableDriverResponseByDriverId(driverId: Long): SuitableDriverResponse {
