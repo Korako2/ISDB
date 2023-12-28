@@ -1,3 +1,5 @@
+package org.ifmo.isbdcurs.controllers
+
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
 import org.ifmo.isbdcurs.services.OrderService
