@@ -240,16 +240,26 @@ $$
     DECLARE
         current_order_id int;
     BEGIN
-        SELECT order_id INTO current_order_id
+        SELECT loading_unloading_agreement.order_id
+            INTO current_order_id
         FROM loading_unloading_agreement
+        JOIN order_statuses os ON loading_unloading_agreement.order_id = os.order_id
         WHERE loading_unloading_agreement.driver_id = NEW.driver_id
+        -- take last order status
+          AND os.date_time = (SELECT MAX(s2.date_time) FROM order_statuses s2 WHERE s2.order_id = os.order_id)
+          AND os.status != 'COMPLETED'
         ORDER BY loading_unloading_agreement.order_id DESC
         LIMIT 1;
 
         RAISE NOTICE 'current order id: %', current_order_id;
 
+        -- do nothing because it's last status. Just return
+        IF NEW.status = 'READY_FOR_NEW_ORDER' THEN
+            RETURN NEW;
+        END IF;
+
         IF current_order_id IS NULL THEN
-            RAISE EXCEPTION 'Заказ не существует или авто не назначен';
+            RAISE EXCEPTION 'Заказ % не существует или авто не назначен водителю %', current_order_id, NEW.driver_id USING ERRCODE='T22A0';
         END IF;
 
         IF NEW.status = 'ACCEPTED_ORDER' THEN

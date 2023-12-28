@@ -82,21 +82,6 @@ class BusinessController @Autowired constructor(
         return ModelAndView("index", model)
     }
 
-    @PostMapping("/add_order")
-    fun addOrder(@Valid @ModelAttribute("orderDataRequest") orderDataRequest: OrderDataRequest, result: BindingResult, model: ModelMap,
-                 @AuthenticationPrincipal userDetails: UserDetails): String {
-        println(123)
-        if (result.hasErrors())
-        logger.info("Order data request: $orderDataRequest")
-        if (orderService.isValidData(orderDataRequest, result) && !result.hasErrors()) {
-            errorHelper.addErrorIfFailed(model) {
-                val customerId = getCustomerId(userDetails)
-                orderService.addOrder(customerId, orderDataRequest)
-            }
-        }
-        return "redirect:/customer-orders?pageNumber=0&pageSize=10"
-    }
-
     @PostMapping("/add_customer")
     fun addCustomer(
         @Valid @RequestBody addCustomerRequest: AddCustomerRequest,

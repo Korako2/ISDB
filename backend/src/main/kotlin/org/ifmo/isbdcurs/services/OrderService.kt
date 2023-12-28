@@ -7,13 +7,37 @@ import org.ifmo.isbdcurs.persistence.*
 import org.ifmo.isbdcurs.util.ExceptionHelper
 import org.ifmo.isbdcurs.util.pageToIdRangeReversed
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.BindingResult
 import java.time.Instant
-import java.time.LocalTime
 import java.util.*
+import kotlin.concurrent.thread
 import kotlin.jvm.optionals.getOrElse
+
+@Component
+class OrderTransactionHelper(
+    private val orderRepository: OrderRepository,
+    private val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
+    private val driverStatusHistoryRepository: DriverStatusHistoryRepository
+) {
+    @Transactional
+    fun updateOrderAndAgreement(orderId: Long, vehicleId: Long, driverId: Long) {
+        orderRepository.updateVehicleIdById(id = orderId, vehicleId = vehicleId)
+        loadingUnloadingAgreementRepository.updateDriverIdByOrderId(orderId = orderId, driverId = driverId)
+    }
+
+    @Transactional
+    fun updateDriverStatus(driverId: Long) {
+        val driverStatusHistory = DriverStatusHistory(
+            driverId = driverId,
+            date = Instant.now(),
+            status = DriverStatus.ACCEPTED_ORDER
+        )
+        driverStatusHistoryRepository.save(driverStatusHistory)
+    }
+}
 
 @Service
 class OrderService @Autowired constructor(
@@ -29,7 +53,8 @@ class OrderService @Autowired constructor(
     private val orderStatusesRepository: OrderStatusesRepository,
     private val orderHelperService: OrderHelperService,
     private val driverRepository: DriverRepository,
-    private val driverStatusHistoryRepository: DriverStatusHistoryRepository
+    private val driverStatusHistoryRepository: DriverStatusHistoryRepository,
+    private val orderTransactionHelper: OrderTransactionHelper,
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(OrderService::class.java)
 
@@ -103,13 +128,6 @@ class OrderService @Autowired constructor(
         }
     }
 
-    @Transactional
-    fun addOrder(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {
-        return exceptionHelper.wrapWithBackendException("Error while adding order") {
-            addOrderOrThrow(customerId, orderDataRequest)
-        }
-    }
-
     fun rejectOrder(orderId: Long) {
         exceptionHelper.wrapWithBackendException("Error while rejecting order") {
             orderRepo.deleteOrderById(orderId)
@@ -140,123 +158,15 @@ class OrderService @Autowired constructor(
 
     @Transactional
     fun updateOrderWhenVehicleFound(orderId: Long, vehicleId: Long, driverId: Long) {
-        orderRepo.updateVehicleIdById(id = orderId, vehicleId = vehicleId)
-        loadingUnloadingAgreementRepository.updateDriverIdByOrderId(orderId = orderId, driverId = driverId)
-        val driverStatusHistory = DriverStatusHistory(
-            driverId = driverId,
-            date = Instant.now(),
-            status = DriverStatus.ACCEPTED_ORDER
-        )
-        driverStatusHistoryRepository.save(driverStatusHistory)
+        orderTransactionHelper.updateOrderAndAgreement(orderId, vehicleId, driverId)
+        orderTransactionHelper.updateDriverStatus(driverId)
     }
 
-    private fun addOrderOrThrow(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {
-        val departureAddressDto = StorageAddressDto(
-            country = orderDataRequest.departureCountry,
-            city = orderDataRequest.departureCity,
-            street = orderDataRequest.departureStreet,
-            building = orderDataRequest.departureHouse,
-        )
-        val deliveryAddressDto = StorageAddressDto(
-            country = orderDataRequest.destinationCountry,
-            city = orderDataRequest.destinationCity,
-            street = orderDataRequest.destinationStreet,
-            building = orderDataRequest.destinationHouse,
-        )
-        val departureAddress: Address = getAddressOrAddNew(departureAddressDto)
-        val deliveryAddress: Address = getAddressOrAddNew(deliveryAddressDto)
-
-        val departureStoragePoint: StoragePoint = storagePointRepository.findById(departureAddress.id!!)
-            .orElseThrow { BackendException("Departure storage point not found") }
-        val deliveryStoragePoint: StoragePoint = storagePointRepository.findById(deliveryAddress.id!!)
-            .orElseThrow { BackendException("Delivery storage point not found") }
-
-        val orderCoordinates =
-            Coordinates(departureStoragePoint.latitude.toDouble(), departureStoragePoint.longitude.toDouble())
-        val deliveryCoordinates =
-            Coordinates(deliveryStoragePoint.latitude.toDouble(), deliveryStoragePoint.longitude.toDouble())
-        val orderDataForVehicle = OrderDataForVehicle(
-            weight = orderDataRequest.weight,
-            width = orderDataRequest.width,
-            height = orderDataRequest.height,
-            length = orderDataRequest.length,
-            cargoType = valueFrom(orderDataRequest.cargoType),
-            latitude = orderCoordinates.latitude,
-            longitude = orderCoordinates.longitude,
-        )
-
-        val vehicleId = vehicleService.findSuitableVehicle(orderDataForVehicle)
-        if (vehicleId == -1L) {
-            throw BackendException("No suitable vehicle found")
-        }
-
-        val vehicleCoordinates =
-            vehicleMovementHistoryRepository.findByVehicleIdOrderByDateDesc(vehicleId).firstOrNull()?.let {
-                Coordinates(it.latitude.toDouble(), it.longitude.toDouble())
-            } ?: Coordinates(0.0, 0.0)
-
-        logger.debug("Found nearest vehicle with id = $vehicleId")
-        val driverId = vehicleOwnershipRepository.findByVehicleId(vehicleId).driverId
-        val person = personRepository.findById(driverId).getOrElse { throw Exception("Driver not found") }
-        val driverFullName = person.firstName + " " + person.lastName
-
-        val driveToAddressDistance = vehicleCoordinates.calcDistanceKm(orderCoordinates)
-
-        val distance = orderCoordinates.calcDistanceKm(deliveryCoordinates)
-
-        val orderId = orderRepo.addOrder(
-            customerId.toInt(),
-            distance,
-            orderDataRequest.weight,
-            orderDataRequest.width,
-            orderDataRequest.height,
-            orderDataRequest.length,
-            orderDataRequest.cargoType,
-            Instant.now(),
-        )
-
-        logger.debug("New Order id = $orderId")
-
-        // TODO: take time from request
-        //        val unloadingSeconds = orderDataRequest.unloadingTime * 60 * 60
-        //        val loadingSeconds = orderDataRequest.loadingTime * 60 * 60
-        // parse unloadingTime  to LocalTime
-        // unloadinTime = "01:00"
-        logger.debug("unloadingTime = ${orderDataRequest.unloadingTime}")
-        val unloadingSeconds = orderDataRequest.unloadingTime.split(":").let {
-            it[0].toInt() * 60 * 60 + it[1].toInt() * 60
-        }
-        val loadingSeconds = orderDataRequest.loadingTime.split(":").let {
-            it[0].toInt() * 60 * 60 + it[1].toInt() * 60
-        }
-
-        val senderId = customerId
-        val receiverId = 1L
-        // create agreement
-        val loadingUnloadingAgreement = LoadingUnloadingAgreement(
-            orderId = orderId,
-            driverId = driverId,
-            unloadingTime = LocalTime.ofSecondOfDay(unloadingSeconds.toLong()),
-            loadingTime = LocalTime.ofSecondOfDay(loadingSeconds.toLong()),
-            departurePoint = departureAddress.id!!,
-            deliveryPoint = deliveryAddress.id!!,
-            senderId = senderId,
-            receiverId = receiverId,
-        )
-
-        loadingUnloadingAgreementRepository.save(loadingUnloadingAgreement)
-
-        println("===================== orderId = $orderId")
-        val addOrderResult = AddOrderResult(
-            orderId = orderId,
-            averageDeliveryDate = Date.from(Instant.now().plusSeconds((driveToAddressDistance / 60).toLong())),
-            driverFullName = driverFullName,
-        )
-
-        run {
+    @Transactional
+    fun startDriverWorker(driverId: Long, orderId: Long) {
+        thread {
             driverWorker.startWork(driverId = driverId, orderId = orderId)
         }
-        return addOrderResult
     }
 
     fun isValidData(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {

@@ -120,9 +120,11 @@ class AdminController(
 
     @GetMapping("/admin/approve_driver")
     fun approveSuitableDriver(model: Model, @RequestParam orderId: Long, @RequestParam driverId: Long): String {
+        logger.info("Approving driver $driverId for order $orderId")
         val vehicleId = vehicleOwnershipRepository.findByDriverId(driverId).firstOrNull()?.vehicleId ?: throw BackendException("No vehicle for driver $driverId")
         orderService.updateOrderWhenVehicleFound(orderId, vehicleId = vehicleId, driverId = driverId)
         approvalService.approve(orderId)
+        orderService.startDriverWorker(driverId = driverId, orderId = orderId)
         return "redirect:/admin"
     }
 
