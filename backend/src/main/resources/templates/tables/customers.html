@@ -42,7 +42,7 @@
                 <div th:if="${totalPages > 1}">
                     <ul class="pagination pagination-lg justify-content-center">
                         <li th:class="${currentPage == 0} ? 'page-item disabled' : 'page-item'">
-                            <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/admin/customers?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
+                            <a th:if="${currentPage != 0}" class="page-link" th:href="@{'/manager/customers?pageNumber=' + (${currentPage - 1}) + '&pageSize=' + ${pageSize}}">&laquo;</a>
                             <a th:unless="${currentPage != 0}" class="page-link disabled" href="#" style="pointer-events: none;">&laquo;</a>
                         </li>
 
@@ -51,13 +51,13 @@
                         </li>
 
                         <li th:class="${currentPage == totalPages} ? 'page-item disabled' : 'page-item'">
-                            <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/admin/customers?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
+                            <a th:if="${currentPage != totalPages}" class="page-link" th:href="@{'/manager/customers?pageNumber=' + (${currentPage + 1}) + '&pageSize=' + ${pageSize}}">&raquo;</a>
                             <a th:unless="${currentPage != totalPages}" class="page-link disabled" href="#" style="pointer-events: none;">&raquo;</a>
                         </li>
                     </ul>
                 </div>
                 <div class="col-md-12 text-center mb-4">
-                    <a href="/admin" class="btn btn-back btn-lg">Назад в админку</a>
+                    <a href="/manager" class="btn btn-back btn-lg">Назад в админку</a>
                 </div>
             </div>
         </div>
