@@ -68,7 +68,7 @@
                                     <p class="mb-1">Дата окончания ВУ: <span th:text="${driver.expirationDate}"></span></p>
                                     <p class="mb-1">Номер автомобиля: <span th:text="${driver.vehicle.plateNumber}"></span></p>
                                     <p class="mb-1">Модель: <span th:text="${driver.vehicle.model}"></span></p>
-                                    <p class="mb-1">Дата производства: <span th:text="${driver.vehicle.manufactureYear}"></span></p>
+                                    <p class="mb-1">Дата производства: <span th:text="${#dates.format(driver.vehicle.manufactureYear, 'dd-MM-yyyy')}"></span></p>
                                     <p class="mb-1">Длина: <span th:text="${driver.vehicle.length}"></span></p>
                                     <p class="mb-1">Ширина: <span th:text="${driver.vehicle.width}"></span></p>
                                     <p class="mb-1">Высота: <span th:text="${driver.vehicle.height}"></span></p>
