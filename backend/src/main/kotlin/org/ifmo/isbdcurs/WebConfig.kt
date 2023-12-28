@@ -24,12 +24,13 @@ class WebConfig : WebMvcConfigurer {
                     *CLASSPATH_RESOURCE_LOCATIONS
                 );
         }
-
     }
 
     override fun addViewControllers(registry: ViewControllerRegistry) {
         registry.addViewController("/login").setViewName("login")
         registry.addViewController("/manager").setViewName("manager")
+        registry.addViewController("/customer/user-agreement").setViewName("customer/user-agreement")
+        registry.addViewController("/customer/confidential-policy").setViewName("customer/confidential-policy")
         registry.addRedirectViewController("/", "/index")
         registry.addRedirectViewController("/customer", "customer/index")
     }

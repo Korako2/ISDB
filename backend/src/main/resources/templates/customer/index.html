@@ -25,53 +25,67 @@
     <hr>
 
     <!--    блок с кнопками - действия пользователя -->
-    <div class="container">
-        <a th:href="@{/customer/addressForm}" class="btn btn-primary">Оформить новый заказ</a>
+    <div class="container my-5 d-flex justify-content-center">
+        <a th:href="@{/customer/addressForm}" class="btn btn-success mx-3">Оформить новый заказ</a>
 
         <!--  посмотреть завершенные заказы -->
-        <a th:href="@{/customer/completedOrders}" class="btn btn-primary">Посмотреть завершенные заказы</a>
+        <a th:href="@{/customer/completedOrders}" class="btn btn-info mx-3">Посмотреть завершенные заказы</a>
 
     </div>
 
     <hr>
 
     <!--    блок с активными заказами -->
-    <div class="container mt-4">
-        <h2>Активные заказы</h2>
+    <div class="card bg-light container mt-4 p-4">
+        <div class="card-body">
+            <h2 class="text-center mb-0">Активные заказы</h2>
+        </div>
 
-        <form action="#" th:action="@{/customer/showOrderDetails}" method="post">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th scope="col">Выбрать</th>
-                    <th scope="col">Номер заказа</th>
-                    <th scope="col">Адрес отправления</th>
-                    <th scope="col">Адрес доставки</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="order : ${orders}">
-                    <td>
-                        <input type="radio" name="selectedOrderId" th:value="${order.id}" />
-                    </td>
-                    <td th:text="${order.id}"></td>
-                    <td th:text="${order.departureAddress}"></td>
-                    <td th:text="${order.deliveryAddress}"></td>
-                </tr>
-                </tbody>
-            </table>
+        <br>
 
-            <button type="submit" class="btn btn-primary" id="viewDetailsBtn" disabled>Просмотреть детали</button>
-        </form>
-        <script>
-            $(document).ready(function () {
-                // Enable or disable button based on radio button selection
-                $('input[type="radio"]').change(function () {
-                    $('#viewDetailsBtn').attr('disabled', !$('input[type="radio"]:checked').length);
-                });
-            });
-        </script>
+        <div th:if="${#lists.isEmpty(orders)}">
+            <div class="container text-center mt-5">
+                <h2 class="font-weight-bold mb-3">У вас пока нет активных заказов</h2>
+                <p class="small text-muted">Отличная возможность оформить новый!</p>
+            </div>
+        </div>
+        <div th:if="${not #lists.isEmpty(orders)}">
+            <form action="#" th:action="@{/customer/showOrderDetails}" method="post">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Выбрать</th>
+                        <th scope="col">Номер заказа</th>
+                        <th scope="col">Адрес отправления</th>
+                        <th scope="col">Адрес доставки</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orders}">
+                        <td>
+                            <input type="radio" name="selectedOrderId" th:value="${order.id}"/>
+                        </td>
+                        <td th:text="${order.id}"></td>
+                        <td th:text="${order.departureAddress}"></td>
+                        <td th:text="${order.deliveryAddress}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="container d-flex justify-content-center">
+                    <button type="submit" class="btn btn-info" id="viewDetailsBtn" disabled>Просмотреть детали по выбранному заказу</button>
+                </div>
+            </form>
+        </div>
     </div>
+    <script>
+        $(document).ready(function () {
+            // Enable or disable button based on radio button selection
+            $('input[type="radio"]').change(function () {
+                $('#viewDetailsBtn').attr('disabled', !$('input[type="radio"]:checked').length);
+            });
+        });
+    </script>
 </main>
 
 <footer th:insert="~{fragments/general :: footer}"></footer>

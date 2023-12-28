@@ -1,6 +1,7 @@
 package org.ifmo.isbdcurs.models
 
 import jakarta.validation.constraints.*
+import org.springframework.format.annotation.DateTimeFormat
 import java.util.Date
 
 data class AddCustomerRequest(
@@ -115,21 +116,21 @@ data class OrderDataRequest(
 )
 
 data class AddNewCustomer (
-    @Size(max = 40, message = "Фамилия не должна превышать 40 символов")
+    @field:Size(max = 40, message = "Фамилия не должна превышать 40 символов")
     var firstName: String,
-    @Size(max = 40, message = "Фамилия не должна превышать 40 символов")
+    @field:Size(max = 40, message = "Фамилия не должна превышать 40 символов")
     var lastName: String,
-    @Pattern(regexp = "\\b(?:M|F)\\b", message = "Гендер должен быть 'M' или 'F'")
+    @field:Pattern(regexp = "\\b(?:M|F)\\b", message = "Гендер должен быть 'M' или 'F'")
     var gender: String,
-    @Past(message = "Дата рождения должна быть в прошлом")
-    @Pattern(regexp = "\\d{2}-\\d{2}-\\d{4}", message = "Дата рождения должна быть в формате dd-MM-yyyy")
-    var dateOfBirth: String,
-    @Size(max = 40, message = "Логин не должен превышать 40 символов")
+    @field:DateTimeFormat(pattern = "yyyy-MM-dd")
+    @field:NotNull(message = "Дата рождения не может быть пустой")
+    var dateOfBirth: Date?,
+    @field:Size(max = 40, message = "Логин не должен превышать 40 символов")
     var username: String,
     var password: String,
-    @Email(message = "Некорректный формат email")
+    @field:Email(message = "Некорректный формат email")
     var email: String,
-    @Pattern(regexp = "\\d{10}", message = "Телефонный номер должен содержать 10 цифр")
+    @field:Pattern(regexp = "\\d{11}", message = "Телефонный номер должен содержать 11 цифр")
     var phone: String,
     var isAdmin: Boolean = false
 )

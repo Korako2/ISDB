@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head th:replace="~{fragments/general :: headerfiles}"></head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -7,7 +7,7 @@
 
 <div th:replace="~{fragments/general :: notification-modal}"></div>
 
-<main>
+<main class="container mt-4 flex-grow-1">
     <div class="container col-md-auto">
         <div class="col-md-12">
             <div th:switch="${completedOrders}" class="container my-5">
@@ -67,10 +67,9 @@
         </div>
     </div>
 
-    <div th:fragment="prev-step-button" class="container">
-        <a href="/customer/index" class="btn btn-back btn-lg">Назад</a>
-    </div>
+    <div th:replace="~{fragments/general :: go-to-main-button}"></div>
 </main>
 
 <footer th:insert="~{fragments/general :: footer}"></footer>
 </body>
+</html>
