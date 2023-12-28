@@ -27,7 +27,9 @@ class OrderService @Autowired constructor(
     private val storagePointRepository: StoragePointRepository,
     private val addressRepository: AddressRepository,
     private val orderStatusesRepository: OrderStatusesRepository,
-    private val orderHelperService: OrderHelperService
+    private val orderHelperService: OrderHelperService,
+    private val driverRepository: DriverRepository,
+    private val driverStatusHistoryRepository: DriverStatusHistoryRepository
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(OrderService::class.java)
 
@@ -134,6 +136,12 @@ class OrderService @Autowired constructor(
     fun updateOrderWhenVehicleFound(orderId: Long, vehicleId: Long, driverId: Long) {
         orderRepo.updateVehicleIdById(id = orderId, vehicleId = vehicleId)
         loadingUnloadingAgreementRepository.updateDriverIdByOrderId(orderId = orderId, driverId = driverId)
+        val driverStatusHistory = DriverStatusHistory(
+            driverId = driverId,
+            date = Instant.now(),
+            status = DriverStatus.ACCEPTED_ORDER
+        )
+        driverStatusHistoryRepository.save(driverStatusHistory)
     }
 
     private fun addOrderOrThrow(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {

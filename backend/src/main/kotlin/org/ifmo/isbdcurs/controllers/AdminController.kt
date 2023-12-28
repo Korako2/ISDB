@@ -118,7 +118,6 @@ class AdminController(
         return "suitable_driver"
     }
 
-    // TODO: replace with POST and add params
     @GetMapping("/admin/approve_driver")
     fun approveSuitableDriver(model: Model, @RequestParam orderId: Long, @RequestParam driverId: Long): String {
         val vehicleId = vehicleOwnershipRepository.findByDriverId(driverId).firstOrNull()?.vehicleId ?: throw BackendException("No vehicle for driver $driverId")
