@@ -83,7 +83,7 @@
                                 </div>
                                 <div th:id="${ord.id}" class="mt-4 d-flex justify-content-between">
                                     <button class="btn btn-success mr-auto"  th:data-orderid="${ord.id}" onclick="approveOrder(this.getAttribute('data-orderid'))">Одобрить заказ</button>
-                                    <button class="btn btn-danger ml-auto" onclick="rejectOrder()">Отклонить заказ</button>
+                                    <button class="btn btn-danger ml-auto"  th:data-orderid="${ord.id}" onclick="rejectOrder(this.getAttribute('data-orderid'))">Отклонить заказ</button>
                                 </div>
                             </div>
                         </div>
@@ -164,9 +164,8 @@
     }
 
     // Функция для отклонения заказа
-    function rejectOrder() {
-        // Добавьте здесь логику для отклонения заказа
-        console.log('Заказ отклонен');
+    function rejectOrder(orderID) {
+        window.location.href = 'admin/reject_order?orderId=' + orderID;
     }
 </script>
 </html>
