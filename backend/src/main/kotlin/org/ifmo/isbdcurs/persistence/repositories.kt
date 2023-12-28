@@ -82,6 +82,9 @@ interface CustomerRepository : CrudRepository<Customer, Long> {
 
 interface DriverStatusHistoryRepository : CrudRepository<DriverStatusHistory, Long> {
     fun findByDriverIdOrderByDateDesc(driverId: Long): List<DriverStatusHistory>
+    fun save(driverStatusHistory: DriverStatusHistory): DriverStatusHistory
+
+
 }
 
 interface TariffRateRepository : CrudRepository<TariffRate, Long>
@@ -190,6 +193,12 @@ interface OrderRepository : JpaRepository<Order, Long> {
             LEFT JOIN Address departureAddress ON l.departurePoint = departureAddress.id
             LEFT JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
         WHERE s.status = 'WAITING'
+        AND NOT EXISTS (
+            SELECT 1 
+            FROM OrderStatuses os 
+            WHERE os.orderId = o.id 
+            AND os.status = 'ACCEPTED'
+        )
         ORDER BY o.id DESC
         LIMIT :limit OFFSET :offset
     """)
@@ -218,6 +227,12 @@ interface OrderRepository : JpaRepository<Order, Long> {
             LEFT JOIN Address departureAddress ON l.departurePoint = departureAddress.id
             LEFT JOIN Address deliveryAddress ON l.deliveryPoint = deliveryAddress.id
         WHERE s.status = 'WAITING'
+        AND NOT EXISTS (
+            SELECT 1 
+            FROM OrderStatuses os 
+            WHERE os.orderId = o.id 
+            AND os.status = 'ACCEPTED'
+        )
         ORDER BY o.id DESC
         LIMIT :limit OFFSET :offset
     """)

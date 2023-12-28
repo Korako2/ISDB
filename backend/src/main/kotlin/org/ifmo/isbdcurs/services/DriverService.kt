@@ -54,6 +54,7 @@ class DriverService @Autowired constructor(
         val ownership = vehicleOwnershipRepository.findByDriverId(driverId).firstOrNull() ?: throw BackendException("Vehicle not found by driver id $driverId")
         val vehicle = vehicleRepository.findVehicleById(ownership.vehicleId) ?: throw BackendException("Vehicle not found by id ${ownership.vehicleId}")
         val suitableDriverResponse = SuitableDriverResponse(
+            id = driver.id!!,
             firstName = person.firstName,
             lastName = person.lastName,
             phoneNumber = phone,

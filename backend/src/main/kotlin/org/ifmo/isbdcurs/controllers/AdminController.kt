@@ -6,16 +6,17 @@ import org.ifmo.isbdcurs.services.BackendException
 import org.ifmo.isbdcurs.services.CustomerService
 import org.ifmo.isbdcurs.services.DriverService
 import org.ifmo.isbdcurs.services.OrderService
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.ui.ModelMap
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.ModelAndView
 import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 @Controller
+@SessionAttributes("name")
 class AdminController(
     private val orderService: OrderService,
     private val driverService: DriverService,
@@ -25,6 +26,11 @@ class AdminController(
     ) {
     private val logger = org.slf4j.LoggerFactory.getLogger(AdminController::class.java)
 
+
+    @ModelAttribute("name")
+    fun name(@AuthenticationPrincipal userDetails: UserDetails): String {
+        return userDetails.username
+    }
     @GetMapping("/admin")
     fun showLogs(model: Model, @RequestParam(defaultValue = "0") pageNumber: Int,
                  @RequestParam(defaultValue = "10") pageSize: Int,
@@ -112,7 +118,6 @@ class AdminController(
         return "suitable_driver"
     }
 
-    // TODO: replace with POST and add params
     @GetMapping("/admin/approve_driver")
     fun approveSuitableDriver(model: Model, @RequestParam orderId: Long, @RequestParam driverId: Long): String {
         val vehicleId = vehicleOwnershipRepository.findByDriverId(driverId).firstOrNull()?.vehicleId ?: throw BackendException("No vehicle for driver $driverId")
