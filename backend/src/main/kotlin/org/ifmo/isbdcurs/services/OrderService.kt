@@ -7,13 +7,37 @@ import org.ifmo.isbdcurs.persistence.*
 import org.ifmo.isbdcurs.util.ExceptionHelper
 import org.ifmo.isbdcurs.util.pageToIdRangeReversed
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.BindingResult
 import java.time.Instant
-import java.time.LocalTime
 import java.util.*
+import kotlin.concurrent.thread
 import kotlin.jvm.optionals.getOrElse
+
+@Component
+class OrderTransactionHelper(
+    private val orderRepository: OrderRepository,
+    private val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
+    private val driverStatusHistoryRepository: DriverStatusHistoryRepository
+) {
+    @Transactional
+    fun updateOrderAndAgreement(orderId: Long, vehicleId: Long, driverId: Long) {
+        orderRepository.updateVehicleIdById(id = orderId, vehicleId = vehicleId)
+        loadingUnloadingAgreementRepository.updateDriverIdByOrderId(orderId = orderId, driverId = driverId)
+    }
+
+    @Transactional
+    fun updateDriverStatus(driverId: Long) {
+        val driverStatusHistory = DriverStatusHistory(
+            driverId = driverId,
+            date = Instant.now(),
+            status = DriverStatus.ACCEPTED_ORDER
+        )
+        driverStatusHistoryRepository.save(driverStatusHistory)
+    }
+}
 
 @Service
 class OrderService @Autowired constructor(
@@ -29,7 +53,8 @@ class OrderService @Autowired constructor(
     private val orderStatusesRepository: OrderStatusesRepository,
     private val orderHelperService: OrderHelperService,
     private val driverRepository: DriverRepository,
-    private val driverStatusHistoryRepository: DriverStatusHistoryRepository
+    private val driverStatusHistoryRepository: DriverStatusHistoryRepository,
+    private val orderTransactionHelper: OrderTransactionHelper,
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(OrderService::class.java)
 
@@ -133,18 +158,13 @@ class OrderService @Autowired constructor(
 
     @Transactional
     fun updateOrderWhenVehicleFound(orderId: Long, vehicleId: Long, driverId: Long) {
-        orderRepo.updateVehicleIdById(id = orderId, vehicleId = vehicleId)
-        loadingUnloadingAgreementRepository.updateDriverIdByOrderId(orderId = orderId, driverId = driverId)
-        val driverStatusHistory = DriverStatusHistory(
-            driverId = driverId,
-            date = Instant.now(),
-            status = DriverStatus.ACCEPTED_ORDER
-        )
-        driverStatusHistoryRepository.save(driverStatusHistory)
+        orderTransactionHelper.updateOrderAndAgreement(orderId, vehicleId, driverId)
+        orderTransactionHelper.updateDriverStatus(driverId)
     }
 
+    @Transactional
     fun startDriverWorker(driverId: Long, orderId: Long) {
-        run {
+        thread {
             driverWorker.startWork(driverId = driverId, orderId = orderId)
         }
     }
