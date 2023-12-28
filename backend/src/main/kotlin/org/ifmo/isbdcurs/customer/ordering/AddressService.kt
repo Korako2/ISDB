@@ -13,7 +13,8 @@ class AddressService(private val addressRepository: AddressRepository) {
     }
 
     fun getAddressById(id: Long): AddressDto {
-        return addressRepository.findById(id).getOrNull()?.mapAddressToDto() ?: throw BackendException("Address not found")
+        return addressRepository.findById(id).getOrNull()?.mapAddressToDto()
+            ?: throw BackendException("Address not found")
     }
 
     private fun Address.mapAddressToDto(): AddressDto {

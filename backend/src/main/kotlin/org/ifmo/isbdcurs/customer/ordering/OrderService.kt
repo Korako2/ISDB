@@ -4,7 +4,6 @@ import org.ifmo.isbdcurs.customer.OrderHelperService
 import org.ifmo.isbdcurs.customer.convertCustomerOrderToDto
 import org.ifmo.isbdcurs.customer.data.CustomerOrderDto
 import org.ifmo.isbdcurs.manager.OrderApprovalService
-import org.ifmo.isbdcurs.models.CustomerOrder
 import org.ifmo.isbdcurs.persistence.LoadingUnloadingAgreementRepository
 import org.ifmo.isbdcurs.persistence.OrderRepository
 import org.ifmo.isbdcurs.services.BackendException
@@ -12,7 +11,6 @@ import org.ifmo.isbdcurs.util.UsersHelper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -72,7 +70,7 @@ class CustomerOrderService @Autowired constructor(
 
     fun getActiveOrders(): List<CustomerOrderDto> {
         val customerId = usersHelper.getCustomerId()
-        val activeOrders =  orderRepository.getIncompleteOrdersByCustomerId(customerId)
+        val activeOrders = orderRepository.getIncompleteOrdersByCustomerId(customerId)
             .map { convertCustomerOrderToDto(it) }
         logger.debug("[getActiveOrders] called by user $customerId and got ${activeOrders.size} active orders")
         return activeOrders
