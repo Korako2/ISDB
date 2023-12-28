@@ -143,14 +143,14 @@ class DriverWorker(
 
         moveToDeparturePoint(ds)
         setDriverStatus(ds, DriverStatus.ARRIVED_AT_LOADING_LOCATION)
-        setDriverStatusAfterDelay(ds, DriverStatus.LOADING, 2)
-        setDriverStatusAfterDelay(ds, DriverStatus.EN_ROUTE, 2)
+        setDriverStatusAfterDelay(ds, DriverStatus.LOADING, 1)
+        setDriverStatusAfterDelay(ds, DriverStatus.EN_ROUTE, 1)
 
         moveToDeliveryPoint(ds, departureCord)
         setDriverStatus(ds, DriverStatus.ARRIVED_AT_UNLOADING_LOCATION)
-        setDriverStatusAfterDelay(ds, DriverStatus.UNLOADING, 2)
-        setDriverStatusAfterDelay(ds, DriverStatus.COMPLETED_ORDER, 2)
-        setDriverStatusAfterDelay(ds, DriverStatus.READY_FOR_NEW_ORDER, 2)
+        setDriverStatusAfterDelay(ds, DriverStatus.UNLOADING, 1)
+        setDriverStatusAfterDelay(ds, DriverStatus.COMPLETED_ORDER, 1)
+        setDriverStatusAfterDelay(ds, DriverStatus.READY_FOR_NEW_ORDER, 1)
         logger.debug("Driver {} finished work on order {}", driverId, orderId)
         approvalService.orderComplete(orderId)
     }
