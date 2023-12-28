@@ -71,3 +71,14 @@ data class FullOrdersInfoResponse (
     val deliveryAddress: Address,
     val status: String
 )
+
+data class SuitableDriverResponse (
+    val firstName: String,
+    val lastName: String,
+    val phoneNumber: String,
+    val status: String,
+    val licenseNumber: Int,
+    val issueDate: String,
+    val expirationDate: String,
+    val vehicle: Vehicle
+)

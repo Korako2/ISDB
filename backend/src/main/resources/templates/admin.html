@@ -74,9 +74,8 @@
                                 <div th:id="${ord.id}" class="status-info list-group-item">
                                     <p class="mb-1">Статус: <span th:text="${ord.status}"></span></p>
                                 </div>
-
                                 <div th:id="${ord.id}" class="mt-4 d-flex justify-content-between">
-                                    <button class="btn btn-success mr-auto" onclick="approveOrder()">Одобрить заказ</button>
+                                    <button class="btn btn-success mr-auto"  th:data-orderid="${ord.id}" onclick="approveOrder(this.getAttribute('data-orderid'))">Одобрить заказ</button>
                                     <button class="btn btn-danger ml-auto" onclick="rejectOrder()">Отклонить заказ</button>
                                 </div>
                             </div>
@@ -152,8 +151,8 @@
     }
 
 
-    function approveOrder() {
-        window.location.href = 'admin/find_suitable_driver';
+    function approveOrder(orderID) {
+        window.location.href = 'admin/find_suitable_driver?orderId=' + orderID;
     }
 
     // Функция для отклонения заказа

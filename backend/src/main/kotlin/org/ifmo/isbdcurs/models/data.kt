@@ -377,6 +377,18 @@ data class FullOrdersInfo (
     val status: OrderStatus
 )
 
+data class SuitableDriver (
+    val firstName: String,
+    val lastName: String,
+    val phoneNumber: String,
+    val status: String,
+    val licenseNumber: Int,
+    val issueDate: String,
+    val expirationDate: String,
+    val vehicle: Vehicle
+)
+
+
 @Entity
 @Table(name = "logs")
 data class AdminLogRow (

@@ -68,7 +68,7 @@ class OrderService @Autowired constructor(
 
     fun getOrdersForManager(page: Int, pageSize: Int): List<ManagerOrderResponse> {
         val offset = page * pageSize
-        return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
+        return exceptionHelper.wrapWithBackendException("Error while getting orders by for manager's page") {
             val orders = orderRepo.getResultsForManager(pageSize, offset).map {
                 it.toManagerOrderResponse()
             }
@@ -80,7 +80,7 @@ class OrderService @Autowired constructor(
 
     fun getFullOrdersInfo(page: Int, pageSize: Int): List<FullOrdersInfoResponse> {
         val offset = page * pageSize
-        return exceptionHelper.wrapWithBackendException("Error while getting orders by customer id") {
+        return exceptionHelper.wrapWithBackendException("Error while getting full information about orders") {
             val orders = orderRepo.getFullOrdersInfoForManager(pageSize, offset).map {
                 it.toFullOrderInfoResponse()
             }
@@ -90,6 +90,14 @@ class OrderService @Autowired constructor(
         }
     }
 
+    fun getFullOrderInfoById(orderId: Long): FullOrdersInfoResponse {
+        return exceptionHelper.wrapWithBackendException("Error while getting full information about order") {
+            var order = orderRepo.getFullOrderInfoById(orderId).toFullOrderInfoResponse()
+            logger.info("Order id = $orderId. " +
+                    "Order = $order")
+            order
+        }
+    }
 
     @Transactional
     fun addOrder(customerId: Long, orderDataRequest: OrderDataRequest): AddOrderResult {
