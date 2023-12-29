@@ -91,7 +91,7 @@ class BusinessController @Autowired constructor(
         // TODO: может нам понадобится сохранять Id созданного заказчика?
         // TODO: обработка ошибок и вывод клиенту
 
-        customerService.addCustomer(addCustomerRequest)
+        customerService.addCustomer("88005553535", addCustomerRequest)
         return "redirect:/index"
     }
 

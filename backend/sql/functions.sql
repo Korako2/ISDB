@@ -589,8 +589,8 @@ CREATE OR REPLACE FUNCTION add_contacts(
 ) RETURNS void AS $$
     BEGIN
         INSERT INTO contact_info (person_id, contact_type, value)
-        VALUES (v_person_id, 'PHONE NUMBER'::contact_info_type, v_email),
-                (v_person_id, 'EMAIL'::contact_info_type, v_phone_number);
+        VALUES (v_person_id, 'PHONE NUMBER'::contact_info_type, v_phone_number),
+                (v_person_id, 'EMAIL'::contact_info_type, v_email);
 
     END
 $$ LANGUAGE plpgsql;

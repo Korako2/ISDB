@@ -22,6 +22,7 @@ interface ContactInfoRepository : CrudRepository<ContactInfo, Long> {
     @Query("SELECT add_contacts(:personId, :phone, :email)", nativeQuery = true)
     fun addContactInfo(personId: Long, phone: String, email: String)
 
+
     fun findContactInfoByPersonId(personId: Long): List<ContactInfo>
 }
 
@@ -204,6 +205,7 @@ interface OrderRepository : JpaRepository<Order, Long> {
         LIMIT :limit OFFSET :offset
     """)
     fun getResultsForManager(limit: Int, offset: Int): List<ManagerOrder>
+
     @Query("""
         SELECT 
         new org.ifmo.isbdcurs.models.FullOrdersInfo(
