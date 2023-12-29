@@ -12,9 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.BindingResult
 import java.time.Instant
-import java.util.*
 import kotlin.concurrent.thread
-import kotlin.jvm.optionals.getOrElse
 
 @Component
 class OrderTransactionHelper(
@@ -45,15 +43,10 @@ class OrderService @Autowired constructor(
     private val vehicleService: VehicleService,
     private val driverWorker: DriverWorker,
     private val vehicleOwnershipRepository: VehicleOwnershipRepository,
-    private val personRepository: PersonRepository,
-    private val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
-    private val vehicleMovementHistoryRepository: VehicleMovementHistoryRepository,
     private val storagePointRepository: StoragePointRepository,
     private val addressRepository: AddressRepository,
     private val orderStatusesRepository: OrderStatusesRepository,
     private val orderHelperService: OrderHelperService,
-    private val driverRepository: DriverRepository,
-    private val driverStatusHistoryRepository: DriverStatusHistoryRepository,
     private val orderTransactionHelper: OrderTransactionHelper,
 ) {
     private val logger: org.slf4j.Logger = org.slf4j.LoggerFactory.getLogger(OrderService::class.java)
@@ -89,8 +82,10 @@ class OrderService @Autowired constructor(
             val orders = orderRepo.getExtendedResultsByCustomerId(customerId, pageSize.toLong(), offset.toLong()).map {
                 it.toCustomerOrderResponse()
             }
-            logger.info("Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
-                    "Orders size = ${orders.size}. Offset = $offset")
+            logger.info(
+                "Getting orders for customer with id = $customerId. Page = $page, pageSize = $pageSize. " +
+                        "Orders size = ${orders.size}. Offset = $offset"
+            )
             orders
         }
     }
@@ -101,8 +96,10 @@ class OrderService @Autowired constructor(
             val orders = orderRepo.getResultsForManager(pageSize, offset).map {
                 it.toManagerOrderResponse()
             }
-            logger.info("Page = $page, pageSize = $pageSize. " +
-                    "Orders size = ${orders.size}. Offset = $offset")
+            logger.info(
+                "Page = $page, pageSize = $pageSize. " +
+                        "Orders size = ${orders.size}. Offset = $offset"
+            )
             orders
         }
     }
@@ -113,8 +110,10 @@ class OrderService @Autowired constructor(
             val orders = orderRepo.getFullOrdersInfoForManager(pageSize, offset).map {
                 it.toFullOrderInfoResponse()
             }
-            logger.info("Page = $page, pageSize = $pageSize. " +
-                    "Orders size = ${orders.size}. Offset = $offset")
+            logger.info(
+                "Page = $page, pageSize = $pageSize. " +
+                        "Orders size = ${orders.size}. Offset = $offset"
+            )
             orders
         }
     }
@@ -122,8 +121,10 @@ class OrderService @Autowired constructor(
     fun getFullOrderInfoById(orderId: Long): FullOrdersInfoResponse {
         return exceptionHelper.wrapWithBackendException("Error while getting full information about order") {
             var order = orderRepo.getFullOrderInfoById(orderId).toFullOrderInfoResponse()
-            logger.info("Order id = $orderId. " +
-                    "Order = $order")
+            logger.info(
+                "Order id = $orderId. " +
+                        "Order = $order"
+            )
             order
         }
     }
@@ -169,47 +170,10 @@ class OrderService @Autowired constructor(
         }
     }
 
-    fun isValidData(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
-        return isValidAddresses(
-            orderDataRequest, result
-        ) && isValidCargoType(orderDataRequest.cargoType)
-    }
-
     private fun isValidCountry(country: String): Boolean = country in availableCountries
 
     private fun rejectInvalidValue(result: BindingResult, field: String, errorCode: String, errorMessage: String) {
         result.rejectValue(field, errorCode, errorMessage)
-    }
-
-    private fun isValidAddresses(orderDataRequest: OrderDataRequest, result: BindingResult): Boolean {
-        if (!isValidCountry(orderDataRequest.departureCountry)) {
-            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.departureCountry}")
-            rejectInvalidValue(result, "departureCountry", "error.departureCountry", "Страна не поддерживается")
-            return false
-        }
-
-        if (!isValidCountry(orderDataRequest.destinationCountry)) {
-            logger.warn("[OrderService] isValidAddresses: destinationCountry = ${orderDataRequest.destinationCountry}")
-            rejectInvalidValue(result, "destinationCountry", "error.destinationCountry", "Страна не поддерживается")
-            return false
-        }
-
-        if (orderDataRequest.destinationCountry != orderDataRequest.departureCountry) {
-            logger.warn("[OrderService] isValidAddresses: departureCountry = ${orderDataRequest.destinationCountry}, destinationCountry = ${orderDataRequest.destinationCountry}")
-            rejectInvalidValue(
-                result,
-                "destinationCountry",
-                "error.destinationCountry",
-                "Страны отправления и назначения должны совпадать"
-            )
-            return false
-        }
-
-        return true
-    }
-
-    private fun isValidCargoType(cargoType: String): Boolean {
-        return cargoType in arrayOf("BULK", "TIPPER", "PALLETIZED")
     }
 
     private fun ExtendedOrder.toOrderResponse(): OrderResponse {
@@ -243,6 +207,7 @@ class OrderService @Autowired constructor(
             status = this.status.translate(),
         )
     }
+
     private fun FullOrdersInfo.toFullOrderInfoResponse(): FullOrdersInfoResponse {
         return FullOrdersInfoResponse(
             id = this.id,
@@ -260,30 +225,4 @@ class OrderService @Autowired constructor(
         )
     }
 
-
-    private fun getAddressOrAddNew(addStoragePointRequest: StorageAddressDto): Address {
-        val address = addressRepository.findByCountryAndCityAndStreetAndBuilding(
-            addStoragePointRequest.country,
-            addStoragePointRequest.city,
-            addStoragePointRequest.street,
-            addStoragePointRequest.building,
-        ).getOrElse {
-            val newAddress = Address(
-                country = addStoragePointRequest.country,
-                city = addStoragePointRequest.city,
-                street = addStoragePointRequest.street,
-                building = addStoragePointRequest.building,
-                corpus = 1,
-            )
-            addressRepository.save(newAddress)
-            val newStoragePoint = StoragePoint(
-                addressId = newAddress.id!!,
-                latitude = (Random().nextDouble() * 2 + 44.0).toFloat(),
-                longitude = (Random().nextDouble() * 2 + 44.0).toFloat()
-            )
-            storagePointRepository.save(newStoragePoint)
-            newAddress
-        }
-        return address
-    }
 }

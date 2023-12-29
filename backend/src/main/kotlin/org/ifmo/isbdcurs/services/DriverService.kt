@@ -19,8 +19,6 @@ class DriverService @Autowired constructor(
     private val contactInfoRepository: ContactInfoRepository,
     private val vehicleRepository: VehicleRepository,
     private val vehicleOwnershipRepository: VehicleOwnershipRepository,
-    private val loadingUnloadingAgreementRepository: LoadingUnloadingAgreementRepository,
-    private val orderRepository: OrderRepository,
     private val personRepository: PersonRepository,
     private val driverLicenseRepository: DriverLicenseRepository
 ) {
@@ -36,12 +34,14 @@ class DriverService @Autowired constructor(
     }
 
     private fun randomPlateNumber(): String {
-        return nRandRusLetters(1) + nRandRusDigits(3) + nRandRusLetters(2) + nRandRusDigits(2);
+        return nRandRusLetters(1) + nRandRusDigits(3) + nRandRusLetters(2) + nRandRusDigits(2)
     }
 
-    fun getSuitableDriverResponseByDriverId(driverId: Long) : SuitableDriverResponse {
-        val driver = driverRepository.findDriverById(driverId) ?: throw BackendException("Driver not found by id $driverId")
-        val person = personRepository.findPersonById(driver.personId) ?: throw BackendException("Person not found by id ${driver.personId}")
+    fun getSuitableDriverResponseByDriverId(driverId: Long): SuitableDriverResponse {
+        val driver =
+            driverRepository.findDriverById(driverId) ?: throw BackendException("Driver not found by id $driverId")
+        val person = personRepository.findPersonById(driver.personId)
+            ?: throw BackendException("Person not found by id ${driver.personId}")
         val contactInfo = contactInfoRepository.findContactInfoByPersonId(person.id!!)
         val license = driverLicenseRepository.findDriverLicensesByDriverId(driver.id!!)
         var phone = "88005555335" // if we fail to find phone
@@ -51,8 +51,10 @@ class DriverService @Autowired constructor(
                 break
             }
         }
-        val ownership = vehicleOwnershipRepository.findByDriverId(driverId).firstOrNull() ?: throw BackendException("Vehicle not found by driver id $driverId")
-        val vehicle = vehicleRepository.findVehicleById(ownership.vehicleId) ?: throw BackendException("Vehicle not found by id ${ownership.vehicleId}")
+        val ownership = vehicleOwnershipRepository.findByDriverId(driverId).firstOrNull()
+            ?: throw BackendException("Vehicle not found by driver id $driverId")
+        val vehicle = vehicleRepository.findVehicleById(ownership.vehicleId)
+            ?: throw BackendException("Vehicle not found by id ${ownership.vehicleId}")
         val suitableDriverResponse = SuitableDriverResponse(
             id = driver.id!!,
             firstName = person.firstName,
@@ -75,7 +77,7 @@ class DriverService @Autowired constructor(
         return "$day-$month-$year"
     }
 
-    fun addDriver(addDriverRequest: AddDriverRequest) : Long {
+    fun addDriver(addDriverRequest: AddDriverRequest): Long {
         val vehicle = Vehicle(
             manufactureYear = Instant.parse("2000-01-01T00:00:00Z"),
             plateNumber = randomPlateNumber(),
@@ -133,17 +135,41 @@ class DriverService @Autowired constructor(
         return drivers
     }
 
-    fun isValidData(model: ModelMap, driverRequest: DriverRequest, result: BindingResult): Boolean{
+    fun isValidData(model: ModelMap, driverRequest: DriverRequest, result: BindingResult): Boolean {
         var isValid = true
         isValid = isValidName(driverRequest, result) && isValid
         isValid = isValidGender(driverRequest, result) && isValid
-        isValid = isValidDate(driverRequest.dateOfBirth, "dateOfBirth", "Неверный формат даты рождения", true, result) && isValid
-        isValid = isDateGreaterThan(driverRequest.dateOfBirth, "1924-01-01", "dateOfBirth", "Водитель должен быть младше 100 лет", result) && isValid
-        isValid = isValidDate(driverRequest.issueDate, "issueDate", "Неверный формат даты получения ВУ", false, result) && isValid
-        isValid = isValidDate(driverRequest.expirationDate, "expirationDate", "Неверный формат даты истечения ВУ", false, result) && isValid
-        isValid = isDateInFuture(driverRequest.expirationDate, "expirationDate", "срок действия ВУ истек", result) && isValid
+        isValid = isValidDate(
+            driverRequest.dateOfBirth,
+            "dateOfBirth",
+            "Неверный формат даты рождения",
+            true,
+            result
+        ) && isValid
+        isValid = isDateGreaterThan(
+            driverRequest.dateOfBirth,
+            "1924-01-01",
+            "dateOfBirth",
+            "Водитель должен быть младше 100 лет",
+            result
+        ) && isValid
+        isValid = isValidDate(
+            driverRequest.issueDate,
+            "issueDate",
+            "Неверный формат даты получения ВУ",
+            false,
+            result
+        ) && isValid
+        isValid = isValidDate(
+            driverRequest.expirationDate,
+            "expirationDate",
+            "Неверный формат даты истечения ВУ",
+            false,
+            result
+        ) && isValid
+        isValid =
+            isDateInFuture(driverRequest.expirationDate, "expirationDate", "срок действия ВУ истек", result) && isValid
         isValid = isValidPassport(driverRequest, result) && isValid
-       // isValid = isValidDriverLicense(driverRequest, result) && isValid
         isValid = isValidDailyRate(driverRequest, result) && isValid
         isValid = isValidRatePerKm(driverRequest, result) && isValid
         isValid = isValidFuelCard(driverRequest, result) && isValid
@@ -167,7 +193,13 @@ class DriverService @Autowired constructor(
         return true
     }
 
-    private fun isDateGreaterThan(date1: String, date2: String, fieldName: String, errorMessage: String, result: BindingResult): Boolean {
+    private fun isDateGreaterThan(
+        date1: String,
+        date2: String,
+        fieldName: String,
+        errorMessage: String,
+        result: BindingResult
+    ): Boolean {
         val dateParts1 = date1.split("-")
         val day1 = dateParts1[2].toIntOrNull()
         val month1 = dateParts1[1].toIntOrNull()
@@ -238,11 +270,19 @@ class DriverService @Autowired constructor(
 
     private fun isValidDriverLicense(driverRequest: DriverRequest, result: BindingResult): Boolean {
         if (driverRequest.licenseNumber.isBlank()) {
-            result.rejectValue("driverLicense", "driverLicense", "Номер водительского удостоверения не может быть пустым")
+            result.rejectValue(
+                "driverLicense",
+                "driverLicense",
+                "Номер водительского удостоверения не может быть пустым"
+            )
             return false
         }
         if (driverRequest.licenseNumber.length != 10) {
-            result.rejectValue("driverLicense", "driverLicense", "Номер водительского удостоверения должен содержать 10 цифр")
+            result.rejectValue(
+                "driverLicense",
+                "driverLicense",
+                "Номер водительского удостоверения должен содержать 10 цифр"
+            )
             return false
         }
         return true
@@ -265,7 +305,13 @@ class DriverService @Autowired constructor(
     }
 
 
-    private fun isValidDate(date: String, fieldName: String, errorMessage: String, isBirthDate: Boolean, result: BindingResult): Boolean {
+    private fun isValidDate(
+        date: String,
+        fieldName: String,
+        errorMessage: String,
+        isBirthDate: Boolean,
+        result: BindingResult
+    ): Boolean {
         if (date.isBlank()) {
             result.rejectValue(fieldName, fieldName, "Дата не может быть пустой")
             return false

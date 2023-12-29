@@ -1,6 +1,5 @@
 package org.ifmo.isbdcurs.customer
 
-import org.ifmo.isbdcurs.customer.data.CustomerOrderDto
 import org.ifmo.isbdcurs.customer.ordering.CustomerOrderService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.SessionAttributes
 @SessionAttributes("orders", "name")
 class CustomerController @Autowired constructor(private val orderService: CustomerOrderService) {
     private val logger = org.slf4j.LoggerFactory.getLogger(CustomerController::class.java)
+
     @ModelAttribute
     fun orders(model: Model) {
         model.addAttribute("orders", orderService.getActiveOrders())
@@ -32,7 +32,11 @@ class CustomerController @Autowired constructor(private val orderService: Custom
     }
 
     @GetMapping("/customer/completedOrders")
-    fun showCompletedOrders(@RequestParam(defaultValue = "0") page: Long, @RequestParam(defaultValue = "10") pageSize: Long, model: Model): String {
+    fun showCompletedOrders(
+        @RequestParam(defaultValue = "0") page: Long,
+        @RequestParam(defaultValue = "10") pageSize: Long,
+        model: Model
+    ): String {
         logger.debug("[showCompletedOrders] called with page=$page, pageSize=$pageSize")
         val completedOrdersPage = orderService.getCompletedOrders(page, pageSize)
         model.addAttribute("currentPage", page)
