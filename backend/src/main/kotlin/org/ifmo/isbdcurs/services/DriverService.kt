@@ -60,11 +60,19 @@ class DriverService @Autowired constructor(
             phoneNumber = phone,
             status = "Готов к новому заказу",
             licenseNumber = license[license.size - 1].licenseNumber,
-            issueDate = license[license.size - 1].issueDate.toString(),
-            expirationDate = license[license.size - 1].expirationDate.toString(),
+            issueDate = getCorrectDateFormat(license[license.size - 1].issueDate.toString().substring(0, 10)),
+            expirationDate = getCorrectDateFormat(license[license.size - 1].expirationDate.toString().substring(0, 10)),
             vehicle = vehicle
         )
         return suitableDriverResponse
+    }
+
+    private fun getCorrectDateFormat(date: String): String {
+        val dateParts = date.split("-")
+        val day = dateParts[2]
+        val month = dateParts[1]
+        val year = dateParts[0]
+        return "$day-$month-$year"
     }
 
     fun addDriver(addDriverRequest: AddDriverRequest) : Long {
