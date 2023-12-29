@@ -23,6 +23,6 @@ class OrderDetailsController @Autowired constructor(private val orderService: Cu
 
     @GetMapping("/customer/showOrderDetails")
     fun showOrderDetails(model: Model): String {
-        return "/customer/active_order_details"
+        return "customer/active_order_details"
     }
 }

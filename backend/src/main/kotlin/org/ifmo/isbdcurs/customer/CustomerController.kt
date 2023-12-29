@@ -28,7 +28,7 @@ class CustomerController @Autowired constructor(private val orderService: Custom
 
     @GetMapping("/customer/index")
     fun index(model: Model): String {
-        return "/customer/index"
+        return "customer/index"
     }
 
     @GetMapping("/customer/completedOrders")
@@ -43,6 +43,6 @@ class CustomerController @Autowired constructor(private val orderService: Custom
         model.addAttribute("pageSize", pageSize)
         model.addAttribute("totalPages", completedOrdersPage.totalPages)
         model.addAttribute("completedOrders", completedOrdersPage.content)
-        return "/customer/completed_orders"
+        return "customer/completed_orders"
     }
 }

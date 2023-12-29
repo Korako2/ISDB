@@ -143,7 +143,7 @@ class OrderingController @Autowired constructor(
     ): ModelAndView {
         if (result.hasErrors()) {
             logger.info("[submitCargoForm] errors: ${result.allErrors}")
-            return ModelAndView("/customer/ordering/cargo_form")
+            return ModelAndView("customer/ordering/cargo_form")
         }
         val costs = costsService.calculatePrice(cargoParams)
         model.addAttribute("cargoParams", cargoParams)
