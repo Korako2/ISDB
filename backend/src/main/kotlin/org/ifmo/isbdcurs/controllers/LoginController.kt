@@ -63,6 +63,6 @@ class LoginController(
             middleName = null,
             organization = null
         )
-        return customerService.addCustomer(customerObj)
+        return customerService.addCustomer(customer.phone, customerObj)
     }
 }

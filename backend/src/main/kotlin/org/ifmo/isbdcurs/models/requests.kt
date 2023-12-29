@@ -131,6 +131,7 @@ data class AddNewCustomer (
     @field:Email(message = "Некорректный формат email")
     var email: String,
     @field:Pattern(regexp = "\\d{11}", message = "Телефонный номер должен содержать 11 цифр")
+    @field:NotNull(message = "Телефонный номер не может быть пустым")
     var phone: String,
     var isAdmin: Boolean = false
 )

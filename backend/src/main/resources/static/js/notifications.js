@@ -12,8 +12,10 @@ const onNewMessage = (msg) => {
 }
 
 $(document).ready(function () {
+    // get current url port
+    const port = window.location.port;
     const stompClient = new StompJs.Client({
-        brokerURL: 'ws://localhost:8080/ws',
+        brokerURL: `ws://localhost:${port}/ws`,
     });
 
     // if url starts with /customer/ then subscribe to /topic/customer

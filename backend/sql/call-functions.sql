@@ -61,7 +61,6 @@ RAISE NOTICE 'Suitable vehicle "%" of type "%" found: %', ve_plate_number, ve_bo
 SELECT add_order(
   var_customer_id => v_customer_id,
   distance => 100,
-  var_vehicle_id => v_vehicle_id,
   v_weight => 100,
   v_width => 1,
   v_height => 1,
