@@ -21,3 +21,4 @@ psql -c "\copy fuel_cards_for_drivers       from $data_path/fuelCardsForDrivers.
 psql -c "\copy fuel_expenses                from $data_path/fuelExpenses.csv WITH (FORMAT csv);"
 
 psql -f ./set-sequences.sql
+cat functions.sql triggers.sql | psql -1 -v ON_ERROR_STOP=1 -q -f -
